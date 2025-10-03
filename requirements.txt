@@ -1,6 +1,7 @@
 # Enhanced FPL Analytics Dashboard - Requirements
 # Core Streamlit and Data Processing
 streamlit>=1.28.0
+streamlit-option-menu>=0.3.6
 pandas>=2.0.0
 numpy>=1.24.0
 requests>=2.31.0
@@ -18,6 +19,7 @@ lightgbm>=4.0.0
 # Enhanced Data Processing
 openpyxl>=3.1.0
 xlsxwriter>=3.1.0
+reportlab>=4.0.0
 
 # Performance and Caching
 redis>=4.6.0  # Optional for advanced caching
@@ -41,10 +43,30 @@ asyncio-mqtt>=0.13.0
 # Optional: Database Support
 sqlalchemy>=2.0.0
 
+# Security and Environment Management
+python-dotenv>=1.0.0
+safety>=2.3.0
+bandit>=1.7.0
+
 # Development and Testing
 pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+pytest-asyncio>=0.21.0
+pytest-xdist>=3.3.0
+unittest-xml-reporting>=3.2.0
+coverage>=7.3.0
 black>=23.0.0
 flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.5.0
+
+# Code Quality and Pre-commit
+pre-commit>=3.4.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.2.0
 
 # Deployment
 gunicorn>=21.0.0  # For production deployment

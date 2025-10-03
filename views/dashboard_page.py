@@ -6,6 +6,7 @@ import time
 from utils.modern_ui_components import ModernUIComponents, DataVisualization, render_loading_spinner, create_success_animation
 from utils.enhanced_cache import cached_load_fpl_data
 from utils.error_handling import logger
+from components.ai.player_insights import get_insights_engine
 
 class DashboardPage:
     """Handles the rendering of the main dashboard."""
@@ -90,6 +91,12 @@ class DashboardPage:
                     position_names = {1: 'Goalkeepers', 2: 'Defenders', 3: 'Midfielders', 4: 'Forwards'}
                     composition = {position_names.get(k, f'Position {k}'): v for k, v in position_counts.items()}
                     DataVisualization.create_team_balance_chart(composition)
+
+        # AI-Powered Insights Section
+        if st.session_state.get('feature_flags', {}).get('ai_recommendations', True):
+            st.markdown("---")
+            insights_engine = get_insights_engine()
+            insights_engine.render_insights_dashboard(df)
 
         # Feature highlights
         st.markdown("### ✨ Available Features")

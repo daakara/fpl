@@ -1,62 +1,157 @@
 """
-FPL Analytics Application - Enhanced Modular Main Entry Point
+FPL Analytics Application - Enhanced Modular Main Entry Point with Performance Improvements
+Integrated with advanced caching, performance monitoring, and refactored components
 """
 import streamlit as st
 from typing import Optional
 import pandas as pd
+import time
+from datetime import datetime
 
+# Enhanced imports with performance improvements
 from core.app_controller import EnhancedFPLAppController
-from utils.enhanced_cache import display_cache_metrics, cache_manager
-from utils.error_handling import logger
-from config.app_config import config
+from core.refactored_app_controller import PerformanceAwareController, CachingStrategy
 
+# Enhanced services and utilities
+from services.enhanced_fpl_data_service import get_enhanced_fpl_service
+from utils.advanced_cache_manager import get_cache_manager, smart_cache
+from utils.enhanced_performance_monitor import get_performance_monitor, monitor_performance
+
+# Middleware imports
+from middleware import (
+    initialize_error_handling,
+    initialize_logging,
+    configure_container,
+    get_error_middleware,
+    get_logging_strategy,
+    error_handler,
+    ErrorCategory,
+    ErrorSeverity
+)
+
+# Initialize performance monitor instance
+performance_monitor = get_performance_monitor()
+from utils.enhanced_cache import display_cache_metrics, cache_manager
+
+# Configuration with security enhancements
+from config.app_config import config
+from config.secure_config import get_secure_config
+
+# UI Components
 from components.ui.status_bar import create_default_status_bar
 from components.ui.styles import default_style_manager
+from components.ui.theme_manager import get_theme_manager
+from components.ui.dashboard_exporter import get_dashboard_exporter
+from components.ai.player_insights import get_insights_engine
 from components.error_handling import default_error_handler
 
 
-def initialize_app() -> Optional[EnhancedFPLAppController]:
-    """Initialize the application with proper error handling"""
+class EnhancedFPLApp(PerformanceAwareController):
+    """Enhanced FPL Application with integrated performance improvements"""
+    
+    def __init__(self):
+        """Initialize the enhanced application"""
+        super().__init__()
+        
+        # Initialize middleware
+        self.error_middleware = get_error_middleware()
+        self.logger = get_logging_strategy()
+        
+        # Initialize enhanced services
+        self.fpl_service = get_enhanced_fpl_service()
+        self.cache_manager = get_cache_manager()
+        self.secure_config = get_secure_config()
+        
+        # Initialize new features
+        self.theme_manager = get_theme_manager()
+        self.dashboard_exporter = get_dashboard_exporter()
+        self.insights_engine = get_insights_engine()
+        
+        self.logger.info("Enhanced FPL App initialized with all performance improvements and new features")
+
+@monitor_performance(track_args=True)
+@error_handler(category=ErrorCategory.SYSTEM, severity=ErrorSeverity.HIGH)
+def initialize_app() -> Optional[EnhancedFPLApp]:
+    """Initialize the application with enhanced performance monitoring"""
+    logger = get_logging_strategy()
+    
     try:
-        with st.spinner("Initializing application..."):
-            logger.info("Starting application initialization...")
+        with st.spinner("Initializing enhanced application..."):
+            logger.info("Starting enhanced application initialization...")
             
-            # Step 1: Create controller
-            logger.info("Creating FPL App Controller...")
-            controller = EnhancedFPLAppController()
-            if controller is None:
-                logger.error("Failed to create controller instance")
+            # Initialize performance monitoring
+            performance_monitor.start_monitoring()
+            
+            # Create enhanced controller
+            logger.info("Creating Enhanced FPL App Controller...")
+            controller = EnhancedFPLApp()
+            
+            # Initialize optimized services
+            if not controller.initialize_services_optimized():
+                logger.error("Failed to initialize enhanced services")
                 return None
+            
+            # Initialize optimized session state
+            controller.initialize_session_state_optimized()
+            
+            # Initialize pages with lazy loading
+            controller.initialize_pages_optimized()
                 
-            logger.info("Successfully initialized application")
+            logger.info("Successfully initialized enhanced application")
             return controller
             
     except Exception as e:
-        logger.error(f"Failed to initialize app: {str(e)}", exc_info=True)
-        st.error("Failed to initialize application. Please check the logs.")
+        logger.error(f"Failed to initialize enhanced app: {str(e)}")
+        st.error("Failed to initialize enhanced application. Please check the logs.")
         return None
 
 
-def render_app_status_bar():
-    """Render application status and health indicators"""
+@monitor_performance()
+def render_enhanced_status_bar():
+    """Render enhanced application status with performance metrics"""
     status_col1, status_col2, status_col3, status_col4 = st.columns(4)
+    
+    # Get performance metrics
+    cache_manager = get_cache_manager()
+    
+    cache_stats = cache_manager.get_cache_statistics()
+    system_stats = performance_monitor.get_system_stats()
     
     with status_col1:
         data_status = "🟢 Online" if st.session_state.get('data_loaded', False) else "🔴 Offline"
         st.markdown(f"**Data:** {data_status}")
+        if st.session_state.get('last_update'):
+            last_update = st.session_state.last_update
+            if isinstance(last_update, str):
+                try:
+                    last_update = datetime.fromisoformat(last_update)
+                    time_diff = datetime.now() - last_update
+                    st.caption(f"Updated {time_diff.seconds // 60}m ago")
+                except:
+                    pass
     
     with status_col2:
-        cache_hit_rate = 85  # Would get from actual cache metrics
-        cache_color = "🟢" if cache_hit_rate > 80 else "🟡" if cache_hit_rate > 60 else "🔴"
-        st.markdown(f"**Cache:** {cache_color} {cache_hit_rate}%")
+        hit_rate = cache_stats.get('hit_rate', 0)
+        cache_color = "🟢" if hit_rate > 80 else "🟡" if hit_rate > 60 else "🔴"
+        st.markdown(f"**Cache:** {cache_color} {hit_rate:.1f}%")
+        memory_mb = cache_stats.get('memory_usage', 0) / 1024 / 1024
+        st.caption(f"Memory: {memory_mb:.1f}MB")
     
     with status_col3:
-        ai_status = "🤖 Ready" if st.session_state.get('ai_enabled', True) else "🤖 Disabled"
-        st.markdown(f"**AI:** {ai_status}")
+        cpu_usage = system_stats.get('current_cpu', 0)
+        cpu_color = "🟢" if cpu_usage < 50 else "🟡" if cpu_usage < 80 else "🔴"
+        st.markdown(f"**CPU:** {cpu_color} {cpu_usage:.1f}%")
+        memory_usage = system_stats.get('current_memory', 0)
+        st.caption(f"RAM: {memory_usage:.1f}%")
     
     with status_col4:
-        user_count = len(st.session_state.get('users', [1]))  # Placeholder
-        st.markdown(f"**Users:** 👥 {user_count}")
+        monitoring_active = system_stats.get('monitoring_active', False)
+        monitor_status = "🟢 Active" if monitoring_active else "🔴 Inactive"
+        st.markdown(f"**Monitor:** {monitor_status}")
+        if 'performance_metrics' in st.session_state:
+            session_start = st.session_state.performance_metrics.get('session_start', time.time())
+            uptime = (time.time() - session_start) / 60
+            st.caption(f"Uptime: {uptime:.1f}m")
 
 
 def initialize_data() -> None:
@@ -79,10 +174,20 @@ def initialize_data() -> None:
                 ).fillna(0)
 
 
+@performance_monitor.performance_monitor(track_args=True)
+@error_handler(category=ErrorCategory.SYSTEM, severity=ErrorSeverity.CRITICAL)
 def main() -> None:
-    """Enhanced main application entry point with modular components"""
+    """Enhanced main application entry point with integrated performance monitoring"""
+    # Initialize middleware systems
+    error_middleware = initialize_error_handling()
+    logger = initialize_logging("fpl_analytics")
+    container = configure_container()
+    
     try:
-        logger.info("Starting main application...")
+        logger.info("Starting enhanced FPL application with performance monitoring...")
+        
+        # Initialize performance monitoring
+        performance_monitor.start_monitoring()
         
         # Clear session state if needed
         if st.runtime.exists():
@@ -94,34 +199,91 @@ def main() -> None:
         logger.info("Applying global styles...")
         default_style_manager.apply_global_styles()
         
-        # Initialize application
+        # Initialize enhanced application with performance monitoring
         if 'app_controller' not in st.session_state:
-            logger.info("Initializing new app controller...")
+            logger.info("Initializing enhanced app controller with performance monitoring...")
             st.session_state.app_controller = initialize_app()
             # Set initial navigation
             st.session_state.nav_selection = "dashboard"
-            logger.info("Initial navigation set to dashboard")
+            logger.info("Enhanced application initialized successfully")
         
         app = st.session_state.app_controller
         if app is None:
-            logger.error("App controller initialization failed")
-            st.error("❌ Failed to initialize application. Please check the logs and refresh the page.")
+            logger.error("Enhanced app controller initialization failed")
+            st.error("❌ Failed to initialize enhanced application. Please check the logs and refresh the page.")
             return
         
-        # Render status bar
-        status_bar = create_default_status_bar(st.session_state)
-        status_bar.render()
+        # Render enhanced status bar with performance metrics
+        render_enhanced_status_bar()
         
-        # Run the enhanced application
+        # Run the enhanced application with monitoring
         app.run()
         
-        # Display cache metrics in sidebar if enabled
-        if config.ui.show_debug_info:
-            with st.sidebar:
-                display_cache_metrics()
+        # Display enhanced features in sidebar
+        with st.sidebar:
+            st.markdown("---")
+            
+            # Theme Manager
+            st.markdown("### 🎨 Theme Selection")
+            theme_manager = get_theme_manager()
+            theme_manager.render_theme_selector()
+            
+            # Dashboard Export
+            st.markdown("### 📊 Export Dashboard")
+            dashboard_exporter = get_dashboard_exporter()
+            
+            # Export buttons
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("📄 PDF Report", use_container_width=True):
+                    if hasattr(st.session_state, 'players_df') and st.session_state.players_df is not None:
+                        with st.spinner("Generating PDF..."):
+                            pdf_data = dashboard_exporter.export_pdf_report(st.session_state.players_df)
+                            st.download_button(
+                                "Download PDF",
+                                data=pdf_data,
+                                file_name=f"fpl_report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                                mime="application/pdf"
+                            )
+                    else:
+                        st.warning("Load FPL data first!")
+            
+            with col2:
+                if st.button("📊 Excel Export", use_container_width=True):
+                    if hasattr(st.session_state, 'players_df') and st.session_state.players_df is not None:
+                        with st.spinner("Generating Excel..."):
+                            excel_data = dashboard_exporter.export_excel_analysis(st.session_state.players_df)
+                            st.download_button(
+                                "Download Excel",
+                                data=excel_data,
+                                file_name=f"fpl_analysis_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+                    else:
+                        st.warning("Load FPL data first!")
+            
+            st.markdown("---")
+            st.markdown("### 📊 Performance Dashboard")
+            
+            # Cache metrics with advanced manager
+            cache_manager.render_streamlit_dashboard()
+            
+            # Performance monitoring metrics
+            if st.checkbox("Show Performance Metrics", value=config.ui.show_debug_info):
+                performance_monitor.render_streamlit_dashboard()
+            
+            # System health indicators
+            if st.checkbox("Show System Health", value=False):
+                health_metrics = performance_monitor.get_system_health()
+                for metric, value in health_metrics.items():
+                    if isinstance(value, float):
+                        st.metric(metric.replace('_', ' ').title(), f"{value:.1f}%")
+                    else:
+                        st.metric(metric.replace('_', ' ').title(), str(value))
             
     except Exception as e:
-        default_error_handler.handle(e)
+        get_logging_strategy().error(f"Enhanced application error: {str(e)}")
+        get_error_middleware().handle_error(e)
 
 
 if __name__ == "__main__":
