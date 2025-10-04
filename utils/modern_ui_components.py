@@ -149,6 +149,72 @@ class ModernUIComponents:
         
         styled_df = df.style.apply(highlight_max, axis=0)
         st.dataframe(styled_df, use_container_width=True)
+    
+    @staticmethod
+    def create_gradient_background(color1: str = "#667eea", color2: str = "#764ba2") -> str:
+        """Create a gradient background CSS"""
+        return f"background: linear-gradient(135deg, {color1} 0%, {color2} 100%);"
+    
+    @staticmethod
+    def create_professional_card(title: str, content: str, icon: str = "📊") -> None:
+        """Create a professional-looking card"""
+        card_html = f"""
+        <div style="
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        ">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 24px; margin-right: 10px;">{icon}</span>
+                <h3 style="margin: 0; color: #333; font-size: 18px;">{title}</h3>
+            </div>
+            <div style="color: #666; line-height: 1.6;">
+                {content}
+            </div>
+        </div>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+    
+    @staticmethod
+    def apply_modern_styling() -> None:
+        """Apply modern styling to the entire page"""
+        modern_css = """
+        <style>
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .main .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        div[data-testid="metric-container"] {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stSelectbox > div > div {
+            border-radius: 8px;
+        }
+        .stButton > button {
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        </style>
+        """
+        st.markdown(modern_css, unsafe_allow_html=True)
 
 class NavigationManager:
     """Enhanced navigation with breadcrumbs and quick actions"""

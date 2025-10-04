@@ -22,7 +22,42 @@ class MyTeamPage:
     @handle_errors
     def render(self):
         """Main render method for My Team page"""
+        logger.info("Starting My Team page render")
         st.header("👤 My FPL Team")
+        
+        # Debug information
+        st.write("🔍 **Debug Info:**")
+        st.write(f"- Team loaded: {st.session_state.get('my_team_loaded', False)}")
+        st.write(f"- Data loaded: {st.session_state.get('data_loaded', False)}")
+        st.write(f"- Team ID: {st.session_state.get('my_team_id', 'None')}")
+        st.write(f"- Page render started successfully ✅")
+        
+        # Add automatic test with your team ID
+        if st.button("🧪 Test with Team ID 1437667"):
+            st.write("**Testing with your team ID...**")
+            test_team_id = "1437667"
+            # Try multiple gameweeks to find one that works
+            for gw in [8, 7, 6, 5, 4, 3, 2, 1]:
+                try:
+                    st.write(f"Trying gameweek {gw}...")
+                    team_data = self.data_service.load_team_data(test_team_id, gw)
+                    if team_data and team_data.get('picks'):
+                        st.success(f"✅ Successfully loaded team data for GW {gw}!")
+                        st.write(f"Team: {team_data.get('entry_name', 'Unknown')}")
+                        st.write(f"Squad size: {len(team_data.get('picks', []))}")
+                        # Set the data in session state
+                        st.session_state.my_team_data = team_data
+                        st.session_state.my_team_id = test_team_id
+                        st.session_state.my_team_gameweek = gw
+                        st.session_state.my_team_loaded = True
+                        st.rerun()
+                        break
+                    else:
+                        st.write(f"❌ GW {gw}: No picks data")
+                except Exception as e:
+                    st.write(f"❌ GW {gw}: {str(e)}")
+        
+        st.divider()
         
         try:
             # Initialize session state for team data
@@ -35,20 +70,26 @@ class MyTeamPage:
             if 'my_team_data' not in st.session_state:
                 st.session_state.my_team_data = None
             
-            # Try to ensure we have player data first
-            if not st.session_state.get('data_loaded', False):
-                logger.info("Attempting to load player data...")
-                with st.spinner("⚡ Loading FPL data..."):
-                    players_df, teams_df = self.data_service.load_fpl_data()
-                    if not players_df.empty:
-                        st.session_state.players_df = players_df
-                        st.session_state.teams_df = teams_df
-                        st.session_state.data_loaded = True
-                        logger.info("Successfully loaded player data")
-            
-            # Show team import section if no team is loaded
+            # Show team import section if no team is loaded (do this first)
             if not st.session_state.get('my_team_loaded', False):
                 logger.info("No team loaded, showing import section")
+                
+                # Try to load player data in the background if not loaded
+                if not st.session_state.get('data_loaded', False):
+                    logger.info("Attempting to load player data in background...")
+                    try:
+                        with st.spinner("⚡ Loading FPL data..."):
+                            players_df, teams_df = self.data_service.load_fpl_data()
+                            if not players_df.empty:
+                                st.session_state.players_df = players_df
+                                st.session_state.teams_df = teams_df
+                                st.session_state.data_loaded = True
+                                logger.info("Successfully loaded player data")
+                    except Exception as e:
+                        logger.error(f"Error loading player data: {str(e)}")
+                        st.warning("⚠️ Could not load player data in background, but you can still import your team.")
+                
+                # Always show the import section regardless of data loading status
                 self._render_team_import_section()
                 return
             
@@ -156,9 +197,19 @@ class MyTeamPage:
     
     def _render_team_import_section(self):
         """Render team import interface"""
+        logger.info("Rendering team import section")
         st.subheader("📥 Import Your FPL Team")
         
-        col1, col2 = st.columns([2, 1])
+        # Add some helpful info
+        st.info("👋 Enter your FPL Team ID below to analyze your team performance and get AI-powered recommendations!")
+        
+        try:
+            col1, col2 = st.columns([2, 1])
+        except Exception as e:
+            logger.error(f"Error creating columns: {str(e)}")
+            # Fallback to no columns if there's an issue
+            col1 = st.container()
+            col2 = st.container()
         
         with col1:
             # Use stored team ID if available
@@ -171,22 +222,38 @@ class MyTeamPage:
             )
             
             # Get current gameweek for selection
-            current_gw = self.data_service.get_current_gameweek()
-            gameweeks = list(range(1, min(current_gw + 1, 39)))
+            try:
+                current_gw = self.data_service.get_current_gameweek()
+                if not current_gw or current_gw < 1:
+                    current_gw = 8  # Default to gameweek 8
+                gameweeks = list(range(1, min(current_gw + 1, 39)))
+            except Exception as e:
+                logger.error(f"Error getting current gameweek: {str(e)}")
+                current_gw = 8
+                gameweeks = list(range(1, 39))
             
             selected_gw = st.selectbox(
                 "Select Gameweek:",
                 gameweeks,
-                index=min(current_gw - 1, 37) if current_gw else 0,
+                index=min(max(current_gw - 1, 0), len(gameweeks) - 1),
                 help="Choose which gameweek's team to analyze"
             )
         
         with col2:
-            if st.button("🔄 Load My Team", type="primary"):
-                if team_id:
-                    self._load_team_data(team_id, selected_gw)
+            st.write("")  # Add some spacing
+            st.write("")  # Add some spacing
+            
+            if st.button("🔄 Load My Team", type="primary", use_container_width=True):
+                if team_id and team_id.strip():
+                    logger.info(f"User clicked Load Team button with ID: {team_id}")
+                    self._load_team_data(team_id.strip(), selected_gw)
                 else:
-                    st.warning("Please enter a team ID")
+                    st.warning("⚠️ Please enter a valid team ID")
+            
+            # Add a quick test button
+            if st.button("🧪 Quick Test", help="Test with team ID 1437667"):
+                logger.info("User clicked Quick Test button")
+                self._load_team_data("1437667", 7)
         
         # Instructions
         with st.expander("💡 How to find your Team ID", expanded=False):
@@ -223,6 +290,29 @@ class MyTeamPage:
                 team_data = self.data_service.load_team_data(team_id, gameweek)
                 
                 if team_data and isinstance(team_data, dict):
+                    # Check if picks data is available
+                    picks = team_data.get('picks', [])
+                    if not picks:
+                        # Try previous gameweeks if current one has no picks
+                        st.warning(f"No squad data found for gameweek {gameweek}. Trying previous gameweeks...")
+                        for try_gw in range(gameweek - 1, max(0, gameweek - 5), -1):
+                            if try_gw < 1:
+                                break
+                            st.write(f"Trying gameweek {try_gw}...")
+                            try:
+                                alt_team_data = self.data_service.load_team_data(team_id, try_gw)
+                                if alt_team_data and alt_team_data.get('picks'):
+                                    team_data = alt_team_data
+                                    gameweek = try_gw
+                                    st.success(f"Found squad data in gameweek {try_gw}!")
+                                    break
+                            except Exception as e:
+                                st.write(f"GW {try_gw}: {str(e)}")
+                                continue
+                    
+                    if not team_data.get('picks'):
+                        raise ValueError("No squad data available for this team in recent gameweeks")
+                    
                     logger.info("Team data loaded successfully")
                     
                     # Set all session state at once
@@ -238,7 +328,8 @@ class MyTeamPage:
                         st.session_state[key] = value
                     
                     # Show success message
-                    st.success("✅ Team loaded successfully!")
+                    picks_count = len(team_data.get('picks', []))
+                    st.success(f"✅ Team loaded successfully! Found {picks_count} players for gameweek {gameweek}")
                     logger.info(f"Successfully loaded and stored team data for ID: {team_id}")
                     
                     # Force the page to use the new state

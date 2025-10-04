@@ -67,7 +67,46 @@ class EnhancedFPLApp(PerformanceAwareController):
         self.dashboard_exporter = get_dashboard_exporter()
         self.insights_engine = get_insights_engine()
         
+        # Initialize pages dictionary
+        self._initialize_pages()
+        
         self.logger.info("Enhanced FPL App initialized with all performance improvements and new features")
+    
+    def _initialize_pages(self):
+        """Initialize the pages dictionary with all available pages"""
+        try:
+            # Import page classes
+            from views.dashboard_page import DashboardPage
+            from views.player_analysis_page import PlayerAnalysisPage  
+            from views.fixture_analysis_page import FixtureAnalysisPage
+            from views.my_team_page import MyTeamPage
+            from views.ai_recommendations_page import AIRecommendationsPage
+            from views.team_builder_page import TeamBuilderPage
+            
+            # Create page instances
+            self.dashboard = DashboardPage()
+            self.player_analysis = PlayerAnalysisPage()
+            self.fixture_analysis = FixtureAnalysisPage()
+            self.my_team = MyTeamPage()
+            self.ai_recommendations = AIRecommendationsPage()
+            self.team_builder = TeamBuilderPage()
+            
+            # Map pages to their render methods (matching navigation configuration)
+            self.pages = {
+                "dashboard": self.dashboard.render,
+                "player_analysis": self.player_analysis.render,
+                "fixture_difficulty": self.fixture_analysis.render,
+                "my_fpl_team": self.my_team.render,  # Fixed: match navigation key
+                "ai_recommendations": self.ai_recommendations.render,
+                "team_builder": self.team_builder.render
+            }
+            
+            self.logger.info(f"Successfully initialized {len(self.pages)} pages: {list(self.pages.keys())}")
+            
+        except Exception as e:
+            self.logger.error(f"Error initializing pages: {str(e)}", exc_info=True)
+            # Create empty pages dict as fallback
+            self.pages = {}
 
 @monitor_performance(track_args=True)
 @error_handler(category=ErrorCategory.SYSTEM, severity=ErrorSeverity.HIGH)
@@ -217,7 +256,35 @@ def main() -> None:
         render_enhanced_status_bar()
         
         # Run the enhanced application with monitoring
-        app.run()
+        logger.info("Starting main application navigation and rendering...")
+        
+        # Render navigation and handle page routing
+        if hasattr(app, 'render_navigation_optimized'):
+            # Use the optimized navigation from refactored controller
+            app.render_navigation_optimized()
+        elif hasattr(app, '_render_navigation'):
+            # Fallback to original navigation method
+            app._render_navigation()
+        
+        # Render the current page content
+        current_page = st.session_state.get('nav_selection', 'dashboard')
+        logger.info(f"Rendering page: {current_page}")
+        
+        if hasattr(app, 'pages') and current_page in app.pages:
+            with st.spinner(f"Loading {current_page}..."):
+                try:
+                    page_renderer = app.pages[current_page]
+                    if callable(page_renderer):
+                        logger.info(f"Executing render method for '{current_page}'...")
+                        page_renderer()
+                    else:
+                        logger.error(f"Page {current_page} renderer is not callable")
+                        st.error("Page not properly configured")
+                except Exception as page_error:
+                    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+                    st.error(f"An error occurred while loading the {current_page.replace('_', ' ')} page.")
+        else:
+            st.warning(f"Page '{current_page}' not found. Available pages: {list(getattr(app, 'pages', {}).keys())}")
         
         # Display enhanced features in sidebar
         with st.sidebar:

@@ -137,6 +137,68 @@ class EnhancedCacheManager:
             return True
         except:
             return False
+    
+    def render_streamlit_dashboard(self):
+        """Render cache metrics dashboard in Streamlit"""
+        import streamlit as st
+        
+        metrics = self.get_metrics()
+        
+        st.subheader("🚀 Cache Performance Dashboard")
+        
+        # Performance metrics in columns
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Hit Rate", 
+                f"{metrics['hit_rate_percent']:.1f}%",
+                delta=f"{metrics['hits']} hits"
+            )
+        
+        with col2:
+            st.metric(
+                "Cache Size", 
+                f"{metrics['cache_size_mb']:.1f}MB",
+                delta=f"{self.max_size_mb}MB limit"
+            )
+        
+        with col3:
+            st.metric(
+                "Total Requests", 
+                metrics['total_requests'],
+                delta=f"{metrics['misses']} misses"
+            )
+        
+        with col4:
+            efficiency = (metrics['hits'] / max(metrics['total_requests'], 1)) * 100
+            st.metric(
+                "Efficiency", 
+                f"{efficiency:.0f}%",
+                delta="Performance"
+            )
+        
+        # Cache management
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🗑️ Clear Cache", help="Clear all cached data"):
+                if self.clear_cache():
+                    st.success("✅ Cache cleared successfully!")
+                    st.rerun()
+                else:
+                    st.error("❌ Failed to clear cache")
+        
+        with col2:
+            cache_files = len([f for f in os.listdir(self.cache_dir) if f.endswith('.cache')])
+            st.info(f"📁 {cache_files} cache files")
+        
+        # Performance chart if we have data
+        if metrics['total_requests'] > 0:
+            chart_data = {
+                'Metric': ['Hits', 'Misses'],
+                'Count': [metrics['hits'], metrics['misses']]
+            }
+            st.bar_chart(chart_data, x='Metric', y='Count')
 
 # Global cache manager
 cache_manager = EnhancedCacheManager()

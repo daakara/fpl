@@ -1,0 +1,411 @@
+2025-10-03 15:46:49,871 - fpl_analytics - ERROR - error_handling.error:61 - Error initializing pages: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_lazy_load_player_analysis'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_resource
+def _lazy_load_player_analysis(_arg, ...):
+    ...
+```
+            
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 646, in _to_bytes
+    reduce_data = obj.__reduce__()
+                  ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copyreg.py", line 70, in _reduce_ex
+    raise TypeError(f"cannot pickle {cls.__name__!r} object")
+TypeError: cannot pickle 'function' object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableTypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 165, in initialize_pages_optimized
+    self.page_registry[current_page]()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 183, in __call__
+    return self._cached_func(self._instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 227, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 242, in _get_or_create_cached_value
+    value_key = _make_value_key(
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 475, in _make_value_key
+    raise UnhashableParamError(cache_type, func, arg_name, arg_value, exc)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableParamError: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_lazy_load_player_analysis'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_resource
+def _lazy_load_player_analysis(_arg, ...):
+    ...
+```
+            
+2025-10-03 15:46:49,902 - fpl_analytics.error - ERROR - .None:0 - Failed to initialize enhanced app: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_lazy_load_player_analysis'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_resource
+def _lazy_load_player_analysis(_arg, ...):
+    ...
+```
+            
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 646, in _to_bytes
+    reduce_data = obj.__reduce__()
+                  ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copyreg.py", line 70, in _reduce_ex
+    raise TypeError(f"cannot pickle {cls.__name__!r} object")
+TypeError: cannot pickle 'function' object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableTypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 98, in initialize_app
+    controller.initialize_pages_optimized()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\utils\enhanced_performance_monitor.py", line 126, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 165, in initialize_pages_optimized
+    self.page_registry[current_page]()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 183, in __call__
+    return self._cached_func(self._instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 227, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 242, in _get_or_create_cached_value
+    value_key = _make_value_key(
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 475, in _make_value_key
+    raise UnhashableParamError(cache_type, func, arg_name, arg_value, exc)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableParamError: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_lazy_load_player_analysis'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_resource
+def _lazy_load_player_analysis(_arg, ...):
+    ...
+```
+            
+2025-10-03 15:46:49,934 - fpl_analytics.error - ERROR - .None:0 - Enhanced app controller initialization failed
+NoneType: None
+2025-10-03 16:12:50,849 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out.
+2025-10-03 16:12:50,950 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: 'EnhancedFPLApp' object has no attribute 'run'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 220, in main
+    app.run()
+    ^^^^^^^
+AttributeError: 'EnhancedFPLApp' object has no attribute 'run'
+2025-10-04 10:48:19,708 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: 'EnhancedCacheManager' object has no attribute 'render_streamlit_dashboard'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 269, in main
+    cache_manager.render_streamlit_dashboard()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnhancedCacheManager' object has no attribute 'render_streamlit_dashboard'
+2025-10-04 10:48:40,954 - fpl_analytics - CRITICAL - error_handling._log_error:239 - [SYSTEM][CRITICAL] Service ErrorHandlingMiddleware is already registered
+2025-10-04 10:48:40,954 - fpl_analytics - CRITICAL - error_handling._handle_critical_error:290 - CRITICAL ERROR DETECTED: Service ErrorHandlingMiddleware is already registered
+2025-10-04 10:49:30,154 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: 'EnhancedCacheManager' object has no attribute 'render_streamlit_dashboard'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 269, in main
+    cache_manager.render_streamlit_dashboard()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnhancedCacheManager' object has no attribute 'render_streamlit_dashboard'
+2025-10-04 12:37:53,094 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_get_cached_navigation_config'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def _get_cached_navigation_config(_arg, ...):
+    ...
+```
+            
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 646, in _to_bytes
+    reduce_data = obj.__reduce__()
+                  ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copyreg.py", line 70, in _reduce_ex
+    raise TypeError(f"cannot pickle {cls.__name__!r} object")
+TypeError: cannot pickle 'function' object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableTypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 225, in main
+    app.render_navigation_optimized()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\utils\enhanced_performance_monitor.py", line 126, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 222, in render_navigation_optimized
+    nav_config = self._get_cached_navigation_config()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 183, in __call__
+    return self._cached_func(self._instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 227, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 242, in _get_or_create_cached_value
+    value_key = _make_value_key(
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 475, in _make_value_key
+    raise UnhashableParamError(cache_type, func, arg_name, arg_value, exc)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableParamError: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_get_cached_navigation_config'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def _get_cached_navigation_config(_arg, ...):
+    ...
+```
+            
+2025-10-04 12:38:00,085 - fpl_analytics - CRITICAL - error_handling._log_error:239 - [SYSTEM][CRITICAL] Service ErrorHandlingMiddleware is already registered
+2025-10-04 12:38:00,087 - fpl_analytics - CRITICAL - error_handling._handle_critical_error:290 - CRITICAL ERROR DETECTED: Service ErrorHandlingMiddleware is already registered
+2025-10-04 12:38:39,141 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_get_cached_navigation_config'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def _get_cached_navigation_config(_arg, ...):
+    ...
+```
+            
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 646, in _to_bytes
+    reduce_data = obj.__reduce__()
+                  ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copyreg.py", line 70, in _reduce_ex
+    raise TypeError(f"cannot pickle {cls.__name__!r} object")
+TypeError: cannot pickle 'function' object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableTypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 225, in main
+    app.render_navigation_optimized()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\utils\enhanced_performance_monitor.py", line 126, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 222, in render_navigation_optimized
+    nav_config = self._get_cached_navigation_config()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 183, in __call__
+    return self._cached_func(self._instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 227, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 242, in _get_or_create_cached_value
+    value_key = _make_value_key(
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 475, in _make_value_key
+    raise UnhashableParamError(cache_type, func, arg_name, arg_value, exc)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 467, in _make_value_key
+    update_hash(
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 170, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 651, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 346, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 328, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 648, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableParamError: Cannot hash argument '(unnamed)' (of type `__main__.EnhancedFPLApp`) in '_get_cached_navigation_config'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def _get_cached_navigation_config(_arg, ...):
+    ...
+```
+            
+2025-10-04 12:43:44,370 - fpl_analytics - CRITICAL - error_handling._log_error:239 - [SYSTEM][CRITICAL] Service ErrorHandlingMiddleware is already registered
+2025-10-04 12:43:44,372 - fpl_analytics - CRITICAL - error_handling._handle_critical_error:290 - CRITICAL ERROR DETECTED: Service ErrorHandlingMiddleware is already registered
+2025-10-04 12:47:04,547 - fpl_analytics - CRITICAL - error_handling._log_error:239 - [SYSTEM][CRITICAL] Service ErrorHandlingMiddleware is already registered
+2025-10-04 12:47:04,553 - fpl_analytics - CRITICAL - error_handling._handle_critical_error:290 - CRITICAL ERROR DETECTED: Service ErrorHandlingMiddleware is already registered
+2025-10-04 17:01:26,572 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out.

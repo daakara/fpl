@@ -406,12 +406,28 @@ class AdvancedMLRecommendationEngine:
             # Calculate comprehensive scores
             df = self.calculate_comprehensive_scores(players_df)
             
-            # Apply filters
+            # Apply position filter with proper mapping
             if position_filter:
-                df = df[df['position_name'] == position_filter]
+                # Map position names to element_type values
+                position_mapping = {
+                    'Goalkeeper': 1, 'GK': 1,
+                    'Defender': 2, 'DEF': 2,
+                    'Midfielder': 3, 'MID': 3,
+                    'Forward': 4, 'FWD': 4
+                }
+                
+                if position_filter in position_mapping:
+                    # Filter by element_type (numeric)
+                    df = df[df['element_type'] == position_mapping[position_filter]]
+                elif 'position_name' in df.columns:
+                    # Fallback to position_name if available
+                    df = df[df['position_name'] == position_filter]
             
+            # Apply budget filter with proper price conversion
             if budget_max:
-                df = df[df['now_cost'] <= budget_max]
+                # Convert budget from £m to tenths (FPL API uses tenths)
+                budget_tenths = budget_max * 10
+                df = df[df['now_cost'] <= budget_tenths]
             
             # Sort by recommendation score
             df = df.sort_values('recommendation_score', ascending=False)

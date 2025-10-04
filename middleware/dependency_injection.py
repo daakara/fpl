@@ -262,40 +262,46 @@ def configure_container() -> DIContainer:
     """Configure the global container with default services"""
     container = get_container()
     
-    # Import and register core services
+    # Import and register core services (only if not already registered)
     try:
         from middleware.error_handling import ErrorHandlingMiddleware
-        container.register_singleton(ErrorHandlingMiddleware, ErrorHandlingMiddleware)
+        if not container.is_registered(ErrorHandlingMiddleware):
+            container.register_singleton(ErrorHandlingMiddleware, ErrorHandlingMiddleware)
     except ImportError:
         pass
     
     try:
         from services.enhanced_fpl_data_service import EnhancedFPLDataService
-        container.register_singleton(EnhancedFPLDataService, EnhancedFPLDataService)
+        if not container.is_registered(EnhancedFPLDataService):
+            container.register_singleton(EnhancedFPLDataService, EnhancedFPLDataService)
     except ImportError:
         pass
     
     try:
         from utils.advanced_cache_manager import AdvancedCacheManager
-        container.register_singleton(AdvancedCacheManager, AdvancedCacheManager)
+        if not container.is_registered(AdvancedCacheManager):
+            container.register_singleton(AdvancedCacheManager, AdvancedCacheManager)
     except ImportError:
         pass
     
     try:
         from components.ai.player_insights import SmartPlayerInsights
-        container.register_singleton(SmartPlayerInsights, SmartPlayerInsights)
+        if not container.is_registered(SmartPlayerInsights):
+            container.register_singleton(SmartPlayerInsights, SmartPlayerInsights)
     except ImportError:
         pass
     
     try:
         from components.ui.theme_manager import ThemeManager
-        container.register_singleton(ThemeManager, ThemeManager)
+        if not container.is_registered(ThemeManager):
+            container.register_singleton(ThemeManager, ThemeManager)
     except ImportError:
         pass
     
     try:
         from components.ui.dashboard_exporter import DashboardExporter
-        container.register_singleton(DashboardExporter, DashboardExporter)
+        if not container.is_registered(DashboardExporter):
+            container.register_singleton(DashboardExporter, DashboardExporter)
     except ImportError:
         pass
     

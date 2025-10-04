@@ -170,36 +170,42 @@ class PerformanceAwareController:
             logger.error(f"Error initializing pages: {str(e)}", exc_info=True)
             raise
 
+    @staticmethod
     @st.cache_resource
     def _lazy_load_dashboard():
         """Lazy load dashboard page"""
         from views.dashboard_page import DashboardPage
         return DashboardPage()
     
+    @staticmethod
     @st.cache_resource  
     def _lazy_load_player_analysis():
         """Lazy load player analysis page"""
         from views.player_analysis_page import PlayerAnalysisPage
         return PlayerAnalysisPage()
     
+    @staticmethod
     @st.cache_resource
     def _lazy_load_fixture_analysis():
         """Lazy load fixture analysis page"""
         from views.fixture_analysis_page import FixtureAnalysisPage
         return FixtureAnalysisPage()
     
+    @staticmethod
     @st.cache_resource
     def _lazy_load_my_team():
         """Lazy load my team page"""
         from views.my_team_page import MyTeamPage
         return MyTeamPage()
     
+    @staticmethod
     @st.cache_resource
     def _lazy_load_ai_recommendations():
         """Lazy load AI recommendations page"""
         from views.ai_recommendations_page import AIRecommendationsPage
         return AIRecommendationsPage()
     
+    @staticmethod
     @st.cache_resource
     def _lazy_load_team_builder():
         """Lazy load team builder page"""
@@ -221,6 +227,7 @@ class PerformanceAwareController:
             # Handle navigation change
             self._handle_navigation_change(selected_label, nav_config)
 
+    @staticmethod
     @st.cache_data(ttl=300)  # Cache for 5 minutes
     def _get_cached_navigation_config() -> Dict[str, Any]:
         """Get cached navigation configuration"""
@@ -239,8 +246,8 @@ class PerformanceAwareController:
         }
     
     def _render_option_menu(self, nav_config: Dict[str, Any]) -> str:
-        """Render the option menu with proper state management"""
-        from streamlit_option_menu import option_menu
+        """Render the option menu with proper state management and fallback"""
+        import streamlit as st
         
         current_selection_id = st.session_state.get('nav_selection', 'dashboard')
         current_index = 0
@@ -248,14 +255,34 @@ class PerformanceAwareController:
         if current_selection_id in nav_config['ids']:
             current_index = nav_config['ids'].index(current_selection_id)
         
-        return option_menu(
-            menu_title="FPL Analytics",
-            options=nav_config['labels'],
-            icons=nav_config['icons'],
-            menu_icon="⚽",
-            default_index=current_index,
-            styles=getattr(config.ui, 'navigation_styles', None)
-        )
+        try:
+            # Try to use the fancy option menu
+            from streamlit_option_menu import option_menu
+            
+            return option_menu(
+                menu_title="FPL Analytics",
+                options=nav_config['labels'],
+                icons=nav_config['icons'],
+                menu_icon="⚽",
+                default_index=current_index,
+                styles=getattr(config.ui, 'navigation_styles', None)
+            )
+        except ImportError:
+            # Fallback to simple selectbox navigation
+            st.sidebar.markdown("## ⚽ FPL Analytics")
+            st.sidebar.markdown("---")
+            
+            selected_label = st.sidebar.selectbox(
+                "Navigate to:",
+                options=nav_config['labels'],
+                index=current_index,
+                key="nav_selectbox"
+            )
+            
+            st.sidebar.markdown("---")
+            st.sidebar.info("💡 Install `streamlit-option-menu` for enhanced navigation")
+            
+            return selected_label
     
     def _handle_navigation_change(self, selected_label: str, nav_config: Dict[str, Any]):
         """Handle navigation change with performance tracking"""
