@@ -1092,3 +1092,235 @@ Traceback (most recent call last):
 AttributeError: 'EnhancedFPLApp' object has no attribute '_lazy_load_fpl_team'. Did you mean: '_lazy_load_my_team'?
 2025-10-05 17:39:34,158 - fpl_analytics.error - ERROR - .None:0 - Enhanced app controller initialization failed
 NoneType: None
+2025-10-05 22:47:30,494 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:47:35,347 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:47:43,205 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:47:50,795 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:48:59,627 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:56:50,528 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 22:57:52,032 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 23:08:07,333 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
