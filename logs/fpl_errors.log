@@ -939,3 +939,279 @@ Traceback (most recent call last):
     self.live_stream.render_live_controls()
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 11:00:13,695 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'InteractiveFilterSystem' object has no attribute 'render_main_filters'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 123, in render
+    phase2_manager.render_squad_analysis(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 144, in render_squad_analysis
+    filtered_df = self.filter_system.render_main_filters(df)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'InteractiveFilterSystem' object has no attribute 'render_main_filters'. Did you mean: '_render_primary_filters'?
+2025-10-05 11:07:38,517 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 11:08:05,999 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 11:08:52,755 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 11:09:08,377 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 12:50:33,871 - fpl_analytics - ERROR - error_handling.error:61 - Error fetching picks data: 404 Client Error: Not Found for url: https://fantasy.premierleague.com/api/entry/1437667/event/8/picks/
+2025-10-05 12:51:56,538 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 16:11:59,963 - fpl_analytics - ERROR - error_handling.error:61 - Error fetching picks data: 404 Client Error: Not Found for url: https://fantasy.premierleague.com/api/entry/1437667/event/8/picks/
+2025-10-05 16:15:44,755 - fpl_analytics - ERROR - error_handling.error:61 - Error fetching picks data: 404 Client Error: Not Found for url: https://fantasy.premierleague.com/api/entry/1437667/event/8/picks/
+2025-10-05 16:16:52,633 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 17:08:29,859 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 17:09:53,875 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': No module named 'statsmodels'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 142, in render
+    phase2_manager.render_performance_analytics(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 500, in render_performance_analytics
+    self.viz_suite.render_visualization_gallery(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 501, in render_visualization_gallery
+    charts = self.create_comprehensive_dashboard(df, teams_df)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 466, in create_comprehensive_dashboard
+    'value_matrix': self.create_value_matrix_chart(df),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\components\advanced_visualizations.py", line 76, in create_value_matrix_chart
+    px.scatter(df_viz, x='price_millions', y='total_points', trendline='ols').data[1:]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+2025-10-05 17:39:34,137 - fpl_analytics - ERROR - error_handling.error:61 - Error initializing pages: 'EnhancedFPLApp' object has no attribute '_lazy_load_fpl_team'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 157, in initialize_pages_optimized
+    "fpl_team": self._lazy_load_fpl_team,
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnhancedFPLApp' object has no attribute '_lazy_load_fpl_team'. Did you mean: '_lazy_load_my_team'?
+2025-10-05 17:39:34,146 - fpl_analytics.error - ERROR - .None:0 - Failed to initialize enhanced app: 'EnhancedFPLApp' object has no attribute '_lazy_load_fpl_team'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 143, in initialize_app
+    controller.initialize_pages_optimized()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\utils\enhanced_performance_monitor.py", line 126, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\core\refactored_app_controller.py", line 157, in initialize_pages_optimized
+    "fpl_team": self._lazy_load_fpl_team,
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnhancedFPLApp' object has no attribute '_lazy_load_fpl_team'. Did you mean: '_lazy_load_my_team'?
+2025-10-05 17:39:34,158 - fpl_analytics.error - ERROR - .None:0 - Enhanced app controller initialization failed
+NoneType: None
+2025-10-05 17:42:17,108 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out.
+2025-10-05 17:43:10,955 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out.
+2025-10-05 17:43:14,456 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ReadTimeoutError("HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out. (read timeout=15)"))
+2025-10-05 17:43:29,951 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+2025-10-05 17:43:30,483 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+2025-10-05 17:43:30,483 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+2025-10-05 17:55:44,056 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+2025-10-05 17:55:44,519 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))
+2025-10-05 18:44:53,284 - fpl_analytics - ERROR - error_handling.error:61 - Error fetching picks data: 404 Client Error: Not Found for url: https://fantasy.premierleague.com/api/entry/1437667/event/8/picks/
+2025-10-05 18:45:00,751 - fpl_analytics - ERROR - error_handling.error:61 - Error rendering team overview: st.session_state has no attribute "my_team_id". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-10-05 18:45:17,070 - fpl_analytics - ERROR - error_handling.error:61 - Error fetching picks data: 404 Client Error: Not Found for url: https://fantasy.premierleague.com/api/entry/1437667/event/8/picks/
+2025-10-05 18:45:34,561 - fpl_analytics - ERROR - error_handling.error:61 - Error rendering team overview: st.session_state has no attribute "my_team_id". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization

@@ -82,7 +82,6 @@ class EnhancedFPLApp(PerformanceAwareController):
             from views.advanced_analysis_page import AdvancedAnalysisPage
             from views.fixture_analysis_page import FixtureAnalysisPage
             from views.my_team_page import MyTeamPage
-            from views.fpl_team_page import FPLTeamPage
             from views.ai_recommendations_page import AIRecommendationsPage
             from views.team_builder_page import TeamBuilderPage
             
@@ -93,7 +92,6 @@ class EnhancedFPLApp(PerformanceAwareController):
             self.advanced_analysis = AdvancedAnalysisPage()
             self.fixture_analysis = FixtureAnalysisPage()
             self.my_team = MyTeamPage()
-            self.fpl_team = FPLTeamPage()
             self.ai_recommendations = AIRecommendationsPage()
             self.team_builder = TeamBuilderPage()
             
@@ -104,8 +102,7 @@ class EnhancedFPLApp(PerformanceAwareController):
                 "player_analysis": self.player_analysis.render,
                 "advanced_analysis": self.advanced_analysis.render,
                 "fixture_difficulty": self.fixture_analysis.render,
-                "my_fpl_team": self.my_team.render,  # Fixed: match navigation key
-                "fpl_team": self.fpl_team.render,
+                "my_fpl_team": self.my_team.render,
                 "ai_recommendations": self.ai_recommendations.render,
                 "team_builder": self.team_builder.render
             }

@@ -1,5 +1,12 @@
 """
-Page Router - Handles navigation and sidebar
+Page R        self.pages = {
+            "🏠 Dashboard": "dashboard",
+            "👥 Player Analysis": "player_analysis", 
+            "🎯 Fixture Difficulty": "fixture_difficulty",
+            "👤 My FPL Team": "my_fpl_team",
+            "🤖 AI Recommendations": "ai_recommendations",
+            "⚽ Team Builder": "team_builder",
+        }Handles navigation and sidebar
 """
 import streamlit as st
 import pandas as pd
@@ -14,7 +21,6 @@ class PageRouter:
             "👥 Player Analysis": "player_analysis", 
             "🎯 Fixture Difficulty": "fixture_difficulty",
             "👤 My FPL Team": "my_fpl_team",
-            "⚽ FPL Team": "fpl_team",
             "🤖 AI Recommendations": "ai_recommendations",
             "⚽ Team Builder": "team_builder",
         }
@@ -44,9 +50,6 @@ class PageRouter:
         # Only update if page actually changed
         if selected_page != st.session_state.current_page:
             st.session_state.current_page = selected_page
-            # Clear page-specific states if needed
-            if selected_page != "👤 My FPL Team" and "my_team_loaded" in st.session_state:
-                del st.session_state.my_team_loaded
         
         st.sidebar.markdown("---")
         
@@ -68,12 +71,7 @@ class PageRouter:
         else:
             st.sidebar.warning("⚠️ No data loaded")
         
-        # My FPL Team status
-        if st.session_state.get('my_team_loaded', False):
-            st.sidebar.success("✅ My Team Loaded")
-            if 'my_team_data' in st.session_state:
-                team_name = st.session_state.my_team_data.get('entry_name', 'Team')
-                st.sidebar.info(f"👤 {team_name}")
+
     
     def _render_data_controls(self):
         """Render data loading controls"""
@@ -106,8 +104,7 @@ class PageRouter:
         """Clear all cached data"""
         keys_to_clear = [
             'data_loaded', 'players_df', 'teams_df', 
-            'fdr_data_loaded', 'fixtures_df',
-            'my_team_loaded', 'my_team_data'
+            'fdr_data_loaded', 'fixtures_df'
         ]
         
         for key in keys_to_clear:

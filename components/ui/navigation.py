@@ -60,202 +60,124 @@ class UnifiedNavigation:
                 id="my_fpl_team",
                 label="My FPL Team",
                 icon="👤",
-                description="Manage and optimize your FPL team",
+                description="Analyze your FPL team performance and get personalized insights",
                 order=6
-            ),
-            "fpl_team": NavigationItem(
-                id="fpl_team",
-                label="FPL Team",
-                icon="⚽",
-                description="Connect and analyze your official FPL team",
-                order=7
             ),
             "ai_recommendations": NavigationItem(
                 id="ai_recommendations",
                 label="AI Recommendations",
                 icon="🤖",
-                description="Get AI-powered transfer and team suggestions",
-                order=8
+                description="AI-powered transfer suggestions and team optimization",
+                order=7
             ),
             "team_builder": NavigationItem(
                 id="team_builder",
                 label="Team Builder",
-                icon="🔧",
-                description="Build and plan your optimal FPL team",
-                order=9
+                icon="⚽",
+                description="Build and optimize your FPL team composition",
+                order=8
             )
         }
         
-        # Ensure navigation state exists
-        if "nav_selection" not in st.session_state:
-            st.session_state.nav_selection = "player_analysis"
-
-    def render(self) -> str:
-        """Render the mobile-optimized navigation component"""
-        st.markdown("""
-            <style>
-                /* Enhanced navigation styles for web */
-                .nav-container {
-                    background: white;
-                    border-radius: var(--border-radius);
-                    padding: 0.75rem;
-                    margin: 0 0 2rem 0;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                }
-                
-                .nav-pills {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 0.75rem;
-                    padding: 0.5rem;
-                    justify-content: center;
-                }
-                
-                /* Hide scrollbar for better aesthetics */
-                .nav-pills::-webkit-scrollbar {
-                    display: none;
-                }
-                
-                /* Enhanced navigation pills */
-                .nav-pill {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.75rem 1.25rem;
-                    border-radius: var(--border-radius);
-                    background: var(--background-color);
-                    color: var(--text-color);
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                    cursor: pointer;
-                    border: 1px solid #e2e8f0;
-                    min-width: 120px;
-                    justify-content: center;
-                }
-                
-                .nav-pill:hover {
-                    background: #f8fafc;
-                    transform: translateY(-1px);
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-                }
-                
-                .nav-pill.active {
-                    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-                    color: white;
-                    border: none;
-                    box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.2);
-                }
-                
-                .nav-pill.active:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 8px -2px rgba(102, 126, 234, 0.25);
-                }
-                
-                /* Navigation icons */
-                .nav-icon {
-                    font-size: 1.25rem;
-                    display: inline-block;
-                    vertical-align: middle;
-                }
-                
-                /* Responsive adjustments */
-                @media (min-width: 1024px) {
-                    .nav-container {
-                        padding: 1rem;
-                    }
-                    
-                    .nav-pills {
-                        gap: 1rem;
-                    }
-                    
-                    .nav-pill {
-                        padding: 1rem 1.5rem;
-                    }
-                }
-                
-                /* Mobile optimizations */
-                @media (max-width: 768px) {
-                    .nav-pills {
-                        flex-wrap: nowrap;
-                        overflow-x: auto;
-                        justify-content: flex-start;
-                        -webkit-overflow-scrolling: touch;
-                        padding: 0.25rem;
-                    }
-                    
-                    .nav-pill {
-                        min-width: auto;
-                        padding: 0.5rem 1rem;
-                    }
-                }
-                
-                .nav-pill {
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    padding: 0.5rem 1rem;
-                    white-space: nowrap;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    font-size: 0.875rem;
-                }
-                
-                .nav-pill.active {
-                    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    border: none;
-                }
-                
-                @media (min-width: 768px) {
-                    .nav-pills {
-                        flex-wrap: wrap;
-                        justify-content: center;
-                    }
-                    
-                    .nav-pill {
-                        font-size: 1rem;
-                    }
-                }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        # Create navigation pills
+    def get_nav_items(self) -> Dict[str, NavigationItem]:
+        """Get all navigation items"""
+        return self.nav_items
+    
+    def get_nav_item(self, item_id: str) -> Optional[NavigationItem]:
+        """Get a specific navigation item by ID"""
+        return self.nav_items.get(item_id)
+    
+    def get_ordered_nav_items(self) -> List[NavigationItem]:
+        """Get navigation items sorted by order"""
+        return sorted(self.nav_items.values(), key=lambda x: x.order)
+    
+    def get_nav_labels(self) -> List[str]:
+        """Get navigation labels for selectbox"""
         sorted_items = sorted(self.nav_items.values(), key=lambda x: x.order)
+        return [f"{item.icon} {item.label}" for item in sorted_items]
+    
+    def get_nav_ids(self) -> List[str]:
+        """Get navigation IDs in order"""
+        sorted_items = sorted(self.nav_items.values(), key=lambda x: x.order)
+        return [item.id for item in sorted_items]
+    
+    def label_to_id(self, label: str) -> Optional[str]:
+        """Convert navigation label back to ID"""
+        # Remove icon and space from label
+        clean_label = label.split(' ', 1)[1] if ' ' in label else label
+        for item in self.nav_items.values():
+            if item.label == clean_label:
+                return item.id
+        return None
+    
+    def id_to_label(self, item_id: str) -> Optional[str]:
+        """Convert navigation ID to full label with icon"""
+        item = self.nav_items.get(item_id)
+        if item:
+            return f"{item.icon} {item.label}"
+        return None
+    
+    def render_sidebar_navigation(self) -> str:
+        """Render sidebar navigation and return selected page ID"""
+        st.sidebar.title("⚽ FPL Analytics")
+        st.sidebar.markdown("---")
         
-        st.markdown('<div class="nav-container"><div class="nav-pills">', unsafe_allow_html=True)
+        # Initialize current page if not exists
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = "dashboard"
         
-        for item in sorted_items:
-            active_class = "active" if st.session_state.nav_selection == item.id else ""
-            if st.markdown(f"""
-                <div class="nav-pill {active_class}" onclick="handle_{item.id}_click()">
-                    {item.icon} {item.label}
-                </div>
-                <script>
-                    function handle_{item.id}_click() {{
-                        window.streamlitPythonData = "{item.id}";
-                    }}
-                </script>
-                """, unsafe_allow_html=True):
-                st.session_state.nav_selection = item.id
-                st.rerun()
+        # Get navigation options
+        nav_labels = self.get_nav_labels()
+        nav_ids = self.get_nav_ids()
         
-        st.markdown('</div></div>', unsafe_allow_html=True)
+        # Find current selection index
+        current_id = st.session_state.current_page
+        try:
+            current_index = nav_ids.index(current_id)
+        except ValueError:
+            current_index = 0
+            st.session_state.current_page = nav_ids[0]
         
-        # Add a subtle separator
-        st.markdown('<hr style="margin: 1rem 0; opacity: 0.1;">', unsafe_allow_html=True)
+        # Render navigation
+        selected_label = st.sidebar.selectbox(
+            "Navigate to:",
+            nav_labels,
+            index=current_index,
+            key="navigation_selectbox"
+        )
         
-        return st.session_state.nav_selection
+        # Convert back to ID
+        selected_id = self.label_to_id(selected_label)
+        if selected_id and selected_id != st.session_state.current_page:
+            st.session_state.current_page = selected_id
+            st.rerun()
         
-        return selected
+        return st.session_state.current_page
+    
+    def render_status_info(self):
+        """Render status information in sidebar"""
+        st.sidebar.markdown("---")
+        
+        # Current page info
+        current_item = self.get_nav_item(st.session_state.get('current_page', 'dashboard'))
+        if current_item:
+            st.sidebar.info(f"📍 **Current:** {current_item.label}")
+            st.sidebar.caption(current_item.description)
+        
+        # Data loading status
+        data_loaded = st.session_state.get('data_loaded', False)
+        team_loaded = st.session_state.get('fpl_team_loaded', False)
+        
+        st.sidebar.markdown("**Status:**")
+        status_icon = "✅" if data_loaded else "⏳"
+        st.sidebar.write(f"{status_icon} Player Data: {'Loaded' if data_loaded else 'Loading...'}")
+        
+        team_icon = "✅" if team_loaded else "❌"
+        st.sidebar.write(f"{team_icon} My FPL Team: {'Loaded' if team_loaded else 'Not loaded'}")
+        
+        if team_loaded and st.session_state.get('fpl_team_id'):
+            st.sidebar.write(f"🆔 Team ID: {st.session_state.fpl_team_id}")
 
-    def render_sidebar_nav(self) -> None:
-        """Legacy sidebar navigation - can be used for additional navigation options"""
-        pass
 
-    def get_current_page(self) -> str:
-        """Get the current page ID"""
-        return st.session_state.nav_selection
-
-
-# Create a singleton instance for use throughout the application
+# Create global navigation instance
 navigation = UnifiedNavigation()

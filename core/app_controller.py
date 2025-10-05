@@ -12,8 +12,8 @@ import time
 
 from views.player_analysis_page import PlayerAnalysisPage
 from views.fixture_analysis_page import FixtureAnalysisPage
-from views.my_team_page import MyTeamPage
 from views.dashboard_page import DashboardPage
+from views.my_team_page import MyTeamPage
 from views.team_builder_page import TeamBuilderPage
 from components.ui.navigation import UnifiedNavigation
 from utils.enhanced_cache import display_cache_metrics, cached_load_fpl_data
@@ -22,7 +22,6 @@ from config.app_config import config
 
 # New page imports
 from views.ai_recommendations_page import AIRecommendationsPage
-from views.fpl_team_page import FPLTeamPage
 from services.fpl_data_service import FPLDataService
 
 import time
@@ -67,10 +66,9 @@ class EnhancedFPLAppController:
             # This makes the pages more self-contained and easier to test.
             self.player_analysis = PlayerAnalysisPage()
             self.fixture_analysis = FixtureAnalysisPage()
-            self.my_team = MyTeamPage()
             self.dashboard = DashboardPage()
+            self.my_team = MyTeamPage()
             self.ai_recommendations = AIRecommendationsPage()
-            self.fpl_team = FPLTeamPage()
             self.team_builder = TeamBuilderPage()
             
             # Map pages to their render methods
@@ -78,8 +76,7 @@ class EnhancedFPLAppController:
                 "dashboard": self.dashboard.render,
                 "player_analysis": self.player_analysis.render,
                 "fixture_difficulty": self.fixture_analysis.render,
-                "my_team": self.my_team.render,
-                "fpl_team": self.fpl_team.render,
+                "my_fpl_team": self.my_team.render,
                 "ai_recommendations": self.ai_recommendations.render,
                 "team_builder": self.team_builder.render
             }
@@ -140,9 +137,7 @@ class EnhancedFPLAppController:
                 'teams_df': None,
                 'error_state': None,
                 'loading_state': False,
-                'my_team_loaded': False,
-                'my_team_id': None,
-                'my_team_data': None,
+
                 'feature_flags': {
                     'ai_recommendations': True,
                     'advanced_analytics': True,
@@ -221,11 +216,7 @@ class EnhancedFPLAppController:
         else:
             st.sidebar.warning("⚠️ No data loaded")
 
-        if st.session_state.get('my_team_loaded', False):
-            st.sidebar.success("✅ My Team Loaded")
-            if 'my_team_data' in st.session_state and st.session_state.my_team_data:
-                team_name = st.session_state.my_team_data.get('entry_name', 'Team')
-                st.sidebar.info(f"👤 {team_name}")
+
 
     def _render_data_controls(self):
         """Render data loading controls in the sidebar."""

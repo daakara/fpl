@@ -103,9 +103,9 @@ class PerformanceAwareController:
             'teams_df': None,
             'error_state': None,
             'loading_state': False,
-            'my_team_loaded': False,
-            'my_team_id': None,
-            'my_team_data': None,
+            'fpl_team_loaded': False,
+            'fpl_team_id': None,
+            'fpl_team_data': None,
             'service_status': 'unknown',
             'feature_flags': {
                 'ai_recommendations': True,
@@ -154,7 +154,7 @@ class PerformanceAwareController:
                 "dashboard": self._lazy_load_dashboard,
                 "player_analysis": self._lazy_load_player_analysis,
                 "fixture_difficulty": self._lazy_load_fixture_analysis,
-                "my_team": self._lazy_load_my_team,
+                "my_fpl_team": self._lazy_load_my_fpl_team,
                 "ai_recommendations": self._lazy_load_ai_recommendations,
                 "team_builder": self._lazy_load_team_builder
             }
@@ -193,8 +193,8 @@ class PerformanceAwareController:
     
     @staticmethod
     @st.cache_resource
-    def _lazy_load_my_team():
-        """Lazy load my team page"""
+    def _lazy_load_my_fpl_team():
+        """Lazy load My FPL team page"""
         from views.my_team_page import MyTeamPage
         return MyTeamPage()
     

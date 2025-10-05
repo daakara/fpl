@@ -141,7 +141,7 @@ class FPLSubPagesManager:
         
         # Interactive filters
         st.subheader("🔍 Smart Filters")
-        filtered_df = self.filter_system.render_main_filters(df)
+        filtered_df = self.filter_system.render_filter_controls(df)
         
         if filtered_df.empty:
             st.warning("No players match your filter criteria")
