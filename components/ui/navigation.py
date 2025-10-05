@@ -28,40 +28,61 @@ class UnifiedNavigation:
                 description="Overview of key FPL metrics and insights",
                 order=1
             ),
+            "live_data": NavigationItem(
+                id="live_data",
+                label="Live Data",
+                icon="⚡",
+                description="Real-time FPL monitoring and live updates",
+                order=2
+            ),
             "player_analysis": NavigationItem(
                 id="player_analysis",
                 label="Player Analysis",
                 icon="👥",
                 description="Detailed player performance statistics and trends",
-                order=2
+                order=3
+            ),
+            "advanced_analysis": NavigationItem(
+                id="advanced_analysis",
+                label="Advanced Analysis",
+                icon="🔬",
+                description="Advanced statistical analysis and machine learning insights",
+                order=4
             ),
             "fixture_difficulty": NavigationItem(
                 id="fixture_difficulty",
                 label="Fixture Difficulty",
                 icon="🎯",
                 description="Analyze upcoming fixture difficulty ratings",
-                order=3
+                order=5
             ),
             "my_fpl_team": NavigationItem(
                 id="my_fpl_team",
                 label="My FPL Team",
-                icon="⚽",
+                icon="👤",
                 description="Manage and optimize your FPL team",
-                order=4
+                order=6
+            ),
+            "fpl_team": NavigationItem(
+                id="fpl_team",
+                label="FPL Team",
+                icon="⚽",
+                description="Connect and analyze your official FPL team",
+                order=7
             ),
             "ai_recommendations": NavigationItem(
                 id="ai_recommendations",
                 label="AI Recommendations",
                 icon="🤖",
                 description="Get AI-powered transfer and team suggestions",
-                order=5
+                order=8
             ),
             "team_builder": NavigationItem(
                 id="team_builder",
                 label="Team Builder",
                 icon="🔧",
                 description="Build and plan your optimal FPL team",
-                order=6
+                order=9
             )
         }
         

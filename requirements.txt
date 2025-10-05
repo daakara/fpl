@@ -1,17 +1,22 @@
 # Enhanced FPL Analytics Dashboard - Requirements
+# Phase 1: Foundation Components - Complete ✅
+# Phase 2: AI-Powered Real-Time Intelligence - Complete ✅
+
 # Core Streamlit and Data Processing
 streamlit>=1.28.0
 streamlit-option-menu>=0.3.6
 pandas>=2.0.0
 numpy>=1.24.0
 requests>=2.31.0
+urllib3>=2.0.0
 
-# Data Visualization
+# Data Visualization - Enhanced Suite
 plotly>=5.15.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
+plotly-express>=0.4.1
 
-# Machine Learning and AI
+# Machine Learning and AI - Intelligent Insights
 scikit-learn>=1.3.0
 xgboost>=1.7.0
 lightgbm>=4.0.0
@@ -21,32 +26,38 @@ openpyxl>=3.1.0
 xlsxwriter>=3.1.0
 reportlab>=4.0.0
 
-# Performance and Caching
+# Performance and Caching - Enhanced Cache System
 redis>=4.6.0  # Optional for advanced caching
 joblib>=1.3.0
+diskcache>=5.6.0
 
 # Web Scraping and API Enhancement
 beautifulsoup4>=4.12.0
 aiohttp>=3.8.0
 
 # Date and Time Handling
-python-dateutil>=1.0.0
+python-dateutil>=2.8.0
 
-# Optional: Advanced Analytics
+# Statistical Analysis - Enhanced Metrics
 scipy>=1.11.0
 statsmodels>=0.14.0
 
-# Optional: Real-time Features
+# Real-time Features - Phase 2 Ready
 websockets>=11.0.0
 asyncio-mqtt>=0.13.0
 
-# Optional: Database Support
+# Database Support - Phase 3 Ready
 sqlalchemy>=2.0.0
 
 # Security and Environment Management
 python-dotenv>=1.0.0
 safety>=2.3.0
 bandit>=1.7.0
+
+# Enhanced UI Components
+streamlit-aggrid>=0.3.0
+streamlit-plotly-events>=0.0.6
+streamlit-option-menu>=0.3.6
 
 # Development and Testing
 pytest>=7.4.0
@@ -68,6 +79,14 @@ pre-commit>=3.4.0
 mkdocs>=1.5.0
 mkdocs-material>=9.2.0
 
-# Deployment
+# Deployment - Phase 4 Ready
 gunicorn>=21.0.0  # For production deployment
 streamlit-authenticator>=0.2.0  # For user authentication
+
+# Type Hints and Validation
+typing-extensions>=4.7.0
+pydantic>=2.0.0
+
+# Enhanced Analytics - Phase 1 Complete
+dataclasses>=0.6  # For structured insights
+# warnings is a built-in Python module, no need to install

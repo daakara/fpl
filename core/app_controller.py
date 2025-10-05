@@ -22,6 +22,7 @@ from config.app_config import config
 
 # New page imports
 from views.ai_recommendations_page import AIRecommendationsPage
+from views.fpl_team_page import FPLTeamPage
 from services.fpl_data_service import FPLDataService
 
 import time
@@ -69,6 +70,7 @@ class EnhancedFPLAppController:
             self.my_team = MyTeamPage()
             self.dashboard = DashboardPage()
             self.ai_recommendations = AIRecommendationsPage()
+            self.fpl_team = FPLTeamPage()
             self.team_builder = TeamBuilderPage()
             
             # Map pages to their render methods
@@ -77,6 +79,7 @@ class EnhancedFPLAppController:
                 "player_analysis": self.player_analysis.render,
                 "fixture_difficulty": self.fixture_analysis.render,
                 "my_team": self.my_team.render,
+                "fpl_team": self.fpl_team.render,
                 "ai_recommendations": self.ai_recommendations.render,
                 "team_builder": self.team_builder.render
             }

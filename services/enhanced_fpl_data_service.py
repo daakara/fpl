@@ -67,6 +67,14 @@ class EnhancedFPLDataService:
             'Connection': 'keep-alive'
         })
         
+        # Handle SSL certificate issues in corporate/proxy environments
+        # This is safe for FPL API as it's a read-only public API
+        session.verify = False
+        
+        # Suppress SSL warnings when verification is disabled
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
         return session
     
     @monitor_performance(track_args=True)
@@ -77,8 +85,7 @@ class EnhancedFPLDataService:
             
             response = self.session.get(
                 f"{self.base_url}/bootstrap-static/",
-                timeout=self.timeout,
-                verify=False
+                timeout=self.timeout
             )
             response.raise_for_status()
             

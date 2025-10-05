@@ -409,3 +409,533 @@ def _get_cached_navigation_config(_arg, ...):
 2025-10-04 12:47:04,547 - fpl_analytics - CRITICAL - error_handling._log_error:239 - [SYSTEM][CRITICAL] Service ErrorHandlingMiddleware is already registered
 2025-10-04 12:47:04,553 - fpl_analytics - CRITICAL - error_handling._handle_critical_error:290 - CRITICAL ERROR DETECTED: Service ErrorHandlingMiddleware is already registered
 2025-10-04 17:01:26,572 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out.
+2025-10-04 19:27:47,823 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 92, in render
+    self._render_performance_modeling(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 395, in _render_performance_modeling
+    self._render_regression_models(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 473, in _render_regression_models
+    fig = px.scatter(
+          ^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 290, in main
+    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\middleware\logging_strategy.py", line 289, in error
+    self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
+TypeError: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+2025-10-04 19:28:09,965 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 92, in render
+    self._render_performance_modeling(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 395, in _render_performance_modeling
+    self._render_regression_models(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 473, in _render_regression_models
+    fig = px.scatter(
+          ^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 290, in main
+    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\middleware\logging_strategy.py", line 289, in error
+    self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
+TypeError: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+2025-10-04 19:28:46,454 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 92, in render
+    self._render_performance_modeling(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 395, in _render_performance_modeling
+    self._render_regression_models(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 473, in _render_regression_models
+    fig = px.scatter(
+          ^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 290, in main
+    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\middleware\logging_strategy.py", line 289, in error
+    self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
+TypeError: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+2025-10-04 19:30:46,776 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 92, in render
+    self._render_performance_modeling(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 395, in _render_performance_modeling
+    self._render_regression_models(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 473, in _render_regression_models
+    fig = px.scatter(
+          ^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 290, in main
+    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\middleware\logging_strategy.py", line 289, in error
+    self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
+TypeError: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+2025-10-04 19:35:53,874 - fpl_analytics.error - ERROR - .None:0 - Enhanced application error: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 285, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 92, in render
+    self._render_performance_modeling(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 395, in _render_performance_modeling
+    self._render_regression_models(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\advanced_analysis_page.py", line 473, in _render_regression_models
+    fig = px.scatter(
+          ^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_chart_types.py", line 69, in scatter
+    return make_figure(args=locals(), constructor=go.Scatter)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 2682, in make_figure
+    patch, fit_results = make_trace_kwargs(
+                         ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\_core.py", line 430, in make_trace_kwargs
+    y_out, hover_header, fit_results = trendline_function(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\plotly\express\trendline_functions\__init__.py", line 42, in ols
+    import statsmodels.api as sm
+ModuleNotFoundError: No module named 'statsmodels'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 290, in main
+    logger.error(f"Error rendering page '{current_page}': {str(page_error)}", exc_info=True)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\middleware\logging_strategy.py", line 289, in error
+    self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
+TypeError: middleware.logging_strategy.LoggingStrategy.log() got multiple values for keyword argument 'exc_info'
+2025-10-04 20:28:07,087 - fpl_analytics - ERROR - error_handling.error:61 - FPL API connection test failed: HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Max retries exceeded with url: /api/bootstrap-static/ (Caused by ReadTimeoutError("HTTPSConnectionPool(host='fantasy.premierleague.com', port=443): Read timed out. (read timeout=15)"))
+2025-10-04 20:28:07,400 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': "['transfers_balance'] not in index"
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 48, in render
+    self._render_transfer_market_pulse(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 266, in _render_transfer_market_pulse
+    top_transfers = df.nlargest(20, 'transfers_in_event')[
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\frame.py", line 4119, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6212, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6264, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['transfers_balance'] not in index"
+2025-10-04 20:34:44,635 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': "['transfers_balance'] not in index"
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 58, in render
+    self._render_transfer_market_pulse(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 286, in _render_transfer_market_pulse
+    top_transfers = df.nlargest(20, 'transfers_in_event')[
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\frame.py", line 4119, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6212, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6264, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['transfers_balance'] not in index"
+2025-10-04 20:35:50,976 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': "['transfers_balance'] not in index"
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 58, in render
+    self._render_transfer_market_pulse(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 286, in _render_transfer_market_pulse
+    top_transfers = df.nlargest(20, 'transfers_in_event')[
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\frame.py", line 4119, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6212, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6264, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['transfers_balance'] not in index"
+2025-10-04 20:38:54,779 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': "['transfers_balance'] not in index"
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 58, in render
+    self._render_transfer_market_pulse(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 286, in _render_transfer_market_pulse
+    top_transfers = df.nlargest(20, 'transfers_in_event')[
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\pandas\core\frame.py", line 4113, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\pandas\core\indexes\base.py", line 6212, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "C:\Users\daakara\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\pandas\core\indexes\base.py", line 6264, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['transfers_balance'] not in index"
+2025-10-04 20:42:43,901 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': "['transfers_balance'] not in index"
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 58, in render
+    self._render_transfer_market_pulse(df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 286, in _render_transfer_market_pulse
+    top_transfers = df.nlargest(20, 'transfers_in_event')[
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\frame.py", line 4119, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6212, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\.venv_windows\Lib\site-packages\pandas\core\indexes\base.py", line 6264, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['transfers_balance'] not in index"
+2025-10-04 21:45:39,844 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'Figure' object has no attribute 'update_yaxis'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 67, in render
+    self._render_my_fpl_team_section()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 672, in _render_my_fpl_team_section
+    self._display_fpl_team_dashboard(st.session_state.fpl_team_data)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 800, in _display_fpl_team_dashboard
+    self._display_performance_history(history)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 876, in _display_performance_history
+    fig.update_yaxis(autorange='reversed')  # Lower rank is better
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'Figure' object has no attribute 'update_yaxis'. Did you mean: 'update_yaxes'?
+2025-10-04 22:16:14,631 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:16:20,860 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:19:46,337 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:25:14,535 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:26:13,100 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:29:18,646 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:35:16,720 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    subpages_manager = FPLSubPagesManager()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\enhanced_fpl_subpages.py", line 25, in __init__
+    self.metrics_calculator = EnhancedMetricsCalculator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: EnhancedMetricsCalculator.__init__() missing 2 required positional arguments: 'players_df' and 'teams_df'
+2025-10-04 22:39:10,198 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-04 22:39:17,095 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-04 22:40:20,720 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-04 22:42:21,331 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-05 09:15:06,232 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-05 09:22:55,951 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-05 09:23:18,189 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-05 09:24:55,626 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'FPLSubPagesManager' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 63, in render
+    from views.phase2_subpages import Phase2SubPagesManager
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 26, in <module>
+    class Phase2SubPagesManager(FPLSubPagesManager):
+                                ^^^^^^^^^^^^^^^^^^
+NameError: name 'FPLSubPagesManager' is not defined
+2025-10-05 09:39:52,547 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'PredictiveAnalyticsEngine' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    phase2_manager = Phase2SubPagesManager()
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 40, in __init__
+    self.predictive_engine = PredictiveAnalyticsEngine()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'PredictiveAnalyticsEngine' is not defined
+2025-10-05 09:40:53,015 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'PredictiveAnalyticsEngine' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    phase2_manager = Phase2SubPagesManager()
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 40, in __init__
+    self.predictive_engine = PredictiveAnalyticsEngine()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'PredictiveAnalyticsEngine' is not defined
+2025-10-05 09:42:32,326 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': name 'PredictiveAnalyticsEngine' is not defined
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 64, in render
+    phase2_manager = Phase2SubPagesManager()
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 40, in __init__
+    self.predictive_engine = PredictiveAnalyticsEngine()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'PredictiveAnalyticsEngine' is not defined
+2025-10-05 09:46:49,140 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 09:47:07,868 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 09:47:09,611 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 09:47:33,264 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 10:07:48,857 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 10:08:02,319 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 10:08:59,062 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'
+2025-10-05 10:09:58,960 - fpl_analytics.error - ERROR - .None:0 - Error rendering page 'live_data': 'NoneType' object has no attribute 'render_live_controls'
+Traceback (most recent call last):
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\main_modular.py", line 288, in main
+    page_renderer()
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\live_data_page.py", line 80, in render
+    phase2_manager.render_ai_powered_overview(df, teams_df)
+  File "C:\Users\daakara\OneDrive - DPDHL\Manager Data Analytics & Reporting\Python\Notebooks\fpl\fpl\views\phase2_subpages.py", line 85, in render_ai_powered_overview
+    self.live_stream.render_live_controls()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'render_live_controls'

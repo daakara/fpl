@@ -14,6 +14,7 @@ class PageRouter:
             "👥 Player Analysis": "player_analysis", 
             "🎯 Fixture Difficulty": "fixture_difficulty",
             "👤 My FPL Team": "my_fpl_team",
+            "⚽ FPL Team": "fpl_team",
             "🤖 AI Recommendations": "ai_recommendations",
             "⚽ Team Builder": "team_builder",
         }

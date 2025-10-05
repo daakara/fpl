@@ -286,10 +286,14 @@ class LoggingStrategy:
     
     def error(self, message: str, **kwargs) -> None:
         """Log error message"""
+        # Remove exc_info from kwargs to avoid conflict
+        kwargs.pop('exc_info', None)
         self.log(LogLevel.ERROR, message, logger_type='error', exc_info=True, **kwargs)
     
     def critical(self, message: str, **kwargs) -> None:
         """Log critical message"""
+        # Remove exc_info from kwargs to avoid conflict
+        kwargs.pop('exc_info', None)
         self.log(LogLevel.CRITICAL, message, logger_type='error', exc_info=True, **kwargs)
     
     def performance(self, message: str, execution_time: float, **kwargs) -> None:

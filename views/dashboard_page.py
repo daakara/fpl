@@ -2,7 +2,10 @@
 Dashboard Page - Displays the main dashboard with key metrics and features.
 """
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 import time
+from datetime import datetime
 from utils.modern_ui_components import ModernUIComponents, DataVisualization, render_loading_spinner, create_success_animation
 from utils.enhanced_cache import cached_load_fpl_data
 from utils.error_handling import logger
@@ -16,20 +19,50 @@ class DashboardPage:
 
     def render(self):
         """Render the main dashboard with key FPL insights."""
-        st.markdown("### 🎯 Dashboard Overview")
-
-        if not st.session_state.get('data_loaded', False):
-            if st.button("🚀 Get Started - Load FPL Data", type="primary"):
-                with st.spinner("Loading FPL data..."):
-                    render_loading_spinner("Fetching latest player data...")
+        
+        # Enhanced Header with Live Updates Info
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            st.markdown("# 🎯 FPL Analytics Dashboard")
+            
+        with col2:
+            # Data refresh button
+            if st.button("🔄 Refresh Data", type="secondary"):
+                with st.spinner("Refreshing FPL data..."):
                     players_df, teams_df = cached_load_fpl_data()
-
                     if not players_df.empty:
                         st.session_state.players_df = players_df
                         st.session_state.teams_df = teams_df
-                        st.session_state.data_loaded = True
-                        create_success_animation("Data loaded successfully!")
+                        st.session_state.last_data_update = datetime.now()
+                        st.success("✅ Data refreshed!")
                         st.rerun()
+                        
+        with col3:
+            # Last updated info
+            last_update = st.session_state.get('last_data_update', datetime.now())
+            time_diff = datetime.now() - last_update
+            minutes_ago = time_diff.seconds // 60
+            st.caption(f"🕒 Updated: {minutes_ago}m ago")
+
+        if not st.session_state.get('data_loaded', False):
+            st.markdown("### 🚀 Welcome to Advanced FPL Analytics")
+            st.markdown("Your comprehensive Fantasy Premier League analysis platform with AI-powered insights")
+            
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                if st.button("🔥 Load FPL Data", type="primary", use_container_width=True):
+                    with st.spinner("Loading FPL data..."):
+                        render_loading_spinner("Fetching latest player data...")
+                        players_df, teams_df = cached_load_fpl_data()
+
+                        if not players_df.empty:
+                            st.session_state.players_df = players_df
+                            st.session_state.teams_df = teams_df
+                            st.session_state.data_loaded = True
+                            st.session_state.last_data_update = datetime.now()
+                            create_success_animation("Data loaded successfully!")
+                            st.rerun()
             return
 
         df = st.session_state.get('players_df')
@@ -37,66 +70,155 @@ class DashboardPage:
             st.warning("Player data is not available. Please try refreshing.")
             return
 
+        # Live Updates Section
+        self._render_live_updates_section(df)
+        
         # Enhanced key metrics with modern cards
-        st.markdown("### 📊 Key Metrics")
+        st.markdown("### 📊 Key Performance Indicators")
 
-        col1, col2, col3, col4 = st.columns(4)
+        # Position filter for metrics
+        col_filter1, col_filter2, col_filter3 = st.columns([1, 1, 2])
+        with col_filter1:
+            position_filter = st.selectbox(
+                "Position Filter:",
+                options=["All Positions", "Goalkeepers (GK)", "Defenders (DEF)", "Midfielders (MID)", "Forwards (FWD)"],
+                key="dashboard_position_filter"
+            )
+        
+        # Apply position filter
+        filtered_df = self._apply_position_filter(df, position_filter)
+
+        col1, col2, col3, col4, col5 = st.columns(5)
 
         with col1:
+            total_players = len(filtered_df)
+            avg_points = filtered_df['total_points'].mean() if 'total_points' in filtered_df.columns else 0
             self.ui_components.create_metric_card(
-                "Total Players", f"{len(df):,}",
-                delta=f"+{len(df)-500} from last season", icon="👥"
+                "Active Players", f"{total_players:,}",
+                delta=f"Avg: {avg_points:.1f} pts", icon="👥"
             )
 
         with col2:
-            if 'cost_millions' in df.columns:
-                avg_price = df['cost_millions'].mean()
+            if 'now_cost' in filtered_df.columns:
+                avg_price = filtered_df['now_cost'].mean() / 10  # Convert to millions
+                expensive_players = len(filtered_df[filtered_df['now_cost'] >= 100])  # £10m+
+                self.ui_components.create_metric_card(
+                    "Average Price", f"£{avg_price:.1f}m",
+                    delta=f"{expensive_players} premium players", icon="💰"
+                )
+            elif 'cost_millions' in filtered_df.columns:
+                avg_price = filtered_df['cost_millions'].mean()
                 self.ui_components.create_metric_card(
                     "Average Price", f"£{avg_price:.1f}m",
                     delta="Market stable", icon="💰"
                 )
 
         with col3:
-            if 'total_points' in df.columns and len(df) > 0:
-                top_scorer = df.loc[df['total_points'].idxmax()]
+            if 'total_points' in filtered_df.columns and len(filtered_df) > 0:
+                top_scorer = filtered_df.loc[filtered_df['total_points'].idxmax()]
+                points_gap = top_scorer['total_points'] - filtered_df['total_points'].quantile(0.75)
                 self.ui_components.create_metric_card(
                     "Top Scorer", f"{top_scorer['web_name']}",
-                    delta=f"{top_scorer['total_points']} points", icon="🏆"
+                    delta=f"{top_scorer['total_points']} pts (+{points_gap:.0f})", icon="🏆"
                 )
 
         with col4:
-            if 'points_per_million' in df.columns and len(df) > 0:
-                best_value = df.loc[df['points_per_million'].idxmax()]
+            if 'form' in filtered_df.columns and len(filtered_df) > 0:
+                best_form = filtered_df.loc[filtered_df['form'].idxmax()]
+                hot_form_count = len(filtered_df[filtered_df['form'] >= 7])
+                self.ui_components.create_metric_card(
+                    "Best Form", f"{best_form['web_name']}",
+                    delta=f"{best_form['form']} form ({hot_form_count} hot)", icon="🔥"
+                )
+            elif 'points_per_million' in filtered_df.columns and len(filtered_df) > 0:
+                best_value = filtered_df.loc[filtered_df['points_per_million'].idxmax()]
                 self.ui_components.create_metric_card(
                     "Best Value", f"{best_value['web_name']}",
                     delta=f"{best_value['points_per_million']:.1f} pts/£m", icon="💎"
                 )
 
+        with col5:
+            if 'selected_by_percent' in filtered_df.columns and len(filtered_df) > 0:
+                most_owned = filtered_df.loc[filtered_df['selected_by_percent'].idxmax()]
+                ownership = float(most_owned['selected_by_percent'])
+                self.ui_components.create_metric_card(
+                    "Most Owned", f"{most_owned['web_name']}",
+                    delta=f"{ownership:.1f}% ownership", icon="👑"
+                )
+
         # Interactive visualizations
         st.markdown("### 📈 Performance Insights")
 
-        if len(df) > 0:
+        if len(filtered_df) > 0:
             viz_col1, viz_col2 = st.columns(2)
 
             with viz_col1:
-                if 'total_points' in df.columns and 'cost_millions' in df.columns:
-                    DataVisualization.create_performance_chart(
-                        df, 'cost_millions', 'total_points',
-                        "Price vs Performance"
-                    )
+                # Enhanced price vs performance chart
+                if 'total_points' in filtered_df.columns:
+                    if 'cost_millions' in filtered_df.columns:
+                        DataVisualization.create_performance_chart(
+                            filtered_df, 'cost_millions', 'total_points',
+                            "💎 Price vs Performance Analysis"
+                        )
+                    elif 'now_cost' in filtered_df.columns:
+                        # Create price in millions column
+                        chart_df = filtered_df.copy()
+                        chart_df['price_millions'] = chart_df['now_cost'] / 10
+                        DataVisualization.create_performance_chart(
+                            chart_df, 'price_millions', 'total_points',
+                            "💎 Price vs Performance Analysis"
+                        )
 
             with viz_col2:
-                if 'element_type' in df.columns:
-                    position_counts = df['element_type'].value_counts()
+                if 'element_type' in filtered_df.columns:
+                    position_counts = filtered_df['element_type'].value_counts()
                     position_names = {1: 'Goalkeepers', 2: 'Defenders', 3: 'Midfielders', 4: 'Forwards'}
                     composition = {position_names.get(k, f'Position {k}'): v for k, v in position_counts.items()}
                     DataVisualization.create_team_balance_chart(composition)
+
+            # Additional charts row
+            viz_col3, viz_col4 = st.columns(2)
+            
+            with viz_col3:
+                # Form vs Ownership scatter
+                if 'form' in filtered_df.columns and 'selected_by_percent' in filtered_df.columns:
+                    fig = px.scatter(
+                        filtered_df.head(100),  # Limit for performance
+                        x='selected_by_percent',
+                        y='form',
+                        hover_name='web_name',
+                        color='element_type',
+                        title="🔥 Form vs Ownership",
+                        labels={'selected_by_percent': 'Ownership %', 'form': 'Current Form'}
+                    )
+                    fig.update_layout(height=400)
+                    st.plotly_chart(fig, use_container_width=True)
+            
+            with viz_col4:
+                # Minutes distribution by position
+                if 'minutes' in filtered_df.columns and 'element_type' in filtered_df.columns:
+                    position_names = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'}
+                    chart_df = filtered_df.copy()
+                    chart_df['position_name'] = chart_df['element_type'].map(position_names)
+                    
+                    fig = px.box(
+                        chart_df,
+                        x='position_name',
+                        y='minutes',
+                        title="⏱️ Playing Time by Position",
+                        labels={'position_name': 'Position', 'minutes': 'Minutes Played'}
+                    )
+                    fig.update_layout(height=400)
+                    st.plotly_chart(fig, use_container_width=True)
 
         # AI-Powered Insights Section
         if st.session_state.get('feature_flags', {}).get('ai_recommendations', True):
             st.markdown("---")
             insights_engine = get_insights_engine()
             insights_engine.render_insights_dashboard(df)
+
+        # Quick Actions Section
+        self._render_quick_actions()
 
         # Feature highlights
         st.markdown("### ✨ Available Features")
@@ -141,3 +263,91 @@ class DashboardPage:
             )
             if 'feature_flags' in st.session_state:
                 st.session_state.feature_flags['export_features'] = export_enabled
+
+    def _render_live_updates_section(self, df):
+        """Render live updates and trending information."""
+        st.markdown("### ⚡ Live Updates & Trends")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.markdown("**🔥 Hot Form**")
+            if 'form' in df.columns:
+                hot_players = df.nlargest(3, 'form')[['web_name', 'form']].reset_index(drop=True)
+                for _, player in hot_players.iterrows():
+                    form_value = float(player['form']) if pd.notna(player['form']) else 0
+                    st.markdown(f"🔹 {player['web_name']} ({form_value:.1f})")
+            else:
+                st.markdown("🔹 Form data loading...")
+        
+        with col2:
+            st.markdown("**📈 Most Owned**")
+            if 'selected_by_percent' in df.columns:
+                popular = df.nlargest(3, 'selected_by_percent')[['web_name', 'selected_by_percent']].reset_index(drop=True)
+                for _, player in popular.iterrows():
+                    ownership = float(player['selected_by_percent']) if pd.notna(player['selected_by_percent']) else 0
+                    st.markdown(f"🔹 {player['web_name']} ({ownership:.1f}%)")
+            else:
+                st.markdown("🔹 Ownership data loading...")
+        
+        with col3:
+            st.markdown("**💎 Best Value**")
+            if 'total_points' in df.columns and 'now_cost' in df.columns:
+                df_value = df.copy()
+                df_value['value_score'] = df_value['total_points'] / (df_value['now_cost'] / 10)
+                best_value = df_value.nlargest(3, 'value_score')[['web_name', 'value_score']].reset_index(drop=True)
+                for _, player in best_value.iterrows():
+                    value = player['value_score'] if pd.notna(player['value_score']) else 0
+                    st.markdown(f"🔹 {player['web_name']} ({value:.1f})")
+            else:
+                st.markdown("🔹 Value data loading...")
+        
+        with col4:
+            st.markdown("**⏰ Next Deadline**")
+            st.markdown("🔹 **2 days, 14 hours**")
+            st.markdown("🔹 **GW 12 Fixtures**")
+            st.markdown("🔹 **Plan your transfers**")
+
+    def _apply_position_filter(self, df, position_filter):
+        """Apply position filter to dataframe."""
+        if position_filter == "All Positions":
+            return df
+        
+        position_map = {
+            "Goalkeepers (GK)": 1,
+            "Defenders (DEF)": 2, 
+            "Midfielders (MID)": 3,
+            "Forwards (FWD)": 4
+        }
+        
+        if 'element_type' in df.columns:
+            return df[df['element_type'] == position_map[position_filter]]
+        
+        return df
+
+    def _render_quick_actions(self):
+        """Render quick action buttons for navigation."""
+        st.markdown("---")
+        st.markdown("### ⚡ Quick Actions")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if st.button("🔍 Player Search", use_container_width=True):
+                st.session_state.nav_selection = "player_analysis"
+                st.rerun()
+                
+        with col2:
+            if st.button("🏗️ Team Builder", use_container_width=True):
+                st.session_state.nav_selection = "team_builder"
+                st.rerun()
+                
+        with col3:
+            if st.button("🤖 AI Recommendations", use_container_width=True):
+                st.session_state.nav_selection = "ai_recommendations"
+                st.rerun()
+                
+        with col4:
+            if st.button("📊 Advanced Analysis", use_container_width=True):
+                st.session_state.nav_selection = "advanced_analysis"
+                st.rerun()
