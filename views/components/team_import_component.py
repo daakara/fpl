@@ -29,7 +29,7 @@ class TeamImportComponent:
         
         with col1:
             # Use stored team ID if available
-            default_team_id = st.session_state.my_team_id if st.session_state.my_team_id else ""
+            default_team_id = st.session_state.get('fpl_team_id', '') or ""
             team_id = st.text_input(
                 "Enter your FPL Team ID:",
                 value=default_team_id,
@@ -135,10 +135,10 @@ class TeamImportComponent:
                     
                     # Set all session state at once
                     session_updates = {
-                        'my_team_data': team_data,
-                        'my_team_id': team_id,
-                        'my_team_gameweek': gameweek,
-                        'my_team_loaded': True,
+                        'fpl_team_data': team_data,
+                        'fpl_team_id': team_id,
+                        'fpl_team_gameweek': gameweek,
+                        'fpl_team_loaded': True,
                         'current_page': "👤 My FPL Team"
                     }
                     
@@ -161,7 +161,7 @@ class TeamImportComponent:
             logger.error(f"Error loading team: {error_msg}")
             
             # Clear session state
-            keys_to_clear = ['my_team_loaded', 'my_team_id', 'my_team_data', 'my_team_gameweek']
+            keys_to_clear = ['fpl_team_loaded', 'fpl_team_id', 'fpl_team_data', 'fpl_team_gameweek']
             for key in keys_to_clear:
                 if key in st.session_state:
                     del st.session_state[key]

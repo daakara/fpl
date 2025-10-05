@@ -57,7 +57,7 @@ bandit>=1.7.0
 # Enhanced UI Components
 streamlit-aggrid>=0.3.0
 streamlit-plotly-events>=0.0.6
-streamlit-option-menu>=0.3.6
+
 
 # Development and Testing
 pytest>=7.4.0

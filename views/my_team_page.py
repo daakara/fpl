@@ -16,6 +16,10 @@ from .components.performance_analysis_component import PerformanceAnalysisCompon
 from .components.team_recommendations_component import TeamRecommendationsComponent
 from .components.starting_xi_optimizer_component import StartingXIOptimizerComponent
 from .components.advanced_analytics_factory import AdvancedAnalyticsComponentFactory
+from .components.historical_performance_component import HistoricalPerformanceComponent
+from .components.mini_league_component import MiniLeagueComponent
+from .components.team_health_component import TeamHealthComponent
+from .components.ai_insights_component import AIInsightsComponent
 
 
 class MyTeamPage:
@@ -41,6 +45,12 @@ class MyTeamPage:
         self.transfer_planning = factory.create_transfer_planning_component()
         self.performance_comparison = factory.create_performance_comparison_component()
         self.fixture_analysis = factory.create_fixture_analysis_component()
+        
+        # New enhanced components
+        self.historical_performance = HistoricalPerformanceComponent(self.data_service)
+        self.mini_league = MiniLeagueComponent(self.data_service)
+        self.team_health = TeamHealthComponent(self.data_service)
+        self.ai_insights = AIInsightsComponent(self.data_service)
     
     def __call__(self):
         """Make the class callable for compatibility"""
@@ -366,10 +376,14 @@ class MyTeamPage:
             "📊 Performance Analysis", 
             "💡 Recommendations",
             "⭐ Starting XI Optimizer",
+            "🤖 AI Insights",
+            "📈 Historical Performance",
+            "🏆 Mini-League",
+            "🏥 Team Health",
             "🎯 SWOT Analysis",
-            "📈 Advanced Analytics",
+            "📊 Advanced Analytics",
             "🔄 Transfer Planning",
-            "📊 Performance Comparison",
+            "📋 Performance Comparison",
             "⚽ Fixture Analysis"
         ]
         
@@ -381,6 +395,10 @@ class MyTeamPage:
             lambda: self._render_performance_tab(team_data),
             lambda: self._render_recommendations_tab(team_data),
             lambda: self._render_optimizer_tab(team_data),
+            lambda: self._render_ai_insights_tab(team_data),
+            lambda: self._render_historical_performance_tab(team_data),
+            lambda: self._render_mini_league_tab(team_data),
+            lambda: self._render_team_health_tab(team_data),
             lambda: self._render_swot_tab(team_data),
             lambda: self._render_advanced_analytics_tab(team_data),
             lambda: self._render_transfer_planning_tab(team_data),
@@ -466,6 +484,52 @@ class MyTeamPage:
         
         players_df = st.session_state.players_df
         self.fixture_analysis.render_fixture_analysis(team_data, players_df)
+    
+    def _render_historical_performance_tab(self, team_data):
+        """Render historical performance analysis tab"""
+        try:
+            self.historical_performance.render_historical_analysis(team_data)
+        except Exception as e:
+            logger.error(f"Error in historical performance tab: {str(e)}")
+            st.error("⚠️ Historical performance analysis unavailable. This feature requires extended team data.")
+            st.info("💡 This tab will show points trends, value changes, transfer history, and league position tracking once more data is available.")
+    
+    def _render_mini_league_tab(self, team_data):
+        """Render mini-league analysis tab"""
+        try:
+            self.mini_league.render_mini_league_analysis(team_data)
+        except Exception as e:
+            logger.error(f"Error in mini-league tab: {str(e)}")
+            st.error("⚠️ Mini-league analysis unavailable. This feature requires league data.")
+            st.info("💡 This tab will show league standings, head-to-head records, recent form comparison, and captain analysis once league data is connected.")
+    
+    def _render_team_health_tab(self, team_data):
+        """Render team health analysis tab"""
+        if not st.session_state.get('data_loaded', False):
+            st.warning("Load player data to enable team health analysis")
+            return
+        
+        try:
+            players_df = st.session_state.players_df
+            self.team_health.render_team_health(team_data, players_df)
+        except Exception as e:
+            logger.error(f"Error in team health tab: {str(e)}")
+            st.error("⚠️ Team health analysis encountered an error.")
+            st.info("💡 This tab provides player fitness status, financial health, strategy analysis, and risk assessment.")
+    
+    def _render_ai_insights_tab(self, team_data):
+        """Render AI insights analysis tab"""
+        if not st.session_state.get('data_loaded', False):
+            st.warning("Load player data to enable AI insights")
+            return
+        
+        try:
+            players_df = st.session_state.players_df
+            self.ai_insights.render_ai_insights(team_data, players_df)
+        except Exception as e:
+            logger.error(f"Error in AI insights tab: {str(e)}")
+            st.error("⚠️ AI insights analysis encountered an error.")
+            st.info("💡 This tab provides smart recommendations, predictive analysis, success probability, and pattern recognition.")
     
     def _render_reload_option(self):
         """Render reload option in sidebar"""
