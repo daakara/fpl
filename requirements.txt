@@ -4,6 +4,7 @@
 
 # Core Streamlit and Data Processing
 streamlit>=1.28.0
+streamlit-option-menu>=0.4.0
 streamlit-option-menu>=0.3.6
 pandas>=2.0.0
 numpy>=1.24.0

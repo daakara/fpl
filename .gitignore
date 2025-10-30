@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# FPL Analytics specific
+*.log
+cache/
+.cache/
+*.cache
+.DS_Store
+
 # C extensions
 *.so
 

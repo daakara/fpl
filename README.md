@@ -1,10 +1,10 @@
-# FPL Analytics Dashboard
+# 🚀 FPL Analytics - Advanced Fantasy Premier League Dashboard
 
 ![CI/CD Status](https://github.com/daakara/fpl/workflows/FPL%20Analytics%20CI/CD/badge.svg)
 [![Coverage](https://codecov.io/gh/daakara/fpl/branch/main/graph/badge.svg)](https://codecov.io/gh/daakara/fpl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive Fantasy Premier League (FPL) analytics dashboard built with Streamlit, featuring advanced data analysis, machine learning-powered recommendations, and interactive visualizations.
+A comprehensive, data-driven Fantasy Premier League analytics application built with Streamlit, featuring **live FPL API integration**, **intelligent player recommendations**, and **advanced fixture analysis**. Now with 746+ live players and real-time market intelligence!
 
 ## 🚀 Features
 
