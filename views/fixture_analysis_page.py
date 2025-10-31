@@ -149,6 +149,39 @@ class FixtureAnalysisPage:
             st.warning(f"Could not fetch live fixtures: {e}")
             return []
     
+    def _get_team_fixtures_live(self, team_id, teams_dict, fixtures, max_fixtures=5):
+        """Get live fixtures for a specific team"""
+        upcoming_fixtures = [f for f in fixtures if not f.get('finished', True)]
+        team_fixtures = []
+        
+        for fixture in upcoming_fixtures:
+            if fixture.get('team_h') == team_id:
+                # Home fixture
+                opponent_id = fixture.get('team_a')
+                opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
+                difficulty = fixture.get('team_h_difficulty', 3)
+                team_fixtures.append({
+                    'opponent': f"vs {opponent} (H)",
+                    'difficulty': difficulty,
+                    'event': fixture.get('event', 0),
+                    'home': True
+                })
+            elif fixture.get('team_a') == team_id:
+                # Away fixture  
+                opponent_id = fixture.get('team_h')
+                opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
+                difficulty = fixture.get('team_a_difficulty', 3)
+                team_fixtures.append({
+                    'opponent': f"@ {opponent} (A)",
+                    'difficulty': difficulty,
+                    'event': fixture.get('event', 0),
+                    'home': False
+                })
+        
+        # Sort by event (gameweek) and take next N fixtures
+        team_fixtures.sort(key=lambda x: x['event'])
+        return team_fixtures[:max_fixtures]
+    
     def _prepare_players_dataframe(self, data):
         """Prepare players DataFrame from FPL data for existing analysis tabs"""
         try:
@@ -368,9 +401,9 @@ class FixtureAnalysisPage:
             st.warning("⚠️ Live fixture data not available - please check API connection")
             
     def _render_attack_difficulty(self, data):
-        """Render attacking fixture difficulty analysis"""
+        """Render attacking fixture difficulty analysis using live FPL API data"""
         st.markdown("#### ⚔️ **Attack Difficulty Analysis**")
-        st.info("💡 **Attack FDR** focuses on how easy it is for teams to score goals against upcoming opponents")
+        st.info("💡 **Attack FDR** based on live FPL API difficulty ratings - focuses on scoring potential")
         
         # Add CSS for attack difficulty styling
         st.markdown("""
@@ -393,52 +426,76 @@ class FixtureAnalysisPage:
         </style>
         """, unsafe_allow_html=True)
         
-        # Get teams data
-        if isinstance(data, dict) and 'teams' in data:
+        # Get teams and fixtures data
+        if isinstance(data, dict) and 'teams' in data and 'fixtures' in data:
             teams = data.get('teams', [])
+            fixtures = data.get('fixtures', [])
+            
+            if not fixtures:
+                st.warning("⚠️ No live fixture data available for attack analysis")
+                return
+            
+            # Create team lookup
+            teams_dict = {team['id']: team for team in teams}
             
             # Create attack-focused difficulty data
             attack_data = []
             
-            for team in teams[:10]:
+            for team in teams:
+                team_id = team.get('id')
                 team_name = team.get('name', 'Unknown')
                 team_short = team.get('short_name', team_name[:3])
                 
-                # Generate attack difficulty (lower = easier to score against opponents)
-                next_5_fixtures = self._generate_fixtures(team_short, team.get('strength', 3), focus='attack')
-                avg_attack_difficulty = sum(f['attack_difficulty'] for f in next_5_fixtures) / len(next_5_fixtures)
+                # Get live fixtures for this team
+                team_fixtures = self._get_team_fixtures_live(team_id, teams_dict, fixtures, 5)
                 
-                attack_data.append({
-                    'Team': team_name,
-                    'Attack FDR': round(avg_attack_difficulty, 1),
-                    'GW10 ATT': f"{next_5_fixtures[0]['opponent']} ({next_5_fixtures[0]['attack_difficulty']})",
-                    'GW11 ATT': f"{next_5_fixtures[1]['opponent']} ({next_5_fixtures[1]['attack_difficulty']})",
-                    'GW12 ATT': f"{next_5_fixtures[2]['opponent']} ({next_5_fixtures[2]['attack_difficulty']})",
-                    'GW13 ATT': f"{next_5_fixtures[3]['opponent']} ({next_5_fixtures[3]['attack_difficulty']})",
-                    'GW14 ATT': f"{next_5_fixtures[4]['opponent']} ({next_5_fixtures[4]['attack_difficulty']})",
-                    'Recommendation': self._get_attack_recommendation(avg_attack_difficulty, team_short)
-                })
+                if len(team_fixtures) >= 3:  # Only show teams with at least 3 fixtures
+                    avg_attack_difficulty = sum(f['difficulty'] for f in team_fixtures) / len(team_fixtures)
+                    
+                    attack_entry = {
+                        'Team': team_name,
+                        'Attack FDR': round(avg_attack_difficulty, 1)
+                    }
+                    
+                    # Add individual fixtures with attack context
+                    for i, fixture in enumerate(team_fixtures):
+                        gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
+                        attack_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"
+                    
+                    # Add attack recommendation
+                    if avg_attack_difficulty <= 2.5:
+                        recommendation = "🎯 Great attacking fixtures"
+                    elif avg_attack_difficulty <= 3.5:
+                        recommendation = "⚖️ Average attacking potential"
+                    else:
+                        recommendation = "⚠️ Difficult attacking fixtures"
+                    
+                    attack_entry['Recommendation'] = recommendation
+                    attack_data.append(attack_entry)
             
             attack_df = pd.DataFrame(attack_data)
             
-            # Enhanced color coding for attack difficulty (accessible for dark mode)
-            def highlight_attack_difficulty(val):
-                if isinstance(val, str) and '(' in val:
-                    difficulty = int(val.split('(')[1].split(')')[0])
-                    if difficulty <= 2:
-                        # Easy attack - Blue/Cyan with white text
-                        return 'background-color: #06b6d4; color: white; font-weight: bold; border: 1px solid #0891b2'
-                    elif difficulty == 3:
-                        # Medium attack - Orange with dark text
-                        return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
-                    else:
-                        # Hard attack - Red with white text
-                        return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
-                return ''
-            
-            styled_attack_df = attack_df.style.applymap(highlight_attack_difficulty, 
-                                                      subset=['GW10 ATT', 'GW11 ATT', 'GW12 ATT', 'GW13 ATT', 'GW14 ATT'])
-            st.dataframe(styled_attack_df, width='stretch')
+            if not attack_df.empty:
+                # Enhanced color coding for attack difficulty (accessible for dark mode)
+                def highlight_attack_difficulty(val):
+                    if isinstance(val, str) and '(' in val:
+                        difficulty = int(val.split('(')[1].split(')')[0])
+                        if difficulty <= 2:
+                            # Easy attack - Blue/Cyan with white text
+                            return 'background-color: #06b6d4; color: white; font-weight: bold; border: 1px solid #0891b2'
+                        elif difficulty == 3:
+                            # Medium attack - Orange with dark text
+                            return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
+                        else:
+                            # Hard attack - Red with white text
+                            return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                    return ''
+                
+                # Get fixture columns dynamically (excluding Team, Attack FDR, and Recommendation)
+                fixture_cols = [col for col in attack_df.columns if col not in ['Team', 'Attack FDR', 'Recommendation']]
+                
+                styled_attack_df = attack_df.style.applymap(highlight_attack_difficulty, subset=fixture_cols)
+                st.dataframe(styled_attack_df, width='stretch')
             
             # Attack recommendations
             st.markdown("#### 🎯 **Attack Recommendations**")
@@ -483,67 +540,90 @@ class FixtureAnalysisPage:
         </style>
         """, unsafe_allow_html=True)
         
-        # Get teams data
+        # Get live fixtures data
         if isinstance(data, dict) and 'teams' in data:
             teams = data.get('teams', [])
+            fixtures = self._get_live_fixtures()
             
-            # Create defense-focused difficulty data
-            defense_data = []
-            
-            for team in teams[:10]:
-                team_name = team.get('name', 'Unknown')
-                team_short = team.get('short_name', team_name[:3])
+            if fixtures and len(fixtures) > 0:
+                # Create teams dictionary for quick lookup
+                teams_dict = {team.get('id'): team.get('name', 'Unknown') for team in teams}
                 
-                # Generate defense difficulty (lower = more likely to keep clean sheets)
-                next_5_fixtures = self._generate_fixtures(team_short, team.get('strength', 3), focus='defense')
-                avg_defense_difficulty = sum(f['defense_difficulty'] for f in next_5_fixtures) / len(next_5_fixtures)
+                defense_data = []
                 
-                defense_data.append({
-                    'Team': team_name,
-                    'Defense FDR': round(avg_defense_difficulty, 1),
-                    'GW10 DEF': f"{next_5_fixtures[0]['opponent']} ({next_5_fixtures[0]['defense_difficulty']})",
-                    'GW11 DEF': f"{next_5_fixtures[1]['opponent']} ({next_5_fixtures[1]['defense_difficulty']})",
-                    'GW12 DEF': f"{next_5_fixtures[2]['opponent']} ({next_5_fixtures[2]['defense_difficulty']})",
-                    'GW13 DEF': f"{next_5_fixtures[3]['opponent']} ({next_5_fixtures[3]['defense_difficulty']})",
-                    'GW14 DEF': f"{next_5_fixtures[4]['opponent']} ({next_5_fixtures[4]['defense_difficulty']})",
-                    'Clean Sheet %': f"{max(20, 80 - (avg_defense_difficulty * 15)):.0f}%",
-                    'Recommendation': self._get_defense_recommendation(avg_defense_difficulty, team_short)
-                })
+                for team in teams:
+                    team_id = team.get('id')
+                    team_name = team.get('name', 'Unknown')
+                    
+                    # Get live team fixtures
+                    team_fixtures = self._get_team_fixtures_live(team_id, teams_dict, fixtures, 5)
+                    
+                    if len(team_fixtures) >= 3:  # Only show teams with at least 3 fixtures
+                        avg_defense_difficulty = sum(f['difficulty'] for f in team_fixtures) / len(team_fixtures)
+                        
+                        defense_entry = {
+                            'Team': team_name,
+                            'Defense FDR': round(avg_defense_difficulty, 1)
+                        }
+                        
+                        # Add individual fixtures with defense context
+                        for i, fixture in enumerate(team_fixtures):
+                            gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
+                            defense_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"
+                        
+                        # Add clean sheet percentage and defense recommendation
+                        clean_sheet_pct = max(20, 80 - (avg_defense_difficulty * 15))
+                        defense_entry['Clean Sheet %'] = f"{clean_sheet_pct:.0f}%"
+                        
+                        if avg_defense_difficulty <= 2.5:
+                            recommendation = "🛡️ Excellent clean sheet potential"
+                        elif avg_defense_difficulty <= 3.5:
+                            recommendation = "⚖️ Average defensive fixtures"
+                        else:
+                            recommendation = "⚠️ Difficult defensive fixtures"
+                        
+                        defense_entry['Recommendation'] = recommendation
+                        defense_data.append(defense_entry)
             
-            defense_df = pd.DataFrame(defense_data)
-            
-            # Enhanced color coding for defense difficulty (accessible for dark mode)
-            def highlight_defense_difficulty(val):
-                if isinstance(val, str) and '(' in val:
-                    difficulty = int(val.split('(')[1].split(')')[0])
-                    if difficulty <= 2:
-                        # Easy defense - Green with white text (good clean sheet potential)
-                        return 'background-color: #10b981; color: white; font-weight: bold; border: 1px solid #059669'
-                    elif difficulty == 3:
-                        # Medium defense - Orange with dark text
-                        return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
-                    else:
-                        # Hard defense - Red with white text (poor clean sheet potential)
-                        return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
-                return ''
-            
-            styled_defense_df = defense_df.style.applymap(highlight_defense_difficulty,
-                                                        subset=['GW10 DEF', 'GW11 DEF', 'GW12 DEF', 'GW13 DEF', 'GW14 DEF'])
-            st.dataframe(styled_defense_df, width='stretch')
-            
-            # Defense recommendations
-            st.markdown("#### 🛡️ **Defense Recommendations**")
-            best_defense = min(defense_data, key=lambda x: x['Defense FDR'])
-            worst_defense = max(defense_data, key=lambda x: x['Defense FDR'])
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                st.success(f"🛡️ **Best Defense Fixtures**: {best_defense['Team']} (FDR: {best_defense['Defense FDR']})")
-                st.write("✅ Strong clean sheet potential - consider defensive assets")
+                defense_df = pd.DataFrame(defense_data)
                 
-            with col2:
-                st.error(f"🚨 **Worst Defense Fixtures**: {worst_defense['Team']} (FDR: {worst_defense['Defense FDR']})")
-                st.write("⚠️ Avoid defensive assets - clean sheets unlikely")
+                if not defense_df.empty:
+                    # Enhanced color coding for defense difficulty (accessible for dark mode)
+                    def highlight_defense_difficulty(val):
+                        if isinstance(val, str) and '(' in val:
+                            difficulty = int(val.split('(')[1].split(')')[0])
+                            if difficulty <= 2:
+                                # Easy defense - Green with white text (good clean sheet potential)
+                                return 'background-color: #10b981; color: white; font-weight: bold; border: 1px solid #059669'
+                            elif difficulty == 3:
+                                # Medium defense - Orange with dark text
+                                return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
+                            else:
+                                # Hard defense - Red with white text (poor clean sheet potential)
+                                return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                        return ''
+                    
+                    # Get fixture columns dynamically (excluding Team, Defense FDR, Clean Sheet %, and Recommendation)
+                    fixture_cols = [col for col in defense_df.columns if col not in ['Team', 'Defense FDR', 'Clean Sheet %', 'Recommendation']]
+                    
+                    styled_defense_df = defense_df.style.applymap(highlight_defense_difficulty, subset=fixture_cols)
+                    st.dataframe(styled_defense_df, width='stretch')
+            
+                # Defense recommendations
+                st.markdown("#### 🛡️ **Defense Recommendations**")
+                best_defense = min(defense_data, key=lambda x: x['Defense FDR'])
+                worst_defense = max(defense_data, key=lambda x: x['Defense FDR'])
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.success(f"🛡️ **Best Defense Fixtures**: {best_defense['Team']} (FDR: {best_defense['Defense FDR']})")
+                    st.write("✅ Strong clean sheet potential - consider defensive assets")
+                    
+                with col2:
+                    st.error(f"🚨 **Worst Defense Fixtures**: {worst_defense['Team']} (FDR: {worst_defense['Defense FDR']})")
+                    st.write("⚠️ Avoid defensive assets - clean sheets unlikely")
+            else:
+                st.warning("⚠️ No live defense fixture data available")
         else:
             st.warning("⚠️ Live defense difficulty data not available")
     
