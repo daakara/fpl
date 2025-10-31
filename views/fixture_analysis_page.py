@@ -95,6 +95,9 @@ class FixtureAnalysisPage:
                 fpl_service = EnhancedFPLDataService()
                 data = fpl_service.get_bootstrap_data()
                 if data and 'teams' in data:
+                    # Also get live fixtures data
+                    fixtures = self._get_live_fixtures()
+                    data['fixtures'] = fixtures
                     # Also prepare players DataFrame for existing tabs
                     self._prepare_players_dataframe(data)
                     return data
@@ -105,6 +108,8 @@ class FixtureAnalysisPage:
             if hasattr(st.session_state, 'fpl_service') and st.session_state.fpl_service:
                 data = st.session_state.fpl_service.get_bootstrap_data()
                 if data and 'teams' in data:
+                    fixtures = self._get_live_fixtures()
+                    data['fixtures'] = fixtures
                     self._prepare_players_dataframe(data)
                     return data
             
@@ -112,6 +117,8 @@ class FixtureAnalysisPage:
             if 'fpl_data' in st.session_state:
                 data = st.session_state.fpl_data
                 if data and 'teams' in data:
+                    fixtures = self._get_live_fixtures()
+                    data['fixtures'] = fixtures
                     self._prepare_players_dataframe(data)
                     return data
                     
@@ -119,6 +126,8 @@ class FixtureAnalysisPage:
             if hasattr(st.session_state, 'app') and hasattr(st.session_state.app, 'fpl_service'):
                 data = st.session_state.app.fpl_service.get_bootstrap_data()
                 if data and 'teams' in data:
+                    fixtures = self._get_live_fixtures()
+                    data['fixtures'] = fixtures
                     self._prepare_players_dataframe(data)
                     return data
             
@@ -126,6 +135,19 @@ class FixtureAnalysisPage:
         except Exception as e:
             st.error(f"Error accessing FPL data: {e}")
             return {}
+    
+    def _get_live_fixtures(self):
+        """Get live fixtures data from FPL API"""
+        try:
+            import requests
+            response = requests.get('https://fantasy.premierleague.com/api/fixtures/', timeout=10)
+            if response.status_code == 200:
+                fixtures = response.json()
+                return fixtures
+            return []
+        except Exception as e:
+            st.warning(f"Could not fetch live fixtures: {e}")
+            return []
     
     def _prepare_players_dataframe(self, data):
         """Prepare players DataFrame from FPL data for existing analysis tabs"""
@@ -169,38 +191,87 @@ class FixtureAnalysisPage:
             st.session_state.data_loaded = False
     
     def _render_overall_difficulty(self, data):
-        """Render overall fixture difficulty analysis"""
+        """Render overall fixture difficulty analysis using live FPL API data"""
         st.markdown("#### 📊 **Overall Fixture Difficulty**")
-        st.info("💡 **Overall FDR** combines both attacking and defensive fixture difficulty for a complete picture")
+        st.info("💡 **Overall FDR** based on live FPL API fixture difficulty ratings")
         
-        # Get teams data
-        if isinstance(data, dict) and 'teams' in data:
+        # Get teams and fixtures data
+        if isinstance(data, dict) and 'teams' in data and 'fixtures' in data:
             teams = data.get('teams', [])
+            fixtures = data.get('fixtures', [])
             
-            # Create comprehensive fixture difficulty data
+            if not fixtures:
+                st.warning("⚠️ No live fixture data available")
+                return
+                
+            # Create team lookup
+            teams_dict = {team['id']: team for team in teams}
+            
+            # Get upcoming fixtures (not finished)
+            upcoming_fixtures = [f for f in fixtures if not f.get('finished', True)]
+            
+            if not upcoming_fixtures:
+                st.warning("⚠️ No upcoming fixtures found")
+                return
+                
+            # Create fixture difficulty data for each team
             fixture_data = []
             
-            for team in teams[:10]:  # Top 10 teams
+            for team in teams:
+                team_id = team.get('id')
                 team_name = team.get('name', 'Unknown')
                 team_short = team.get('short_name', team_name[:3])
                 
-                # Calculate fixture difficulty (simulate based on team strength)
-                team_strength = team.get('strength', 3)
+                # Get next 5 fixtures for this team
+                team_fixtures = []
+                for fixture in upcoming_fixtures:
+                    if fixture.get('team_h') == team_id:
+                        # Home fixture
+                        opponent_id = fixture.get('team_a')
+                        opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
+                        difficulty = fixture.get('team_h_difficulty', 3)
+                        team_fixtures.append({
+                            'opponent': f"vs {opponent} (H)",
+                            'difficulty': difficulty,
+                            'event': fixture.get('event', 0)
+                        })
+                    elif fixture.get('team_a') == team_id:
+                        # Away fixture
+                        opponent_id = fixture.get('team_h')
+                        opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
+                        difficulty = fixture.get('team_a_difficulty', 3)
+                        team_fixtures.append({
+                            'opponent': f"@ {opponent} (A)",
+                            'difficulty': difficulty,
+                            'event': fixture.get('event', 0)
+                        })
                 
-                # Generate next 5 fixtures with difficulty ratings
-                next_5_fixtures = self._generate_fixtures(team_short, team_strength)
-                avg_difficulty = sum(f['difficulty'] for f in next_5_fixtures) / len(next_5_fixtures)
+                # Sort by event (gameweek) and take next 5
+                team_fixtures.sort(key=lambda x: x['event'])
+                next_5 = team_fixtures[:5]
                 
-                fixture_data.append({
-                    'Team': team_name,
-                    'Short': team_short,
-                    'Next 5 FDR': round(avg_difficulty, 1),
-                    'GW10': next_5_fixtures[0]['opponent'] + f" ({next_5_fixtures[0]['difficulty']})",
-                    'GW11': next_5_fixtures[1]['opponent'] + f" ({next_5_fixtures[1]['difficulty']})",
-                    'GW12': next_5_fixtures[2]['opponent'] + f" ({next_5_fixtures[2]['difficulty']})",
-                    'GW13': next_5_fixtures[3]['opponent'] + f" ({next_5_fixtures[3]['difficulty']})",
-                    'GW14': next_5_fixtures[4]['opponent'] + f" ({next_5_fixtures[4]['difficulty']})",
-                })
+                if len(next_5) >= 3:  # Only show teams with at least 3 fixtures
+                    avg_difficulty = sum(f['difficulty'] for f in next_5) / len(next_5)
+                    
+                    fixture_entry = {
+                        'Team': team_name,
+                        'Short': team_short,
+                        'Next 5 FDR': round(avg_difficulty, 1)
+                    }
+                    
+                    # Add individual fixtures
+                    for i, fixture in enumerate(next_5):
+                        gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
+                        fixture_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"
+                    
+                    fixture_data.append(fixture_entry)
+            
+            if not fixture_data:
+                st.warning("⚠️ No fixture data available for analysis")
+                return
+                
+            # Sort by average difficulty (best fixtures first)
+            fixture_data.sort(key=lambda x: x['Next 5 FDR'])
             
             # Display fixture difficulty table
             fixture_df = pd.DataFrame(fixture_data)
@@ -208,29 +279,48 @@ class FixtureAnalysisPage:
             # Color coding for difficulty
             def highlight_difficulty(val):
                 if isinstance(val, str) and '(' in val:
-                    difficulty = int(val.split('(')[1].split(')')[0])
-                    if difficulty <= 2:
-                        return 'background-color: #d4edda'  # Green
-                    elif difficulty == 3:
-                        return 'background-color: #fff3cd'  # Yellow
-                    else:
-                        return 'background-color: #f8d7da'  # Red
+                    try:
+                        difficulty = int(val.split('(')[1].split(')')[0])
+                        if difficulty <= 2:
+                            return 'background-color: #d4edda'  # Green - Easy
+                        elif difficulty == 3:
+                            return 'background-color: #fff3cd'  # Yellow - Medium
+                        else:
+                            return 'background-color: #f8d7da'  # Red - Hard
+                    except:
+                        pass
                 return ''
             
-            styled_df = fixture_df.style.applymap(highlight_difficulty, subset=['GW10', 'GW11', 'GW12', 'GW13', 'GW14'])
-            st.dataframe(styled_df, use_container_width=True)
+            # Get fixture columns (exclude Team, Short, Next 5 FDR)
+            fixture_cols = [col for col in fixture_df.columns if col not in ['Team', 'Short', 'Next 5 FDR']]
             
-            # FDR Legend
+            styled_df = fixture_df.style.applymap(highlight_difficulty, subset=fixture_cols)
+            st.dataframe(styled_df, width='stretch')
+            
+            # Statistics
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.success("🟢 **Easy (1-2)**: Favorable fixtures")
+                easy_teams = len([team for team in fixture_data if team['Next 5 FDR'] <= 2.5])
+                st.metric("🟢 Easy Run", easy_teams)
             with col2:
-                st.warning("🟡 **Medium (3)**: Average difficulty")
+                medium_teams = len([team for team in fixture_data if 2.5 < team['Next 5 FDR'] <= 3.5])
+                st.metric("🟡 Medium Run", medium_teams)
             with col3:
-                st.error("🔴 **Hard (4-5)**: Difficult fixtures")
+                hard_teams = len([team for team in fixture_data if team['Next 5 FDR'] > 3.5])
+                st.metric("🔴 Hard Run", hard_teams)
+            
+            # FDR Legend
+            st.markdown("#### 🎯 **Fixture Difficulty Legend**")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.success("🟢 **Easy (1-2)**: Favorable fixtures, good for attacking returns")
+            with col2:
+                st.warning("🟡 **Medium (3)**: Average difficulty, decent options")
+            with col3:
+                st.error("🔴 **Hard (4-5)**: Difficult fixtures, avoid or consider rotation")
                 
         else:
-            st.warning("⚠️ Live fixture data not available")
+            st.warning("⚠️ Live fixture data not available - please check API connection")
             
     def _render_attack_difficulty(self, data):
         """Render attacking fixture difficulty analysis"""
@@ -279,7 +369,7 @@ class FixtureAnalysisPage:
             
             styled_attack_df = attack_df.style.applymap(highlight_attack_difficulty, 
                                                       subset=['GW10 ATT', 'GW11 ATT', 'GW12 ATT', 'GW13 ATT', 'GW14 ATT'])
-            st.dataframe(styled_attack_df, use_container_width=True)
+            st.dataframe(styled_attack_df, width='stretch')
             
             # Attack recommendations
             st.markdown("#### 🎯 **Attack Recommendations**")
