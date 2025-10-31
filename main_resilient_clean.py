@@ -20,13 +20,20 @@ class ResilientFPLApp(RefactoredFPLApp):
         """Initialize the resilient app using refactored architecture"""
         super().__init__()
         
-        # Properties are already initialized by parent class
-        # No need to reassign, they're inherited automatically
+        # Maintain compatibility properties
+        self.enhanced_mode = super().enhanced_mode
+        self.fallback_data = super().fallback_data
+        
+        # Legacy property mappings for existing code
+        if hasattr(super(), 'fpl_service'):
+            self.fpl_service = super().fpl_service
+        if hasattr(super(), 'cache_manager'):
+            self.cache_manager = super().cache_manager
     
     # Legacy method compatibility - delegate to refactored services
     def _create_fallback_data(self):
         """Legacy compatibility - delegates to refactored data service"""
-        return self.fallback_data
+        return super().fallback_data
     
     def setup_page_config(self):
         """Legacy compatibility - delegates to refactored setup"""

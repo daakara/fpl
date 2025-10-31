@@ -1,0 +1,418 @@
+"""
+FPL Analytics - Refactored Resilient Application
+Clean, modular architecture with separated concerns
+"""
+
+import streamlit as st
+from datetime import datetime
+
+# Import refactored services
+from services.navigation_service import NavigationService
+from services.ui_component_service import UIComponentService
+from services.player_recommendation_service import PlayerRecommendationService
+from services.data_utilities_service import DataUtilitiesService
+from controllers.dashboard_controller import DashboardController
+
+# Try enhanced services, fall back to basic functionality
+try:
+    from services.enhanced_fpl_data_service import get_enhanced_fpl_service
+    from utils.advanced_cache_manager import get_cache_manager
+    from utils.error_handling import logger
+    ENHANCED_MODE = True
+except Exception as e:
+    ENHANCED_MODE = False
+    print(f"Enhanced services unavailable: {e}")
+
+# Try to import page modules
+try:
+    from views.dashboard_page import DashboardPage
+    from views.player_analysis_page import PlayerAnalysisPage
+    from views.team_builder_page import TeamBuilderPage
+    from views.ai_recommendations_page import AIRecommendationsPage
+    from views.my_team_page import MyTeamPage
+    from views.fixture_analysis_page import FixtureAnalysisPage
+    from views.live_data_page import LiveDataPage
+    from views.advanced_analysis_page import AdvancedAnalysisPage
+    PAGES_AVAILABLE = True
+except ImportError as e:
+    print(f"Some page modules not available: {e}")
+    PAGES_AVAILABLE = False
+
+
+class RefactoredFPLApp:
+    """Refactored FPL Analytics Application with clean architecture"""
+    
+    def __init__(self):
+        """Initialize with dependency injection"""
+        self.enhanced_mode = ENHANCED_MODE
+        
+        # Initialize services
+        self.navigation_service = NavigationService()
+        self.ui_service = UIComponentService()
+        self.recommendation_service = PlayerRecommendationService()
+        self.data_service = DataUtilitiesService()
+        self.dashboard_controller = DashboardController()
+        
+        # Initialize enhanced services if available
+        if self.enhanced_mode:
+            try:
+                self.fpl_service = get_enhanced_fpl_service()
+                self.cache_manager = get_cache_manager()
+            except Exception as e:
+                self.enhanced_mode = False
+                logger.warning(f"Enhanced services initialization failed: {e}")
+        
+        # Create fallback data
+        self.fallback_data = self.data_service.create_fallback_data()
+    
+    def setup_page_config(self):
+        """Configure Streamlit page settings"""
+        st.set_page_config(
+            page_title="FPL Analytics - Resilient Suite",
+            page_icon="⚽",
+            layout="wide",
+            initial_sidebar_state="expanded",
+            menu_items={
+                'Get Help': 'https://github.com/yourusername/fpl-analytics',
+                'Report a bug': "https://github.com/yourusername/fpl-analytics/issues",
+                'About': "# FPL Analytics Resilient Suite\n**Advanced Fantasy Premier League Analytics**"
+            }
+        )
+        
+        # Custom CSS for enhanced UI
+        st.markdown("""
+        <style>
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+        .status-online {
+            background: linear-gradient(45deg, #00ff87, #60efff);
+            color: #1e1e1e;
+        }
+        .status-offline {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: #1e1e1e;
+        }
+        .ai-response {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
+    def initialize_session_state(self):
+        """Initialize session state with default values"""
+        defaults = {
+            'app_initialized': True,
+            'api_status': 'checking',
+            'data_source': 'initializing',
+            'app_performance': {
+                'load_time': 0.85,
+                'cache_hits': 87,
+                'api_calls': 12
+            }
+        }
+        
+        for key, value in defaults.items():
+            if key not in st.session_state:
+                st.session_state[key] = value
+    
+    def check_api_status(self):
+        """Check FPL API status with enhanced error handling"""
+        try:
+            if self.enhanced_mode and hasattr(self, 'fpl_service'):
+                # Test API connection
+                test_data = self.fpl_service.get_bootstrap_data()
+                if test_data and len(test_data.get('elements', [])) > 0:
+                    st.session_state.api_status = 'online'
+                    st.session_state.data_source = 'live_api'
+                    return True
+        except Exception as e:
+            if self.enhanced_mode and hasattr(self, 'fpl_service'):
+                logger.warning(f"API check failed: {e}")
+        
+        st.session_state.api_status = 'offline'
+        st.session_state.data_source = 'fallback'
+        return False
+    
+    def get_data_safely(self):
+        """Safely get data with comprehensive fallback mechanism"""
+        try:
+            if self.enhanced_mode and hasattr(self, 'fpl_service'):
+                # Try to get live data first
+                live_data = self.fpl_service.get_bootstrap_data()
+                if live_data and self.data_service.validate_data_structure(live_data):
+                    st.session_state.api_status = 'online'
+                    st.session_state.data_source = 'live_api'
+                    return live_data
+            
+            # Fallback to cached/default data
+            st.session_state.api_status = 'offline'
+            st.session_state.data_source = 'fallback'
+            return self.fallback_data
+            
+        except Exception as e:
+            if self.enhanced_mode:
+                logger.error(f"Data retrieval failed: {e}")
+            
+            st.session_state.api_status = 'offline'
+            st.session_state.data_source = 'fallback'
+            return self.fallback_data
+    
+    def render_page_content(self, selected_page):
+        """Render content based on selected page with clean separation"""
+        data = self.get_data_safely()
+        
+        if selected_page == "Dashboard":
+            if PAGES_AVAILABLE:
+                try:
+                    dashboard_page = DashboardPage()
+                    dashboard_page.render()
+                except Exception as e:
+                    st.error(f"Dashboard page error: {e}")
+                    self.dashboard_controller.render_comprehensive_dashboard(data)
+            else:
+                self.dashboard_controller.render_comprehensive_dashboard(data)
+                
+        elif selected_page == "Player Analysis":
+            if PAGES_AVAILABLE:
+                try:
+                    from views.player_analysis_page import PlayerAnalysisPage
+                    player_page = PlayerAnalysisPage()
+                    player_page.render()
+                except Exception as e:
+                    st.warning(f"Player Analysis page not available: {e}")
+                    self.dashboard_controller.render_player_intelligence(data)
+            else:
+                self.dashboard_controller.render_player_intelligence(data)
+                
+        elif selected_page == "Team Builder":
+            self._render_fallback_page("Team Builder", "🛠️ **Team Builder**", 
+                                     "Build and optimize your FPL squad")
+                
+        elif selected_page == "My Team":
+            if PAGES_AVAILABLE:
+                try:
+                    my_team_page = MyTeamPage()
+                    my_team_page.render()
+                except Exception as e:
+                    st.warning(f"My Team page error: {e}")
+                    self.dashboard_controller.render_my_team_center(data)
+            else:
+                self.dashboard_controller.render_my_team_center(data)
+                
+        elif selected_page == "AI Recommendations":
+            if PAGES_AVAILABLE:
+                try:
+                    ai_page = AIRecommendationsPage()
+                    ai_page.render()
+                except Exception as e:
+                    st.warning(f"AI Recommendations page error: {e}")
+                    self.dashboard_controller.render_ai_assistant()
+            else:
+                self.dashboard_controller.render_ai_assistant()
+                
+        elif selected_page == "Advanced Analytics":
+            self.dashboard_controller.render_advanced_analytics(data)
+                
+        elif selected_page == "Fixture Analysis":
+            if PAGES_AVAILABLE:
+                try:
+                    # Pass the FPL service and data to the fixture page
+                    fixture_page = FixtureAnalysisPage()
+                    if hasattr(self, 'fpl_service'):
+                        st.session_state.fpl_service = self.fpl_service
+                    fixture_page.render()
+                except Exception as e:
+                    st.warning(f"Fixture Analysis page error: {e}")
+                    self._render_fallback_page("Fixture Analysis", "📅 **Fixture Analysis**",
+                                             "Comprehensive fixture difficulty analysis")
+            else:
+                self._render_fallback_page("Fixture Analysis", "📅 **Fixture Analysis**",
+                                         "Comprehensive fixture difficulty analysis")
+                
+        elif selected_page == "Live Data":
+            self._render_live_data_page(data)
+                
+        elif selected_page == "Market Intelligence":
+            self._render_market_intelligence_page(data)
+    
+    def _render_fallback_page(self, page_name, title, description):
+        """Render a fallback page when specific page module isn't available"""
+        st.markdown(f"### {title}")
+        st.info(f"📋 {description}")
+        
+        page_info = self.navigation_service.get_page_info(page_name)
+        st.markdown(f"**Features coming soon:**")
+        
+        for feature in page_info['features']:
+            st.markdown(f"- {feature}")
+        
+        st.warning("🚧 This page is under development. Using fallback functionality.")
+    
+    def _render_live_data_page(self, data):
+        """Render live data monitoring page"""
+        st.markdown("### 📡 **Live Data Monitoring**")
+        
+        self.ui_service.render_live_data_indicator(data)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("📊 Players Loaded", len(data.get('elements', [])))
+        
+        with col2:
+            st.metric("⚽ Teams", len(data.get('teams', [])))
+        
+        with col3:
+            freshness = self.data_service.get_data_freshness(data)
+            st.metric("🕐 Data Freshness", freshness)
+        
+        # Sample data preview
+        if isinstance(data, dict) and 'elements' in data:
+            st.markdown("#### 👥 **Sample Players**")
+            sample_players = self.data_service.get_live_players_sample(data, 10)
+            st.write(", ".join(sample_players))
+    
+    def _render_market_intelligence_page(self, data):
+        """Render market intelligence page"""
+        st.markdown("### 📈 **Market Intelligence**")
+        
+        # Get recommendations and insights
+        recommendations = self.recommendation_service.generate_live_player_recommendations(data)
+        transfer_stats = self.recommendation_service.get_transfer_statistics(data)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("#### 🔥 **Hot Pick**")
+            st.success(f"**{recommendations['hot_pick']['name']}**")
+            st.caption(recommendations['hot_pick']['reason'])
+        
+        with col2:
+            st.markdown("#### 💎 **Value Pick**")
+            st.info(f"**{recommendations['value_pick']['name']}**")
+            st.caption(recommendations['value_pick']['reason'])
+        
+        with col3:
+            st.markdown("#### ⚠️ **Avoid Pick**")
+            st.error(f"**{recommendations['avoid_pick']['name']}**")
+            st.caption(recommendations['avoid_pick']['reason'])
+        
+        # Transfer statistics
+        st.markdown("#### 📊 **Transfer Statistics**")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("🔥 Most Transferred In", 
+                     transfer_stats['most_in']['name'], 
+                     transfer_stats['most_in']['change'])
+        
+        with col2:
+            st.metric("❄️ Most Transferred Out", 
+                     transfer_stats['most_out']['name'], 
+                     transfer_stats['most_out']['change'])
+        
+        with col3:
+            st.metric("💰 Price Rise Candidate", 
+                     transfer_stats['price_rise']['name'], 
+                     transfer_stats['price_rise']['change'])
+    
+    def render_sidebar(self):
+        """Render enhanced sidebar with live recommendations"""
+        with st.sidebar:
+            st.markdown("## 🎛️ **Control Panel**")
+            
+            # Quick stats with live recommendations
+            st.markdown("### 📊 **Quick Stats**")
+            
+            # Get live player recommendations
+            data = self.get_data_safely()
+            recommendations = self.recommendation_service.generate_live_player_recommendations(data)
+            
+            st.metric("🔥 Hot Pick", 
+                     recommendations['hot_pick']['name'], 
+                     recommendations['hot_pick']['reason'])
+            st.metric("💎 Value Play", 
+                     recommendations['value_pick']['name'], 
+                     recommendations['value_pick']['reason'])
+            st.metric("⚠️ Avoid", 
+                     recommendations['avoid_pick']['name'], 
+                     recommendations['avoid_pick']['reason'])
+            
+            # System status
+            st.markdown("### 🛠️ **System Status**")
+            api_status = st.session_state.get('api_status', 'offline')
+            if api_status == 'online':
+                st.success("🟢 All systems operational")
+            else:
+                st.warning("🟡 Running in fallback mode")
+            
+            # Quick actions
+            st.markdown("### ⚡ **Quick Actions**")
+            
+            if st.button("🔄 Refresh Data", width='stretch'):
+                st.rerun()
+            
+            if st.button("📊 Performance Report", width='stretch'):
+                st.info("📈 Generating performance report...")
+    
+    def run_refactored_app(self):
+        """Run the refactored FPL application"""
+        try:
+            # Setup
+            self.setup_page_config()
+            self.initialize_session_state()
+            
+            # Header
+            self.ui_service.render_enhanced_header()
+            
+            # Navigation
+            selected_page = self.navigation_service.render_navigation()
+            
+            # Main content based on navigation
+            self.render_page_content(selected_page)
+            
+            # Sidebar (always visible)
+            self.render_sidebar()
+            
+            # Footer
+            self.ui_service.render_footer()
+            
+        except Exception as e:
+            st.error(f"Application error: {e}")
+            st.info("🔄 **Fallback mode activated** - Application running with cached data")
+
+
+# Create and run the refactored application
+refactored_app = RefactoredFPLApp()
+
+if __name__ == "__main__":
+    refactored_app.run_refactored_app()
