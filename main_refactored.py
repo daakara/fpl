@@ -277,28 +277,39 @@ class RefactoredFPLApp:
         st.warning("🚧 This page is under development. Using fallback functionality.")
     
     def _render_live_data_page(self, data):
-        """Render live data monitoring page"""
-        st.markdown("### 📡 **Live Data Monitoring**")
-        
-        self.ui_service.render_live_data_indicator(data)
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric("📊 Players Loaded", len(data.get('elements', [])))
-        
-        with col2:
-            st.metric("⚽ Teams", len(data.get('teams', [])))
-        
-        with col3:
-            freshness = self.data_service.get_data_freshness(data)
-            st.metric("🕐 Data Freshness", freshness)
-        
-        # Sample data preview
-        if isinstance(data, dict) and 'elements' in data:
-            st.markdown("#### 👥 **Sample Players**")
-            sample_players = self.data_service.get_live_players_sample(data, 10)
-            st.write(", ".join(sample_players))
+        """Render comprehensive live data dashboard with enhanced tabs"""
+        try:
+            # Use the comprehensive LiveDataPage class
+            if PAGES_AVAILABLE:
+                live_data_page = LiveDataPage()
+                live_data_page.render()
+            else:
+                # Fallback to basic live data display
+                st.markdown("### 📡 **Live Data Monitoring**")
+                
+                self.ui_service.render_live_data_indicator(data)
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.metric("📊 Players Loaded", len(data.get('elements', [])))
+                
+                with col2:
+                    st.metric("⚽ Teams", len(data.get('teams', [])))
+                
+                with col3:
+                    freshness = self.data_service.get_data_freshness(data)
+                    st.metric("🕐 Data Freshness", freshness)
+                
+                # Sample data preview
+                if isinstance(data, dict) and 'elements' in data:
+                    st.markdown("#### 👥 **Sample Players**")
+                    sample_players = self.data_service.get_live_players_sample(data, 10)
+                    st.write(", ".join(sample_players))
+                    
+        except Exception as e:
+            st.error(f"❌ Error loading Live Data page: {str(e)}")
+            st.info("🔄 Please try refreshing the page or check your connection.")
     
     def _render_market_intelligence_page(self, data):
         """Render market intelligence page"""

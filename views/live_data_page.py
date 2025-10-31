@@ -47,15 +47,18 @@ class LiveDataPage:
             st.warning("Player data is not available. Please try refreshing.")
             return
 
-        # Enhanced FPL Analysis Tabs with new sub-pages
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-            "🎯 Overview", 
-            "🏆 Squad Analysis",
-            "💰 Transfer Intel",
-            "👑 Captain Pro",
-            "📅 Fixtures",
-            "� Performance",
-            "�👤 My Team"
+        # Enhanced FPL Analysis Tabs with comprehensive live data features
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+            "🎯 Live Overview", 
+            "📊 Player Analytics",
+            "🏆 Squad Builder",
+            "💰 Transfer Intelligence",
+            "👑 Captain Selector",
+            "📅 Fixture Analysis",
+            "📈 Performance Tracker",
+            "🚨 Live Alerts",
+            "💎 Hidden Gems",
+            "👤 My Team Hub"
         ])
         
         # Import Phase 2 enhanced sub-pages manager
@@ -75,79 +78,44 @@ class LiveDataPage:
                 subpages_available = False
         
         with tab1:
-            # AI-Powered Overview Dashboard
-            if 'phase2_manager' in locals():
-                phase2_manager.render_ai_powered_overview(df, teams_df)
-            elif 'subpages_manager' in locals():
-                subpages_manager.render_overview_dashboard(df, teams_df)
-            else:
-                self._render_live_alerts_section(df)
-                self._render_live_metrics(df, teams_df)
+            # Live Overview Dashboard - Real-time FPL status
+            self._render_live_overview_dashboard(df, teams_df)
             
         with tab2:
-            # Predictive Analytics
-            if 'phase2_manager' in locals():
-                phase2_manager.render_predictive_analytics_page(df, teams_df)
-            else:
-                st.info("🔮 Predictive Analytics requires Phase 2 components")
-                st.markdown("Train AI models to unlock:")
-                st.markdown("• 🎯 Points predictions with confidence intervals")
-                st.markdown("• 💰 Price change forecasting")
-                st.markdown("• 👑 Captain selection optimization")
+            # Player Analytics - Deep dive into player statistics  
+            self._render_player_analytics_page(df, teams_df)
                 
         with tab3:
-            # Hidden Gems Discovery
-            if 'phase2_manager' in locals():
-                phase2_manager.render_hidden_gems_explorer(df, teams_df)
-            else:
-                st.info("💎 Hidden Gems Discovery requires Phase 2 components")
-                st.markdown("Advanced algorithms to find:")
-                st.markdown("• 💎 Exceptional value players")
-                st.markdown("• ⚡ Differential opportunities")
-                st.markdown("• 🚀 Breakout candidates")
+            # Squad Builder - Interactive team building tools
+            self._render_squad_builder_page(df, teams_df)
                 
         with tab4:
-            # Real-Time Intelligence
-            if 'phase2_manager' in locals():
-                phase2_manager.render_real_time_intelligence(df, teams_df)
-            else:
-                st.info("📡 Real-Time Intelligence requires Phase 2 components")
-                st.markdown("Live features include:")
-                st.markdown("• 🚨 Price change alerts")
-                st.markdown("• 📈 Transfer momentum tracking")
-                st.markdown("• 💬 Community sentiment analysis")
+            # Transfer Intelligence - Market analysis and recommendations
+            self._render_transfer_intelligence_page(df, teams_df)
                 
         with tab5:
-            # Enhanced Squad Analysis
-            if 'phase2_manager' in locals():
-                phase2_manager.render_squad_analysis(df, teams_df)
-            elif 'subpages_manager' in locals():
-                subpages_manager.render_squad_analysis(df, teams_df)
-            else:
-                self._render_trending_players(df)
-                
+            # Captain Selector - Advanced captain analysis
+            self._render_captain_selector_page(df, teams_df)
+            
         with tab6:
-            # Enhanced Transfer Intelligence
-            if 'phase2_manager' in locals():
-                phase2_manager.render_transfer_intelligence(df, teams_df)
-            elif 'subpages_manager' in locals():
-                subpages_manager.render_transfer_intelligence(df, teams_df)
-            else:
-                self._render_price_change_tracker(df)
-                self._render_transfer_market_pulse(df)
+            # Fixture Analysis - Live fixture difficulty and planning
+            self._render_fixture_analysis_page(df, teams_df)
                 
         with tab7:
-            # Enhanced Performance Analytics
-            if 'phase2_manager' in locals():
-                phase2_manager.render_performance_analytics(df, teams_df)
-            elif 'subpages_manager' in locals():
-                subpages_manager.render_performance_analytics(df, teams_df)
-            else:
-                self._render_real_time_charts(df)
-                
+            # Performance Tracker - Historical and trend analysis
+            self._render_performance_tracker_page(df, teams_df)
+            
         with tab8:
-            # My FPL Team section (kept as original)
-            self._render_my_fpl_team_section()
+            # Live Alerts - Real-time notifications and updates
+            self._render_live_alerts_page(df, teams_df)
+            
+        with tab9:
+            # Hidden Gems - Value picks and differential players
+            self._render_hidden_gems_page(df, teams_df)
+                
+        with tab10:
+            # My Team Hub - Personal team management
+            self._render_my_team_hub_page(df, teams_df)
 
     def _render_live_header(self):
         """Render live data header with real-time controls."""
@@ -1087,3 +1055,549 @@ class LiveDataPage:
             return response.status_code == 200
         except:
             return False
+
+    # =================== NEW COMPREHENSIVE TAB METHODS ===================
+    
+    def _render_live_overview_dashboard(self, df, teams_df):
+        """Enhanced live overview dashboard with real-time metrics."""
+        st.markdown("### 🎯 **Live FPL Overview Dashboard**")
+        st.markdown("---")
+        
+        # Live Status Bar
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            api_status = self._check_api_status()
+            if api_status:
+                st.success("🟢 **API LIVE**")
+            else:
+                st.error("🔴 **API DOWN**")
+        
+        with col2:
+            current_gw = df['round'].max() if not df.empty else 1
+            st.metric("Current GW", current_gw)
+        
+        with col3:
+            total_players = len(df) if not df.empty else 0
+            st.metric("Active Players", f"{total_players:,}")
+        
+        with col4:
+            last_update = st.session_state.get('last_data_update', datetime.now())
+            st.metric("Last Update", last_update.strftime("%H:%M"))
+        
+        st.markdown("---")
+        
+        # Quick Insights Cards
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🔥 **Hot Right Now**")
+            if not df.empty:
+                # Most transferred in players
+                hot_players = df.nlargest(5, 'transfers_in_event')[['web_name', 'team', 'transfers_in_event']]
+                for idx, player in hot_players.iterrows():
+                    st.markdown(f"**{player['web_name']}** - {player['transfers_in_event']:,} transfers")
+        
+        with col2:
+            st.markdown("#### ❄️ **Cooling Down**")
+            if not df.empty:
+                # Most transferred out players
+                cold_players = df.nlargest(5, 'transfers_out_event')[['web_name', 'team', 'transfers_out_event']]
+                for idx, player in cold_players.iterrows():
+                    st.markdown(f"**{player['web_name']}** - {player['transfers_out_event']:,} transfers out")
+        
+        # Live Price Changes (if available)
+        st.markdown("#### 💰 **Recent Price Changes**")
+        if 'cost_change_event' in df.columns:
+            price_changes = df[df['cost_change_event'] != 0][['web_name', 'now_cost', 'cost_change_event']].head(10)
+            if not price_changes.empty:
+                for idx, player in price_changes.iterrows():
+                    change = player['cost_change_event']
+                    emoji = "📈" if change > 0 else "📉"
+                    st.markdown(f"{emoji} **{player['web_name']}** - £{player['now_cost']/10:.1f}m ({change:+d})")
+        
+        # Live charts
+        self._render_live_metrics(df, teams_df)
+
+    def _render_player_analytics_page(self, df, teams_df):
+        """Comprehensive player analytics with advanced filters."""
+        st.markdown("### 📊 **Advanced Player Analytics**")
+        st.markdown("---")
+        
+        # Advanced Filters
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            positions = ['All'] + list(df['position'].unique()) if not df.empty else ['All']
+            selected_position = st.selectbox("Position", positions)
+        
+        with col2:
+            teams = ['All'] + list(df['team'].unique()) if not df.empty else ['All']
+            selected_team = st.selectbox("Team", teams)
+        
+        with col3:
+            price_range = st.select_slider(
+                "Price Range (£m)",
+                options=[4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],
+                value=(4.0, 15.0)
+            )
+        
+        with col4:
+            sort_by = st.selectbox("Sort By", [
+                'Total Points', 'Form', 'Points Per Game', 'Value', 'Ownership %'
+            ])
+        
+        # Filter data
+        filtered_df = df.copy() if not df.empty else pd.DataFrame()
+        
+        if not filtered_df.empty:
+            if selected_position != 'All':
+                filtered_df = filtered_df[filtered_df['position'] == selected_position]
+            if selected_team != 'All':
+                filtered_df = filtered_df[filtered_df['team'] == selected_team]
+            
+            # Price filter
+            filtered_df = filtered_df[
+                (filtered_df['now_cost'] / 10 >= price_range[0]) & 
+                (filtered_df['now_cost'] / 10 <= price_range[1])
+            ]
+        
+        # Analytics Dashboard
+        if not filtered_df.empty:
+            # Summary stats
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Players Found", len(filtered_df))
+            with col2:
+                avg_price = filtered_df['now_cost'].mean() / 10
+                st.metric("Avg Price", f"£{avg_price:.1f}m")
+            with col3:
+                avg_points = filtered_df['total_points'].mean()
+                st.metric("Avg Points", f"{avg_points:.1f}")
+            with col4:
+                avg_ownership = filtered_df['selected_by_percent'].mean()
+                st.metric("Avg Ownership", f"{avg_ownership:.1f}%")
+            
+            # Player Table
+            st.markdown("#### 📋 **Player Comparison Table**")
+            display_cols = ['web_name', 'team', 'position', 'now_cost', 'total_points', 'form', 'selected_by_percent']
+            display_df = filtered_df[display_cols].copy()
+            display_df['now_cost'] = display_df['now_cost'] / 10
+            display_df.columns = ['Name', 'Team', 'Pos', 'Price (£m)', 'Points', 'Form', 'Ownership %']
+            
+            st.dataframe(display_df.head(20), use_container_width=True)
+            
+            # Performance Charts
+            self._render_player_performance_charts(filtered_df)
+
+    def _render_squad_builder_page(self, df, teams_df):
+        """Interactive squad building tools."""
+        st.markdown("### 🏆 **Smart Squad Builder**")
+        st.markdown("Build your optimal FPL squad with AI assistance")
+        st.markdown("---")
+        
+        # Budget and constraints
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            budget = st.slider("Budget (£m)", 80.0, 110.0, 100.0, 0.5)
+        
+        with col2:
+            formation = st.selectbox("Formation", [
+                "3-4-3", "3-5-2", "4-3-3", "4-4-2", "4-5-1", "5-3-2", "5-4-1"
+            ])
+        
+        with col3:
+            strategy = st.selectbox("Strategy", [
+                "Balanced", "Premium Heavy", "Budget Focused", "Differential Heavy"
+            ])
+        
+        # Formation breakdown
+        formations = {
+            "3-4-3": {"DEF": 3, "MID": 4, "FWD": 3},
+            "3-5-2": {"DEF": 3, "MID": 5, "FWD": 2},
+            "4-3-3": {"DEF": 4, "MID": 3, "FWD": 3},
+            "4-4-2": {"DEF": 4, "MID": 4, "FWD": 2},
+            "4-5-1": {"DEF": 4, "MID": 5, "FWD": 1},
+            "5-3-2": {"DEF": 5, "MID": 3, "FWD": 2},
+            "5-4-1": {"DEF": 5, "MID": 4, "FWD": 1}
+        }
+        
+        if not df.empty:
+            st.markdown(f"#### 🎯 **Building {formation} Squad**")
+            
+            form_reqs = formations[formation]
+            total_budget = budget * 10  # Convert to FPL price format
+            
+            # Squad suggestions by position
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown("##### 🛡️ **Defenders**")
+                defenders = df[df['position'] == 'DEF'].nlargest(10, 'total_points')
+                for idx, player in defenders.iterrows():
+                    price = player['now_cost'] / 10
+                    st.markdown(f"**{player['web_name']}** - £{price}m ({player['total_points']} pts)")
+            
+            with col2:
+                st.markdown("##### ⚽ **Midfielders**")
+                midfielders = df[df['position'] == 'MID'].nlargest(10, 'total_points')
+                for idx, player in midfielders.iterrows():
+                    price = player['now_cost'] / 10
+                    st.markdown(f"**{player['web_name']}** - £{price}m ({player['total_points']} pts)")
+            
+            with col3:
+                st.markdown("##### 🥅 **Forwards**")
+                forwards = df[df['position'] == 'FWD'].nlargest(10, 'total_points')
+                for idx, player in forwards.iterrows():
+                    price = player['now_cost'] / 10
+                    st.markdown(f"**{player['web_name']}** - £{price}m ({player['total_points']} pts)")
+            
+            # Auto-generate squad button
+            if st.button("🤖 **Generate Optimal Squad**", type="primary", use_container_width=True):
+                self._generate_optimal_squad(df, formation, budget, strategy)
+
+    def _render_transfer_intelligence_page(self, df, teams_df):
+        """Advanced transfer intelligence and market analysis."""
+        st.markdown("### 💰 **Transfer Intelligence Hub**")
+        st.markdown("Make informed transfer decisions with live market data")
+        st.markdown("---")
+        
+        # Transfer tabs
+        transfer_tab1, transfer_tab2, transfer_tab3, transfer_tab4 = st.tabs([
+            "🔄 Transfer Targets", "📈 Price Predictions", "🌊 Market Trends", "💎 Value Picks"
+        ])
+        
+        with transfer_tab1:
+            self._render_transfer_targets(df)
+        
+        with transfer_tab2:
+            self._render_price_predictions(df)
+        
+        with transfer_tab3:
+            self._render_market_trends(df)
+        
+        with transfer_tab4:
+            self._render_value_picks(df)
+
+    def _render_captain_selector_page(self, df, teams_df):
+        """Advanced captain selection analysis."""
+        st.markdown("### 👑 **Captain Selector Pro**")
+        st.markdown("Choose your captain with confidence using advanced analytics")
+        st.markdown("---")
+        
+        if not df.empty:
+            # Captain criteria
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### 🎯 **Top Captain Options**")
+                
+                # Calculate captain score (combination of form, fixtures, ownership)
+                df_captains = df.copy()
+                df_captains['captain_score'] = (
+                    df_captains['form'].astype(float) * 0.4 +
+                    df_captains['total_points'].astype(float) * 0.3 +
+                    (100 - df_captains['selected_by_percent'].astype(float)) * 0.2 +
+                    df_captains['ict_index'].astype(float) * 0.1
+                )
+                
+                top_captains = df_captains.nlargest(10, 'captain_score')
+                
+                for idx, player in top_captains.iterrows():
+                    with st.expander(f"👑 **{player['web_name']}** - Captain Score: {player['captain_score']:.1f}"):
+                        col_a, col_b, col_c = st.columns(3)
+                        with col_a:
+                            st.metric("Form", player['form'])
+                        with col_b:
+                            st.metric("Ownership", f"{player['selected_by_percent']}%")
+                        with col_c:
+                            price = player['now_cost'] / 10
+                            st.metric("Price", f"£{price}m")
+            
+            with col2:
+                st.markdown("#### 📊 **Captain Analytics**")
+                
+                # Captain ownership vs points chart
+                fig = px.scatter(
+                    df.head(50), 
+                    x='selected_by_percent', 
+                    y='total_points',
+                    hover_data=['web_name'],
+                    title="Ownership vs Points (Top 50 Players)",
+                    labels={'selected_by_percent': 'Ownership %', 'total_points': 'Total Points'}
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
+    def _render_fixture_analysis_page(self, df, teams_df):
+        """Live fixture analysis and difficulty assessment."""
+        st.markdown("### 📅 **Live Fixture Analysis**")
+        st.markdown("Analyze upcoming fixtures for optimal transfer timing")
+        st.markdown("---")
+        
+        # Import and use the enhanced fixture analysis
+        try:
+            from views.fixture_analysis_page import FixtureAnalysisPage
+            fixture_page = FixtureAnalysisPage()
+            
+            # Get live data in the format expected by fixture analysis
+            live_data = {
+                'teams': teams_df.to_dict('records') if not teams_df.empty else [],
+                'players': df.to_dict('records') if not df.empty else []
+            }
+            
+            fixture_page.render(live_data)
+            
+        except ImportError:
+            st.warning("Enhanced fixture analysis not available. Using basic analysis.")
+            self._render_basic_fixture_analysis(df, teams_df)
+
+    def _render_performance_tracker_page(self, df, teams_df):
+        """Performance tracking and historical analysis."""
+        st.markdown("### 📈 **Performance Tracker**")
+        st.markdown("Track player and team performance over time")
+        st.markdown("---")
+        
+        # Performance tracking tabs
+        perf_tab1, perf_tab2, perf_tab3 = st.tabs([
+            "📊 Player Trends", "🏆 Team Performance", "📈 Form Analysis"
+        ])
+        
+        with perf_tab1:
+            self._render_player_trends(df)
+        
+        with perf_tab2:
+            self._render_team_performance(df, teams_df)
+        
+        with perf_tab3:
+            self._render_form_analysis(df)
+
+    def _render_live_alerts_page(self, df, teams_df):
+        """Real-time alerts and notifications."""
+        st.markdown("### 🚨 **Live Alerts Center**")
+        st.markdown("Stay updated with real-time FPL notifications")
+        st.markdown("---")
+        
+        # Alert categories
+        alert_tab1, alert_tab2, alert_tab3, alert_tab4 = st.tabs([
+            "🔴 Price Changes", "⚡ Injury News", "🔄 Transfer Activity", "📊 Performance Alerts"
+        ])
+        
+        with alert_tab1:
+            self._render_price_change_alerts(df)
+        
+        with alert_tab2:
+            self._render_injury_alerts(df)
+        
+        with alert_tab3:
+            self._render_transfer_activity_alerts(df)
+        
+        with alert_tab4:
+            self._render_performance_alerts(df)
+
+    def _render_hidden_gems_page(self, df, teams_df):
+        """Discover undervalued players and differential picks."""
+        st.markdown("### 💎 **Hidden Gems Discovery**")
+        st.markdown("Find undervalued players before everyone else does")
+        st.markdown("---")
+        
+        if not df.empty:
+            # Hidden gems algorithm
+            df_gems = df.copy()
+            
+            # Calculate value score (points per million, low ownership, good form)
+            df_gems['points_per_million'] = df_gems['total_points'] / (df_gems['now_cost'] / 10)
+            df_gems['value_score'] = (
+                df_gems['points_per_million'] * 0.4 +
+                (100 - df_gems['selected_by_percent']) * 0.3 +
+                df_gems['form'].astype(float) * 0.3
+            )
+            
+            # Filter for potential gems (low ownership, decent points)
+            gems = df_gems[
+                (df_gems['selected_by_percent'] < 10) & 
+                (df_gems['total_points'] > 30) &
+                (df_gems['now_cost'] <= 80)  # Under £8.0m
+            ].nlargest(15, 'value_score')
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### 💎 **Budget Gems** (Under £6.0m)")
+                budget_gems = gems[gems['now_cost'] <= 60]
+                
+                for idx, player in budget_gems.head(8).iterrows():
+                    with st.expander(f"💎 **{player['web_name']}** - £{player['now_cost']/10:.1f}m"):
+                        col_a, col_b, col_c = st.columns(3)
+                        with col_a:
+                            st.metric("Points", int(player['total_points']))
+                        with col_b:
+                            st.metric("Ownership", f"{player['selected_by_percent']}%")
+                        with col_c:
+                            st.metric("PPM", f"{player['points_per_million']:.2f}")
+            
+            with col2:
+                st.markdown("#### ⚡ **Premium Differentials** (£6.0m+)")
+                premium_gems = gems[gems['now_cost'] > 60]
+                
+                for idx, player in premium_gems.head(8).iterrows():
+                    with st.expander(f"⚡ **{player['web_name']}** - £{player['now_cost']/10:.1f}m"):
+                        col_a, col_b, col_c = st.columns(3)
+                        with col_a:
+                            st.metric("Points", int(player['total_points']))
+                        with col_b:
+                            st.metric("Ownership", f"{player['selected_by_percent']}%")
+                        with col_c:
+                            st.metric("Form", player['form'])
+
+    def _render_my_team_hub_page(self, df, teams_df):
+        """Personal team management and analysis hub."""
+        st.markdown("### 👤 **My Team Hub**")
+        st.markdown("Manage and analyze your personal FPL team")
+        st.markdown("---")
+        
+        # Team management tabs
+        team_tab1, team_tab2, team_tab3, team_tab4 = st.tabs([
+            "🏆 Current Squad", "🔄 Transfer Planning", "📊 Performance Review", "🎯 Gameweek Strategy"
+        ])
+        
+        with team_tab1:
+            self._render_current_squad_analysis(df)
+        
+        with team_tab2:
+            self._render_transfer_planning_tools(df)
+        
+        with team_tab3:
+            self._render_team_performance_review(df)
+        
+        with team_tab4:
+            self._render_gameweek_strategy(df, teams_df)
+
+    # =================== HELPER METHODS FOR NEW TABS ===================
+    
+    def _render_player_performance_charts(self, df):
+        """Render performance charts for player analytics."""
+        st.markdown("#### 📈 **Performance Visualizations**")
+        
+        # Points vs Price scatter
+        fig = px.scatter(
+            df.head(50), 
+            x='now_cost', 
+            y='total_points',
+            color='position',
+            hover_data=['web_name'],
+            title="Points vs Price Analysis"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    def _generate_optimal_squad(self, df, formation, budget, strategy):
+        """Generate an optimal squad based on constraints."""
+        st.info("🤖 Squad generation algorithm would run here...")
+        st.markdown("**Algorithm Features:**")
+        st.markdown("• Position requirements optimization")
+        st.markdown("• Budget constraint solving")
+        st.markdown("• Team diversity rules")
+        st.markdown("• Expected points maximization")
+        
+    def _render_transfer_targets(self, df):
+        """Render transfer target recommendations."""
+        st.markdown("#### 🎯 **Hot Transfer Targets**")
+        if not df.empty:
+            # Most transferred in players this gameweek
+            hot_transfers = df.nlargest(10, 'transfers_in_event')[['web_name', 'team', 'transfers_in_event', 'form']]
+            st.dataframe(hot_transfers, use_container_width=True)
+    
+    def _render_price_predictions(self, df):
+        """Render price prediction analysis."""
+        st.markdown("#### 📈 **Price Change Predictions**")
+        st.info("Advanced price prediction algorithms would analyze:")
+        st.markdown("• Transfer momentum patterns")
+        st.markdown("• Historical price change data")
+        st.markdown("• Ownership thresholds")
+        st.markdown("• Market sentiment indicators")
+    
+    def _render_market_trends(self, df):
+        """Render market trend analysis."""
+        st.markdown("#### 🌊 **Market Trends**")
+        if not df.empty:
+            # Transfer trends by position
+            position_trends = df.groupby('position').agg({
+                'transfers_in_event': 'sum',
+                'transfers_out_event': 'sum'
+            }).round(0)
+            st.dataframe(position_trends, use_container_width=True)
+    
+    def _render_value_picks(self, df):
+        """Render value pick recommendations."""
+        st.markdown("#### 💰 **Best Value Picks**")
+        if not df.empty:
+            df_value = df.copy()
+            df_value['value'] = df_value['total_points'] / (df_value['now_cost'] / 10)
+            value_picks = df_value.nlargest(15, 'value')[['web_name', 'position', 'now_cost', 'total_points', 'value']]
+            value_picks['now_cost'] = value_picks['now_cost'] / 10
+            st.dataframe(value_picks, use_container_width=True)
+    
+    def _render_basic_fixture_analysis(self, df, teams_df):
+        """Basic fixture analysis fallback."""
+        st.info("📅 Basic fixture analysis - showing team strengths")
+        if not teams_df.empty:
+            team_stats = teams_df[['name', 'strength', 'strength_overall_home', 'strength_overall_away']]
+            st.dataframe(team_stats, use_container_width=True)
+    
+    def _render_player_trends(self, df):
+        """Render player trend analysis."""
+        st.markdown("#### 📊 **Player Form Trends**")
+        if not df.empty:
+            form_leaders = df.nlargest(10, 'form')[['web_name', 'team', 'form', 'total_points']]
+            st.dataframe(form_leaders, use_container_width=True)
+    
+    def _render_team_performance(self, df, teams_df):
+        """Render team performance analysis."""
+        st.markdown("#### 🏆 **Team Performance Overview**")
+        if not teams_df.empty:
+            st.dataframe(teams_df[['name', 'strength', 'points', 'position']], use_container_width=True)
+    
+    def _render_form_analysis(self, df):
+        """Render form analysis charts."""
+        st.markdown("#### 📈 **Form Analysis**")
+        st.info("Form trend charts and analysis would be displayed here")
+    
+    def _render_price_change_alerts(self, df):
+        """Render price change alerts."""
+        st.markdown("#### 💰 **Price Change Alerts**")
+        st.info("🔔 Real-time price change notifications would appear here")
+    
+    def _render_injury_alerts(self, df):
+        """Render injury news alerts."""
+        st.markdown("#### 🏥 **Injury News**")
+        st.info("⚕️ Latest injury updates and availability status")
+    
+    def _render_transfer_activity_alerts(self, df):
+        """Render transfer activity alerts."""
+        st.markdown("#### 🔄 **Transfer Activity**")
+        st.info("📊 Live transfer momentum and market movements")
+    
+    def _render_performance_alerts(self, df):
+        """Render performance-based alerts."""
+        st.markdown("#### 📊 **Performance Alerts**")
+        st.info("⚡ Automated alerts for performance milestones")
+    
+    def _render_current_squad_analysis(self, df):
+        """Render current squad analysis."""
+        st.markdown("#### 🏆 **Squad Overview**")
+        st.info("👥 Connect your FPL team to see detailed squad analysis")
+    
+    def _render_transfer_planning_tools(self, df):
+        """Render transfer planning tools."""
+        st.markdown("#### 🔄 **Transfer Planner**")
+        st.info("🎯 Interactive transfer planning with wildcard optimization")
+    
+    def _render_team_performance_review(self, df):
+        """Render team performance review."""
+        st.markdown("#### 📊 **Performance History**")
+        st.info("📈 Historical performance tracking and analysis")
+    
+    def _render_gameweek_strategy(self, df, teams_df):
+        """Render gameweek strategy planning."""
+        st.markdown("#### 🎯 **Gameweek Strategy**")
+        st.info("⚡ Upcoming gameweek planning and optimization tools")
