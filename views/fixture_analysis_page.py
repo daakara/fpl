@@ -195,6 +195,31 @@ class FixtureAnalysisPage:
         st.markdown("#### 📊 **Overall Fixture Difficulty**")
         st.info("💡 **Overall FDR** based on live FPL API fixture difficulty ratings")
         
+        # Add CSS for better dark mode compatibility
+        st.markdown("""
+        <style>
+        .fdr-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .fdr-easy {
+            background-color: #22c55e !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        .fdr-medium {
+            background-color: #f59e0b !important;
+            color: #1f2937 !important;
+            font-weight: bold !important;
+        }
+        .fdr-hard {
+            background-color: #ef4444 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         # Get teams and fixtures data
         if isinstance(data, dict) and 'teams' in data and 'fixtures' in data:
             teams = data.get('teams', [])
@@ -276,17 +301,20 @@ class FixtureAnalysisPage:
             # Display fixture difficulty table
             fixture_df = pd.DataFrame(fixture_data)
             
-            # Color coding for difficulty
+            # Enhanced color coding for accessibility (works in light and dark mode)
             def highlight_difficulty(val):
                 if isinstance(val, str) and '(' in val:
                     try:
                         difficulty = int(val.split('(')[1].split(')')[0])
                         if difficulty <= 2:
-                            return 'background-color: #d4edda'  # Green - Easy
+                            # Easy - Green with high contrast
+                            return 'background-color: #22c55e; color: white; font-weight: bold; border: 1px solid #16a34a'
                         elif difficulty == 3:
-                            return 'background-color: #fff3cd'  # Yellow - Medium
+                            # Medium - Amber/Orange with dark text for readability
+                            return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
                         else:
-                            return 'background-color: #f8d7da'  # Red - Hard
+                            # Hard - Red with white text for contrast
+                            return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
                     except:
                         pass
                 return ''
@@ -309,15 +337,32 @@ class FixtureAnalysisPage:
                 hard_teams = len([team for team in fixture_data if team['Next 5 FDR'] > 3.5])
                 st.metric("🔴 Hard Run", hard_teams)
             
-            # FDR Legend
+            # Enhanced FDR Legend with accessibility information
             st.markdown("#### 🎯 **Fixture Difficulty Legend**")
-            col1, col2, col3 = st.columns(3)
+            
+            # Color legend with visual examples
+            st.markdown("""
+            <div style="margin: 1rem 0;">
+                <h5>📊 Color Coding Guide:</h5>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0;">
+                    <div style="background-color: #22c55e; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
+                        🟢 Easy (1-2): Great fixtures for captaincy & transfers
+                    </div>
+                    <div style="background-color: #f59e0b; color: #1f2937; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
+                        🟡 Medium (3): Average fixtures, decent options
+                    </div>
+                    <div style="background-color: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
+                        🔴 Hard (4-5): Difficult fixtures, consider rotation
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
             with col1:
-                st.success("🟢 **Easy (1-2)**: Favorable fixtures, good for attacking returns")
+                st.info("💡 **Dark Mode Compatible**: Colors are optimized for both light and dark themes")
             with col2:
-                st.warning("🟡 **Medium (3)**: Average difficulty, decent options")
-            with col3:
-                st.error("🔴 **Hard (4-5)**: Difficult fixtures, avoid or consider rotation")
+                st.info("♿ **Accessible Design**: High contrast colors with clear text for better readability")
                 
         else:
             st.warning("⚠️ Live fixture data not available - please check API connection")
@@ -326,6 +371,27 @@ class FixtureAnalysisPage:
         """Render attacking fixture difficulty analysis"""
         st.markdown("#### ⚔️ **Attack Difficulty Analysis**")
         st.info("💡 **Attack FDR** focuses on how easy it is for teams to score goals against upcoming opponents")
+        
+        # Add CSS for attack difficulty styling
+        st.markdown("""
+        <style>
+        .attack-easy {
+            background-color: #06b6d4 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        .attack-medium {
+            background-color: #f59e0b !important;
+            color: #1f2937 !important;
+            font-weight: bold !important;
+        }
+        .attack-hard {
+            background-color: #ef4444 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
         
         # Get teams data
         if isinstance(data, dict) and 'teams' in data:
@@ -355,16 +421,19 @@ class FixtureAnalysisPage:
             
             attack_df = pd.DataFrame(attack_data)
             
-            # Color coding for attack difficulty
+            # Enhanced color coding for attack difficulty (accessible for dark mode)
             def highlight_attack_difficulty(val):
                 if isinstance(val, str) and '(' in val:
                     difficulty = int(val.split('(')[1].split(')')[0])
                     if difficulty <= 2:
-                        return 'background-color: #d1ecf1'  # Light blue (good for attack)
+                        # Easy attack - Blue/Cyan with white text
+                        return 'background-color: #06b6d4; color: white; font-weight: bold; border: 1px solid #0891b2'
                     elif difficulty == 3:
-                        return 'background-color: #fff3cd'  # Yellow
+                        # Medium attack - Orange with dark text
+                        return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
                     else:
-                        return 'background-color: #f5c6cb'  # Light red (hard to score)
+                        # Hard attack - Red with white text
+                        return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
                 return ''
             
             styled_attack_df = attack_df.style.applymap(highlight_attack_difficulty, 
@@ -392,6 +461,27 @@ class FixtureAnalysisPage:
         """Render defensive fixture difficulty analysis"""
         st.markdown("#### 🛡️ **Defense Difficulty Analysis**") 
         st.info("💡 **Defense FDR** focuses on clean sheet potential and defensive returns")
+        
+        # Add CSS for defense difficulty styling
+        st.markdown("""
+        <style>
+        .defense-easy {
+            background-color: #10b981 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        .defense-medium {
+            background-color: #f59e0b !important;
+            color: #1f2937 !important;
+            font-weight: bold !important;
+        }
+        .defense-hard {
+            background-color: #ef4444 !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
         
         # Get teams data
         if isinstance(data, dict) and 'teams' in data:
@@ -422,21 +512,24 @@ class FixtureAnalysisPage:
             
             defense_df = pd.DataFrame(defense_data)
             
-            # Color coding for defense difficulty  
+            # Enhanced color coding for defense difficulty (accessible for dark mode)
             def highlight_defense_difficulty(val):
                 if isinstance(val, str) and '(' in val:
                     difficulty = int(val.split('(')[1].split(')')[0])
                     if difficulty <= 2:
-                        return 'background-color: #d4edda'  # Green (good for defense)
+                        # Easy defense - Green with white text (good clean sheet potential)
+                        return 'background-color: #10b981; color: white; font-weight: bold; border: 1px solid #059669'
                     elif difficulty == 3:
-                        return 'background-color: #fff3cd'  # Yellow
+                        # Medium defense - Orange with dark text
+                        return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
                     else:
-                        return 'background-color: #f8d7da'  # Red (bad for defense)
+                        # Hard defense - Red with white text (poor clean sheet potential)
+                        return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
                 return ''
             
             styled_defense_df = defense_df.style.applymap(highlight_defense_difficulty,
                                                         subset=['GW10 DEF', 'GW11 DEF', 'GW12 DEF', 'GW13 DEF', 'GW14 DEF'])
-            st.dataframe(styled_defense_df, use_container_width=True)
+            st.dataframe(styled_defense_df, width='stretch')
             
             # Defense recommendations
             st.markdown("#### 🛡️ **Defense Recommendations**")
