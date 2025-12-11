@@ -128,6 +128,8 @@ class RefactoredFPLApp:
     
     def initialize_session_state(self):
         """Initialize session state with default values"""
+        import pandas as pd
+        
         defaults = {
             'app_initialized': True,
             'api_status': 'checking',
@@ -136,7 +138,18 @@ class RefactoredFPLApp:
                 'load_time': 0.85,
                 'cache_hits': 87,
                 'api_calls': 12
-            }
+            },
+            'current_page': 'Dashboard',
+            'data_loaded': False,
+            'players_df': pd.DataFrame(),
+            'teams_df': pd.DataFrame(),
+            'last_data_update': None,
+            'fpl_team_loaded': False,
+            'fpl_team_data': None,
+            'fpl_team_id': None,
+            'fpl_team_gameweek': None,
+            'ai_rec_pos_filter': 'All',
+            'ai_rec_budget_filter': 100.0
         }
         
         for key, value in defaults.items():
@@ -163,6 +176,9 @@ class RefactoredFPLApp:
     
     def get_data_safely(self):
         """Safely get data with comprehensive fallback mechanism"""
+        import pandas as pd
+        from datetime import datetime
+        
         try:
             if self.enhanced_mode and hasattr(self, 'fpl_service'):
                 # Try to get live data first
@@ -170,11 +186,31 @@ class RefactoredFPLApp:
                 if live_data and self.data_service.validate_data_structure(live_data):
                     st.session_state.api_status = 'online'
                     st.session_state.data_source = 'live_api'
+                    
+                    # Populate session state with loaded data
+                    if 'elements' in live_data:
+                        st.session_state.players_df = pd.DataFrame(live_data['elements'])
+                        st.session_state.data_loaded = True
+                        st.session_state.last_data_update = datetime.now()
+                    
+                    if 'teams' in live_data:
+                        st.session_state.teams_df = pd.DataFrame(live_data['teams'])
+                    
                     return live_data
             
             # Fallback to cached/default data
             st.session_state.api_status = 'offline'
             st.session_state.data_source = 'fallback'
+            
+            # Populate session state with fallback data
+            if 'elements' in self.fallback_data:
+                st.session_state.players_df = pd.DataFrame(self.fallback_data['elements'])
+                st.session_state.data_loaded = True
+                st.session_state.last_data_update = datetime.now()
+            
+            if 'teams' in self.fallback_data:
+                st.session_state.teams_df = pd.DataFrame(self.fallback_data['teams'])
+            
             return self.fallback_data
             
         except Exception as e:
@@ -183,6 +219,13 @@ class RefactoredFPLApp:
             
             st.session_state.api_status = 'offline'
             st.session_state.data_source = 'fallback'
+            
+            # Ensure minimal session state even on error
+            if not st.session_state.get('data_loaded', False):
+                st.session_state.players_df = pd.DataFrame()
+                st.session_state.teams_df = pd.DataFrame()
+                st.session_state.data_loaded = False
+            
             return self.fallback_data
     
     def render_page_content(self, selected_page):
