@@ -40,10 +40,13 @@ class DashboardPage:
                         
         with col3:
             # Last updated info
-            last_update = st.session_state.get('last_data_update', datetime.now())
-            time_diff = datetime.now() - last_update
-            minutes_ago = time_diff.seconds // 60
-            st.caption(f"🕒 Updated: {minutes_ago}m ago")
+            last_update = st.session_state.get('last_data_update', None)
+            if last_update:
+                time_diff = datetime.now() - last_update
+                minutes_ago = time_diff.seconds // 60
+                st.caption(f"🕒 Updated: {minutes_ago}m ago")
+            else:
+                st.caption(f"🕒 Initializing...")
 
         if not st.session_state.get('data_loaded', False):
             st.markdown("### 🚀 Welcome to Advanced FPL Analytics")
