@@ -109,13 +109,23 @@ class FPLDataService:
             
             # Add team info to players - only merge on essential columns
             teams_df_minimal = teams_df[['id', 'name', 'team_short_name']].copy()
+            teams_df_minimal = teams_df_minimal.rename(columns={'id': 'team_id_match'})
             players_df = players_df.merge(
                 teams_df_minimal,
                 left_on='team',
-                right_on='id',
+                right_on='team_id_match',
                 how='left',  # Use left join to keep all players
                 suffixes=('', '_team')
             )
+            # Drop the temporary matching column
+            players_df = players_df.drop('team_id_match', axis=1, errors='ignore')
+            
+            # Verify critical columns exist
+            if 'id' not in players_df.columns:
+                logger.error("CRITICAL: 'id' column missing from players_df after merge!")
+                logger.error(f"Available columns: {list(players_df.columns)}")
+            else:
+                logger.info(f"✓ Player 'id' column preserved. Total players: {len(players_df)}")
             
             # Handle any missing team names
             players_df['team_short_name'] = players_df['team_short_name'].fillna('UNK')

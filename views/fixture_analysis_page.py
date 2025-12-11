@@ -336,9 +336,13 @@ class FixtureAnalysisPage:
             
             # Enhanced color coding for accessibility (works in light and dark mode)
             def highlight_difficulty(val):
-                if isinstance(val, str) and '(' in val:
+                if isinstance(val, str) and '(' in val and ')' in val:
                     try:
-                        difficulty = int(val.split('(')[1].split(')')[0])
+                        difficulty_str = val.split('(')[1].split(')')[0]
+                        # Skip if difficulty is not numeric (e.g., 'A' for Away)
+                        if not difficulty_str.isdigit():
+                            return ''
+                        difficulty = int(difficulty_str)
                         if difficulty <= 2:
                             # Easy - Green with high contrast
                             return 'background-color: #22c55e; color: white; font-weight: bold; border: 1px solid #16a34a'
@@ -348,14 +352,41 @@ class FixtureAnalysisPage:
                         else:
                             # Hard - Red with white text for contrast
                             return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
-                    except:
-                        pass
+                    except (ValueError, IndexError):
+                        return ''
+                return ''
+            
+            # Enhanced color coding for FDR average scores
+            def highlight_fdr_average(val):
+                if isinstance(val, (int, float)):
+                    if val <= 2.0:
+                        # Excellent - Dark Green
+                        return 'background-color: #166534; color: white; font-weight: bold; border: 1px solid #15803d'
+                    elif val <= 2.5:
+                        # Good - Light Green
+                        return 'background-color: #22c55e; color: white; font-weight: bold; border: 1px solid #16a34a'
+                    elif val <= 3.0:
+                        # Moderate - Yellow
+                        return 'background-color: #eab308; color: #1f2937; font-weight: bold; border: 1px solid #ca8a04'
+                    elif val <= 3.5:
+                        # Challenging - Orange
+                        return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
+                    elif val <= 4.0:
+                        # Difficult - Red
+                        return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                    else:
+                        # Very Difficult - Dark Red
+                        return 'background-color: #991b1b; color: white; font-weight: bold; border: 1px solid #b91c1c'
                 return ''
             
             # Get fixture columns (exclude Team, Short, Next 5 FDR)
             fixture_cols = [col for col in fixture_df.columns if col not in ['Team', 'Short', 'Next 5 FDR']]
             
-            styled_df = fixture_df.style.applymap(highlight_difficulty, subset=fixture_cols)
+            # Apply styling to both fixture columns and FDR average
+            styled_df = (fixture_df.style
+                        .applymap(highlight_difficulty, subset=fixture_cols)
+                        .applymap(highlight_fdr_average, subset=['Next 5 FDR']))
+            
             st.dataframe(styled_df, width='stretch')
             
             # Statistics
@@ -373,24 +404,62 @@ class FixtureAnalysisPage:
             # Enhanced FDR Legend with accessibility information
             st.markdown("#### 🎯 **Fixture Difficulty Legend**")
             
-            # Color legend with visual examples
+            # Individual Fixture Color Legend
+            st.markdown("##### 🔍 **Individual Fixtures:**")
             st.markdown("""
             <div style="margin: 1rem 0;">
-                <h5>📊 Color Coding Guide:</h5>
-                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0;">
-                    <div style="background-color: #22c55e; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
-                        🟢 Easy (1-2): Great fixtures for captaincy & transfers
+                <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1rem 0;">
+                    <div style="background-color: #22c55e; color: white; padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-weight: bold; font-size: 0.9rem;">
+                        🟢 Easy (1-2): Excellent fixtures
                     </div>
-                    <div style="background-color: #f59e0b; color: #1f2937; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
-                        🟡 Medium (3): Average fixtures, decent options
+                    <div style="background-color: #f59e0b; color: #1f2937; padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-weight: bold; font-size: 0.9rem;">
+                        � Medium (3): Average fixtures
                     </div>
-                    <div style="background-color: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold;">
-                        🔴 Hard (4-5): Difficult fixtures, consider rotation
+                    <div style="background-color: #ef4444; color: white; padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-weight: bold; font-size: 0.9rem;">
+                        🔴 Hard (4-5): Difficult fixtures
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
+            # FDR Average Color Legend
+            st.markdown("##### 📊 **Next 5 FDR Average:**")
+            st.markdown("""
+            <div style="margin: 1rem 0;">
+                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0;">
+                    <div style="background-color: #166534; color: white; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        ≤2.0: Excellent
+                    </div>
+                    <div style="background-color: #22c55e; color: white; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        ≤2.5: Good
+                    </div>
+                    <div style="background-color: #eab308; color: #1f2937; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        ≤3.0: Moderate
+                    </div>
+                    <div style="background-color: #f59e0b; color: #1f2937; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        ≤3.5: Challenging
+                    </div>
+                    <div style="background-color: #ef4444; color: white; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        ≤4.0: Difficult
+                    </div>
+                    <div style="background-color: #991b1b; color: white; padding: 0.3rem 0.6rem; border-radius: 0.3rem; font-weight: bold; font-size: 0.85rem;">
+                        >4.0: Very Difficult
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Strategy tips based on color coding
+            st.markdown("##### 🎯 **Strategy Tips:**")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.success("🟢 **Target for Transfers**: Teams with dark green FDR (≤2.0) are prime candidates for bringing in players")
+            with col2:
+                st.warning("🟡 **Rotation Candidates**: Teams with orange/yellow FDR (3.0-3.5) may need tactical rotation")
+            with col3:
+                st.error("🔴 **Avoid or Sell**: Teams with red FDR (>4.0) should be avoided for new transfers")
+            
+            # Accessibility information
             col1, col2 = st.columns(2)
             with col1:
                 st.info("💡 **Dark Mode Compatible**: Colors are optimized for both light and dark themes")
@@ -460,9 +529,7 @@ class FixtureAnalysisPage:
                     # Add individual fixtures with attack context
                     for i, fixture in enumerate(team_fixtures):
                         gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
-                        attack_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"
-                    
-                    # Add attack recommendation
+                        attack_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"                    # Add attack recommendation
                     if avg_attack_difficulty <= 2.5:
                         recommendation = "🎯 Great attacking fixtures"
                     elif avg_attack_difficulty <= 3.5:
@@ -478,23 +545,57 @@ class FixtureAnalysisPage:
             if not attack_df.empty:
                 # Enhanced color coding for attack difficulty (accessible for dark mode)
                 def highlight_attack_difficulty(val):
-                    if isinstance(val, str) and '(' in val:
-                        difficulty = int(val.split('(')[1].split(')')[0])
-                        if difficulty <= 2:
-                            # Easy attack - Blue/Cyan with white text
+                    if isinstance(val, str) and '(' in val and ')' in val:
+                        try:
+                            difficulty_str = val.split('(')[1].split(')')[0]
+                            # Skip if difficulty is not numeric (e.g., 'A' for Away)
+                            if not difficulty_str.isdigit():
+                                return ''
+                            difficulty = int(difficulty_str)
+                            if difficulty <= 2:
+                                # Easy attack - Blue/Cyan with white text
+                                return 'background-color: #06b6d4; color: white; font-weight: bold; border: 1px solid #0891b2'
+                            elif difficulty == 3:
+                                # Medium attack - Orange with dark text
+                                return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
+                            else:
+                                # Hard attack - Red with white text
+                                return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                        except (ValueError, IndexError):
+                            return ''
+                    return ''
+                
+                # Enhanced color coding for Attack FDR average scores
+                def highlight_attack_fdr_average(val):
+                    if isinstance(val, (int, float)):
+                        if val <= 2.0:
+                            # Excellent attack - Dark Cyan
+                            return 'background-color: #155e75; color: white; font-weight: bold; border: 1px solid #0e7490'
+                        elif val <= 2.5:
+                            # Good attack - Light Cyan
                             return 'background-color: #06b6d4; color: white; font-weight: bold; border: 1px solid #0891b2'
-                        elif difficulty == 3:
-                            # Medium attack - Orange with dark text
+                        elif val <= 3.0:
+                            # Moderate attack - Yellow
+                            return 'background-color: #eab308; color: #1f2937; font-weight: bold; border: 1px solid #ca8a04'
+                        elif val <= 3.5:
+                            # Challenging attack - Orange
                             return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
-                        else:
-                            # Hard attack - Red with white text
+                        elif val <= 4.0:
+                            # Difficult attack - Red
                             return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                        else:
+                            # Very Difficult attack - Dark Red
+                            return 'background-color: #991b1b; color: white; font-weight: bold; border: 1px solid #b91c1c'
                     return ''
                 
                 # Get fixture columns dynamically (excluding Team, Attack FDR, and Recommendation)
                 fixture_cols = [col for col in attack_df.columns if col not in ['Team', 'Attack FDR', 'Recommendation']]
                 
-                styled_attack_df = attack_df.style.applymap(highlight_attack_difficulty, subset=fixture_cols)
+                # Apply styling to both fixture columns and Attack FDR average
+                styled_attack_df = (attack_df.style
+                                  .applymap(highlight_attack_difficulty, subset=fixture_cols)
+                                  .applymap(highlight_attack_fdr_average, subset=['Attack FDR']))
+                
                 st.dataframe(styled_attack_df, width='stretch')
             
             # Attack recommendations
@@ -546,8 +647,8 @@ class FixtureAnalysisPage:
             fixtures = self._get_live_fixtures()
             
             if fixtures and len(fixtures) > 0:
-                # Create teams dictionary for quick lookup
-                teams_dict = {team.get('id'): team.get('name', 'Unknown') for team in teams}
+                # Create teams dictionary for quick lookup - store full team objects
+                teams_dict = {team.get('id'): team for team in teams}
                 
                 defense_data = []
                 
@@ -590,23 +691,57 @@ class FixtureAnalysisPage:
                 if not defense_df.empty:
                     # Enhanced color coding for defense difficulty (accessible for dark mode)
                     def highlight_defense_difficulty(val):
-                        if isinstance(val, str) and '(' in val:
-                            difficulty = int(val.split('(')[1].split(')')[0])
-                            if difficulty <= 2:
-                                # Easy defense - Green with white text (good clean sheet potential)
+                        if isinstance(val, str) and '(' in val and ')' in val:
+                            try:
+                                difficulty_str = val.split('(')[1].split(')')[0]
+                                # Skip if difficulty is not numeric (e.g., 'A' for Away)
+                                if not difficulty_str.isdigit():
+                                    return ''
+                                difficulty = int(difficulty_str)
+                                if difficulty <= 2:
+                                    # Easy defense - Green with white text (good clean sheet potential)
+                                    return 'background-color: #10b981; color: white; font-weight: bold; border: 1px solid #059669'
+                                elif difficulty == 3:
+                                    # Medium defense - Orange with dark text
+                                    return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
+                                else:
+                                    # Hard defense - Red with white text (poor clean sheet potential)
+                                    return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                            except (ValueError, IndexError):
+                                return ''
+                        return ''
+                    
+                    # Enhanced color coding for Defense FDR average scores  
+                    def highlight_defense_fdr_average(val):
+                        if isinstance(val, (int, float)):
+                            if val <= 2.0:
+                                # Excellent defense - Dark Green
+                                return 'background-color: #166534; color: white; font-weight: bold; border: 1px solid #15803d'
+                            elif val <= 2.5:
+                                # Good defense - Light Green  
                                 return 'background-color: #10b981; color: white; font-weight: bold; border: 1px solid #059669'
-                            elif difficulty == 3:
-                                # Medium defense - Orange with dark text
+                            elif val <= 3.0:
+                                # Moderate defense - Yellow
+                                return 'background-color: #eab308; color: #1f2937; font-weight: bold; border: 1px solid #ca8a04'
+                            elif val <= 3.5:
+                                # Challenging defense - Orange
                                 return 'background-color: #f59e0b; color: #1f2937; font-weight: bold; border: 1px solid #d97706'
-                            else:
-                                # Hard defense - Red with white text (poor clean sheet potential)
+                            elif val <= 4.0:
+                                # Difficult defense - Red
                                 return 'background-color: #ef4444; color: white; font-weight: bold; border: 1px solid #dc2626'
+                            else:
+                                # Very Difficult defense - Dark Red
+                                return 'background-color: #991b1b; color: white; font-weight: bold; border: 1px solid #b91c1c'
                         return ''
                     
                     # Get fixture columns dynamically (excluding Team, Defense FDR, Clean Sheet %, and Recommendation)
                     fixture_cols = [col for col in defense_df.columns if col not in ['Team', 'Defense FDR', 'Clean Sheet %', 'Recommendation']]
                     
-                    styled_defense_df = defense_df.style.applymap(highlight_defense_difficulty, subset=fixture_cols)
+                    # Apply styling to both fixture columns and Defense FDR average
+                    styled_defense_df = (defense_df.style
+                                       .applymap(highlight_defense_difficulty, subset=fixture_cols)
+                                       .applymap(highlight_defense_fdr_average, subset=['Defense FDR']))
+                    
                     st.dataframe(styled_defense_df, width='stretch')
             
                 # Defense recommendations
