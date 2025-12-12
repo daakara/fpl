@@ -192,6 +192,7 @@ class RefactoredFPLApp:
                         st.session_state.players_df = pd.DataFrame(live_data['elements'])
                         st.session_state.data_loaded = True
                         st.session_state.last_data_update = datetime.now()
+                        logger.info(f"✅ Live data loaded: {len(st.session_state.players_df)} players")
                     
                     if 'teams' in live_data:
                         st.session_state.teams_df = pd.DataFrame(live_data['teams'])
@@ -207,6 +208,7 @@ class RefactoredFPLApp:
                 st.session_state.players_df = pd.DataFrame(self.fallback_data['elements'])
                 st.session_state.data_loaded = True
                 st.session_state.last_data_update = datetime.now()
+                logger.info(f"⚠️ Using fallback data: {len(st.session_state.players_df)} players")
             
             if 'teams' in self.fallback_data:
                 st.session_state.teams_df = pd.DataFrame(self.fallback_data['teams'])

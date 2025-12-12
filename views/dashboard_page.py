@@ -54,7 +54,13 @@ class DashboardPage:
             
             col1, col2, col3 = st.columns([1, 1, 1])
             with col2:
-                if st.button("🔥 Load FPL Data", type="primary", use_container_width=True):
+                # Show loading message in fallback mode
+                if st.session_state.get('data_source') == 'fallback':
+                    st.info("📦 Running in fallback mode - using sample data")
+                    # Trigger data load by setting flag
+                    st.session_state.data_loaded = True
+                    st.rerun()
+                elif st.button("🔥 Load FPL Data", type="primary", use_container_width=True):
                     with st.spinner("Loading FPL data..."):
                         render_loading_spinner("Fetching latest player data...")
                         players_df, teams_df = cached_load_fpl_data()
@@ -70,7 +76,8 @@ class DashboardPage:
 
         df = st.session_state.get('players_df')
         if df is None or df.empty:
-            st.warning("Player data is not available. Please try refreshing.")
+            st.warning("⚠️ Player data is not available. Please try refreshing the page.")
+            st.info(f"Data source: {st.session_state.get('data_source', 'unknown')}")
             return
 
         # Live Updates Section
