@@ -158,8 +158,9 @@ logs/
 cache/
 *.log
 *.cache
-.streamlit/
-secrets.toml
+.streamlit/secrets.toml
+# Allow .streamlit/config.toml for deployment configuration
+!.streamlit/config.toml
 
 # Development and Testing Files
 test_*.py
