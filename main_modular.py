@@ -8,58 +8,78 @@ import pandas as pd
 import time
 from datetime import datetime
 
-# Enhanced imports with performance improvements
-from core.app_controller import EnhancedFPLAppController
-from core.refactored_app_controller import PerformanceAwareController, CachingStrategy
+# Try enhanced imports with graceful fallback
+ENHANCED_MODE = False
+PerformanceAwareController = None
+CachingStrategy = None
+get_enhanced_fpl_service = None
+get_cache_manager = None
+get_performance_monitor = None
 
-# Enhanced services and utilities
-from services.enhanced_fpl_data_service import get_enhanced_fpl_service
-from utils.advanced_cache_manager import get_cache_manager, smart_cache
-from utils.enhanced_performance_monitor import get_performance_monitor, monitor_performance
-
-# Middleware imports
-from middleware import (
-    initialize_error_handling,
-    initialize_logging,
-    configure_container,
-    get_error_middleware,
-    get_logging_strategy,
-    error_handler,
-    ErrorCategory,
-    ErrorSeverity
-)
-
-# Initialize performance monitor instance
-performance_monitor = get_performance_monitor()
-from utils.enhanced_cache import display_cache_metrics, cache_manager
-
-# Configuration with security enhancements
-from config.app_config import config
-from config.secure_config import get_secure_config
-
-# UI Components
-from components.ui.status_bar import create_default_status_bar
-from components.ui.styles import default_style_manager
-from components.ui.theme_manager import get_theme_manager
-from components.ui.dashboard_exporter import get_dashboard_exporter
-from components.ai.player_insights import get_insights_engine
-from components.error_handling import default_error_handler
-
-
-class EnhancedFPLApp(PerformanceAwareController):
-    """Enhanced FPL Application with integrated performance improvements"""
+try:
+    from core.app_controller import EnhancedFPLAppController
+    from core.refactored_app_controller import PerformanceAwareController, CachingStrategy
+    from services.enhanced_fpl_data_service import get_enhanced_fpl_service
+    from utils.advanced_cache_manager import get_cache_manager, smart_cache
+    from utils.enhanced_performance_monitor import get_performance_monitor, monitor_performance
+    from middleware import (
+        initialize_error_handling,
+        initialize_logging,
+        configure_container,
+        get_error_middleware,
+        get_logging_strategy,
+        error_handler,
+        ErrorCategory,
+        ErrorSeverity
+    )
+    ENHANCED_MODE = True
+except ImportError as e:
+    print(f"⚠️ Enhanced features unavailable, running in basic mode: {e}")
+    # Fallback: redirect to main_refactored.py
+    st.warning("⚠️ Running in compatibility mode. Some advanced features may be unavailable.")
+    import sys
+    sys.path.insert(0, '/mount/src/fpl')
+    from main_refactored import RefactoredFPLApp
     
-    def __init__(self):
-        """Initialize the enhanced application"""
-        super().__init__()
+    # Run the refactored app instead
+    if __name__ == "__main__":
+        app = RefactoredFPLApp()
+        app.run()
+        st.stop()
+
+# Only proceed with enhanced mode if imports succeeded
+if ENHANCED_MODE:
+    # Initialize performance monitor instance
+    performance_monitor = get_performance_monitor()
+    from utils.enhanced_cache import display_cache_metrics, cache_manager
+
+    # Configuration with security enhancements
+    from config.app_config import config
+    from config.secure_config import get_secure_config
+
+    # UI Components
+    from components.ui.status_bar import create_default_status_bar
+    from components.ui.styles import default_style_manager
+    from components.ui.theme_manager import get_theme_manager
+    from components.ui.dashboard_exporter import get_dashboard_exporter
+    from components.ai.player_insights import get_insights_engine
+    from components.error_handling import default_error_handler
+
+
+    class EnhancedFPLApp(PerformanceAwareController):
+        """Enhanced FPL Application with integrated performance improvements"""
         
-        # Initialize middleware
-        self.error_middleware = get_error_middleware()
-        self.logger = get_logging_strategy()
-        
-        # Initialize enhanced services
-        self.fpl_service = get_enhanced_fpl_service()
-        self.cache_manager = get_cache_manager()
+        def __init__(self):
+            """Initialize the enhanced application"""
+            super().__init__()
+            
+            # Initialize middleware
+            self.error_middleware = get_error_middleware()
+            self.logger = get_logging_strategy()
+            
+            # Initialize enhanced services
+            self.fpl_service = get_enhanced_fpl_service()
+            self.cache_manager = get_cache_manager()
         self.secure_config = get_secure_config()
         
         # Initialize new features
@@ -358,6 +378,11 @@ def main() -> None:
         get_logging_strategy().error(f"Enhanced application error: {str(e)}")
         get_error_middleware().handle_error(e)
 
+else:
+    # Fallback mode - already handled in imports section
+    pass
 
 if __name__ == "__main__":
-    main()
+    if ENHANCED_MODE:
+        main()
+    # Otherwise, main_refactored.py has already been executed
