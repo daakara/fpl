@@ -20,6 +20,7 @@ class NavigationService:
             "AI Recommendations",
             "Advanced Analytics",
             "Fixture Analysis",
+            "Price Changes",
             "Live Data",
             "Market Intelligence"
         ]
@@ -32,6 +33,7 @@ class NavigationService:
             "robot",
             "graph-up-arrow",
             "calendar3",
+            "cash-coin",
             "broadcast",
             "bar-chart-fill"
         ]

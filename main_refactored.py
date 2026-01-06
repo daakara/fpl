@@ -14,6 +14,11 @@ from services.player_recommendation_service import PlayerRecommendationService
 from services.data_utilities_service import DataUtilitiesService
 from controllers.dashboard_controller import DashboardController
 
+# Import critical services
+from services.data_quality_service import DataQualityService
+from services.price_change_predictor_service import PriceChangePredictorService
+from services.external_data_integrator_service import ExternalDataIntegratorService
+
 # Try enhanced services, fall back to basic functionality
 try:
     from services.enhanced_fpl_data_service import get_enhanced_fpl_service
@@ -53,6 +58,11 @@ class RefactoredFPLApp:
         self.recommendation_service = PlayerRecommendationService()
         self.data_service = DataUtilitiesService()
         self.dashboard_controller = DashboardController()
+        
+        # Initialize critical services
+        self.data_quality_service = DataQualityService()
+        self.price_predictor = PriceChangePredictorService()
+        self.external_data_service = ExternalDataIntegratorService()
         
         # Initialize enhanced services if available
         if self.enhanced_mode:
@@ -188,30 +198,39 @@ class RefactoredFPLApp:
         st.session_state.data_source = 'fallback'
         return False
     
-    def get_data_safely(self):
-        """Safely get data with comprehensive fallback mechanism"""
+    @st.cache_data(ttl=300, show_spinner="Loading FPL data...")  # Cache for 5 minutes
+    def get_data_safely(_self):
+        """Safely get data with comprehensive fallback mechanism and data quality validation"""
         import pandas as pd
         from datetime import datetime
         
         try:
-            if self.enhanced_mode and hasattr(self, 'fpl_service'):
+            if _self.enhanced_mode and hasattr(_self, 'fpl_service'):
                 # Try to get live data first
-                live_data = self.fpl_service.get_bootstrap_data()
-                if live_data and self.data_service.validate_data_structure(live_data):
+                live_data = _self.fpl_service.get_bootstrap_data()
+                if live_data and _self.data_service.validate_data_structure(live_data):
                     st.session_state.api_status = 'online'
                     st.session_state.data_source = 'live_api'
                     
                     # Populate session state with loaded data
                     if 'elements' in live_data:
                         df = pd.DataFrame(live_data['elements'])
-                        df = self._ensure_numeric_types(df)  # Convert string numbers to numeric types
+                        # Use DataQualityService for comprehensive validation and cleaning
+                        df = _self.data_quality_service.validate_and_clean_players(df)
+                        # Add price change predictions
+                        df = _self.price_predictor.predict_price_changes(df)
+                        # Add injury/fitness data
+                        df = _self.external_data_service.get_injury_news(df)
+                        
                         st.session_state.players_df = df
                         st.session_state.data_loaded = True
                         st.session_state.last_data_update = datetime.now()
-                        logger.info(f"✅ Live data loaded: {len(st.session_state.players_df)} players")
+                        logger.info(f"✅ Live data loaded and validated: {len(st.session_state.players_df)} players")
                     
                     if 'teams' in live_data:
-                        st.session_state.teams_df = pd.DataFrame(live_data['teams'])
+                        teams_df = pd.DataFrame(live_data['teams'])
+                        teams_df = _self.data_quality_service.validate_and_clean_teams(teams_df)
+                        st.session_state.teams_df = teams_df
                     
                     return live_data
             
@@ -220,21 +239,29 @@ class RefactoredFPLApp:
             st.session_state.data_source = 'fallback'
             
             # Populate session state with fallback data
-            if 'elements' in self.fallback_data:
-                df = pd.DataFrame(self.fallback_data['elements'])
-                df = self._ensure_numeric_types(df)  # Convert string numbers to numeric types
+            if 'elements' in _self.fallback_data:
+                df = pd.DataFrame(_self.fallback_data['elements'])
+                # Use DataQualityService for comprehensive validation and cleaning
+                df = _self.data_quality_service.validate_and_clean_players(df)
+                # Add price change predictions
+                df = _self.price_predictor.predict_price_changes(df)
+                # Add injury/fitness data
+                df = _self.external_data_service.get_injury_news(df)
+                
                 st.session_state.players_df = df
                 st.session_state.data_loaded = True
                 st.session_state.last_data_update = datetime.now()
-                logger.info(f"⚠️ Using fallback data: {len(st.session_state.players_df)} players")
+                logger.info(f"⚠️ Using fallback data (validated): {len(st.session_state.players_df)} players")
             
-            if 'teams' in self.fallback_data:
-                st.session_state.teams_df = pd.DataFrame(self.fallback_data['teams'])
+            if 'teams' in _self.fallback_data:
+                teams_df = pd.DataFrame(_self.fallback_data['teams'])
+                teams_df = _self.data_quality_service.validate_and_clean_teams(teams_df)
+                st.session_state.teams_df = teams_df
             
-            return self.fallback_data
+            return _self.fallback_data
             
         except Exception as e:
-            if self.enhanced_mode:
+            if _self.enhanced_mode:
                 logger.error(f"Data retrieval failed: {e}")
             
             st.session_state.api_status = 'offline'
@@ -246,7 +273,7 @@ class RefactoredFPLApp:
                 st.session_state.teams_df = pd.DataFrame()
                 st.session_state.data_loaded = False
             
-            return self.fallback_data
+            return _self.fallback_data
     
     def render_page_content(self, selected_page):
         """Render content based on selected page with clean separation"""
@@ -319,6 +346,16 @@ class RefactoredFPLApp:
             else:
                 self._render_fallback_page("Fixture Analysis", "📅 **Fixture Analysis**",
                                          "Comprehensive fixture difficulty analysis")
+                
+        elif selected_page == "Price Changes":
+            try:
+                from views.price_changes_page import PriceChangesPage
+                price_page = PriceChangesPage()
+                price_page.render()
+            except Exception as e:
+                st.warning(f"Price Changes page error: {e}")
+                self._render_fallback_page("Price Changes", "💰 **Price Changes**",
+                                         "Track price rises and falls")
                 
         elif selected_page == "Live Data":
             self._render_live_data_page(data)

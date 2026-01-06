@@ -222,3 +222,6 @@ main_enhanced.py
 *.temp
 temp/
 tmp/
+
+# Virtual environments
+.venv_windows/
