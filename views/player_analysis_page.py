@@ -210,9 +210,22 @@ class PlayerAnalysisPage:
             na_position='last'  # Put N/A values at the end
         )
         
+        # Add pagination for large datasets
+        from utils.performance_optimizer import PerformanceOptimizer
+        
+        if len(sorted_df) > 50:
+            st.info(f"📊 Showing paginated view of {len(sorted_df)} players (50 per page)")
+            paginated_df = PerformanceOptimizer.paginate_dataframe(
+                sorted_df, 
+                page_size=50,
+                page_key="player_list_page"
+            )
+        else:
+            paginated_df = sorted_df
+        
         # Format the dataframe for display
         st.dataframe(
-            sorted_df,
+            paginated_df,
             use_container_width=True,
             hide_index=True,
             column_config={

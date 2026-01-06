@@ -3,6 +3,9 @@ Player Recommendation Service
 Handles intelligent player recommendations based on live FPL data
 """
 
+import streamlit as st
+from utils.performance_optimizer import cache_5min, measure_perf
+
 class PlayerRecommendationService:
     """Service for generating intelligent player recommendations"""
     
@@ -10,6 +13,8 @@ class PlayerRecommendationService:
         """Initialize the recommendation service"""
         pass
     
+    @cache_5min
+    @measure_perf
     def generate_live_player_recommendations(self, data):
         """Generate intelligent player recommendations based on live FPL data"""
         try:

@@ -9,6 +9,7 @@ from datetime import datetime
 from utils.modern_ui_components import ModernUIComponents, DataVisualization, render_loading_spinner, create_success_animation
 from utils.enhanced_cache import cached_load_fpl_data
 from utils.error_handling import logger
+from utils.performance_optimizer import PerformanceOptimizer, LazyLoader, cache_5min
 from components.ai.player_insights import get_insights_engine
 
 class DashboardPage:
