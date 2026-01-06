@@ -39,6 +39,7 @@ try:
     from views.fixture_analysis_page import FixtureAnalysisPage
     from views.live_data_page import LiveDataPage
     from views.advanced_analysis_page import AdvancedAnalysisPage
+    from views.advanced_analytics_page_enhanced import AdvancedAnalyticsPage as EnhancedAnalyticsPage
     PAGES_AVAILABLE = True
 except ImportError as e:
     print(f"Some page modules not available: {e}")
@@ -329,7 +330,17 @@ class RefactoredFPLApp:
                 self.dashboard_controller.render_ai_assistant()
                 
         elif selected_page == "Advanced Analytics":
-            self.dashboard_controller.render_advanced_analytics(data)
+            if PAGES_AVAILABLE:
+                try:
+                    # Use the enhanced analytics page
+                    enhanced_analytics = EnhancedAnalyticsPage()
+                    enhanced_analytics.render()
+                except Exception as e:
+                    st.warning(f"Enhanced analytics not available: {e}")
+                    # Fallback to original
+                    self.dashboard_controller.render_advanced_analytics(data)
+            else:
+                self.dashboard_controller.render_advanced_analytics(data)
                 
         elif selected_page == "Fixture Analysis":
             if PAGES_AVAILABLE:
