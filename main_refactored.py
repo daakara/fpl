@@ -4,6 +4,7 @@ Clean, modular architecture with separated concerns
 """
 
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 
 # Import refactored services
@@ -156,6 +157,19 @@ class RefactoredFPLApp:
             if key not in st.session_state:
                 st.session_state[key] = value
     
+    def _ensure_numeric_types(self, df):
+        """Convert string columns to proper numeric types for FPL data"""
+        numeric_columns = ['form', 'selected_by_percent', 'total_points', 'now_cost', 
+                          'points_per_game', 'minutes', 'goals_scored', 'assists', 
+                          'clean_sheets', 'goals_conceded', 'bonus', 'bps', 
+                          'ict_index', 'influence', 'creativity', 'threat']
+        
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        
+        return df
+    
     def check_api_status(self):
         """Check FPL API status with enhanced error handling"""
         try:
@@ -189,7 +203,9 @@ class RefactoredFPLApp:
                     
                     # Populate session state with loaded data
                     if 'elements' in live_data:
-                        st.session_state.players_df = pd.DataFrame(live_data['elements'])
+                        df = pd.DataFrame(live_data['elements'])
+                        df = self._ensure_numeric_types(df)  # Convert string numbers to numeric types
+                        st.session_state.players_df = df
                         st.session_state.data_loaded = True
                         st.session_state.last_data_update = datetime.now()
                         logger.info(f"✅ Live data loaded: {len(st.session_state.players_df)} players")
@@ -205,7 +221,9 @@ class RefactoredFPLApp:
             
             # Populate session state with fallback data
             if 'elements' in self.fallback_data:
-                st.session_state.players_df = pd.DataFrame(self.fallback_data['elements'])
+                df = pd.DataFrame(self.fallback_data['elements'])
+                df = self._ensure_numeric_types(df)  # Convert string numbers to numeric types
+                st.session_state.players_df = df
                 st.session_state.data_loaded = True
                 st.session_state.last_data_update = datetime.now()
                 logger.info(f"⚠️ Using fallback data: {len(st.session_state.players_df)} players")

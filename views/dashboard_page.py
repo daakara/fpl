@@ -80,6 +80,8 @@ class DashboardPage:
             st.info(f"Data source: {st.session_state.get('data_source', 'unknown')}")
             return
 
+            return
+
         # Live Updates Section
         self._render_live_updates_section(df)
         

@@ -137,20 +137,34 @@ class FixtureAnalysisPage:
             return {}
     
     def _get_live_fixtures(self):
-        """Get live fixtures data from FPL API"""
+        """Get live fixtures data from FPL API with fallback support"""
         try:
             import requests
             response = requests.get('https://fantasy.premierleague.com/api/fixtures/', timeout=10)
             if response.status_code == 200:
                 fixtures = response.json()
-                return fixtures
-            return []
+                if fixtures:  # Only return if we got actual data
+                    return fixtures
         except Exception as e:
-            st.warning(f"Could not fetch live fixtures: {e}")
+            pass  # Fall through to fallback
+        
+        # Fallback: Try to get fixtures from session state or create fallback data
+        try:
+            # Check if we have fallback data in session state
+            if 'fpl_data' in st.session_state and 'fixtures' in st.session_state.fpl_data:
+                return st.session_state.fpl_data.get('fixtures', [])
+            
+            # Create fallback fixtures using data utilities service
+            from services.data_utilities_service import DataUtilitiesService
+            data_service = DataUtilitiesService()
+            fallback_data = data_service.create_fallback_data()
+            return fallback_data.get('fixtures', [])
+        except Exception as e:
+            st.warning(f"Could not fetch fixtures (using fallback): {e}")
             return []
     
     def _get_team_fixtures_live(self, team_id, teams_dict, fixtures, max_fixtures=5):
-        """Get live fixtures for a specific team"""
+        """Get live fixtures for a specific team with attack and defense specific difficulty"""
         upcoming_fixtures = [f for f in fixtures if not f.get('finished', True)]
         team_fixtures = []
         
@@ -159,10 +173,25 @@ class FixtureAnalysisPage:
                 # Home fixture
                 opponent_id = fixture.get('team_a')
                 opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
-                difficulty = fixture.get('team_h_difficulty', 3)
+                opponent_team = teams_dict.get(opponent_id, {})
+                
+                # Overall difficulty from FPL API
+                overall_difficulty = fixture.get('team_h_difficulty', 3)
+                
+                # Attack difficulty: How hard to score (inverse of opponent defensive strength)
+                # Use opponent team strength to estimate - stronger teams = harder to score against
+                opponent_strength = opponent_team.get('strength', 3)
+                attack_difficulty = min(5, max(1, opponent_strength))  # 1-5 scale
+                
+                # Defense difficulty: How hard to keep clean sheet (opponent attacking strength)
+                # Same as overall difficulty since it represents opponent threat
+                defense_difficulty = overall_difficulty
+                
                 team_fixtures.append({
                     'opponent': f"vs {opponent} (H)",
-                    'difficulty': difficulty,
+                    'difficulty': overall_difficulty,
+                    'attack_difficulty': attack_difficulty,
+                    'defense_difficulty': defense_difficulty,
                     'event': fixture.get('event', 0),
                     'home': True
                 })
@@ -170,10 +199,23 @@ class FixtureAnalysisPage:
                 # Away fixture  
                 opponent_id = fixture.get('team_h')
                 opponent = teams_dict.get(opponent_id, {}).get('short_name', 'UNK')
-                difficulty = fixture.get('team_a_difficulty', 3)
+                opponent_team = teams_dict.get(opponent_id, {})
+                
+                # Overall difficulty from FPL API
+                overall_difficulty = fixture.get('team_a_difficulty', 3)
+                
+                # Attack difficulty: Adjust for away disadvantage
+                opponent_strength = opponent_team.get('strength', 3)
+                attack_difficulty = min(5, max(1, opponent_strength + 1))  # Harder away
+                
+                # Defense difficulty: Harder to defend away
+                defense_difficulty = min(5, overall_difficulty + 1)  # +1 for away
+                
                 team_fixtures.append({
                     'opponent': f"@ {opponent} (A)",
-                    'difficulty': difficulty,
+                    'difficulty': overall_difficulty,
+                    'attack_difficulty': attack_difficulty,
+                    'defense_difficulty': defense_difficulty,
                     'event': fixture.get('event', 0),
                     'home': False
                 })
@@ -519,7 +561,7 @@ class FixtureAnalysisPage:
                 team_fixtures = self._get_team_fixtures_live(team_id, teams_dict, fixtures, 5)
                 
                 if len(team_fixtures) >= 3:  # Only show teams with at least 3 fixtures
-                    avg_attack_difficulty = sum(f['difficulty'] for f in team_fixtures) / len(team_fixtures)
+                    avg_attack_difficulty = sum(f['attack_difficulty'] for f in team_fixtures) / len(team_fixtures)
                     
                     attack_entry = {
                         'Team': team_name,
@@ -529,7 +571,7 @@ class FixtureAnalysisPage:
                     # Add individual fixtures with attack context
                     for i, fixture in enumerate(team_fixtures):
                         gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
-                        attack_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"                    # Add attack recommendation
+                        attack_entry[gw_label] = f"{fixture['opponent']} ({fixture['attack_difficulty']})"                    # Add attack recommendation
                     if avg_attack_difficulty <= 2.5:
                         recommendation = "🎯 Great attacking fixtures"
                     elif avg_attack_difficulty <= 3.5:
@@ -660,7 +702,7 @@ class FixtureAnalysisPage:
                     team_fixtures = self._get_team_fixtures_live(team_id, teams_dict, fixtures, 5)
                     
                     if len(team_fixtures) >= 3:  # Only show teams with at least 3 fixtures
-                        avg_defense_difficulty = sum(f['difficulty'] for f in team_fixtures) / len(team_fixtures)
+                        avg_defense_difficulty = sum(f['defense_difficulty'] for f in team_fixtures) / len(team_fixtures)
                         
                         defense_entry = {
                             'Team': team_name,
@@ -670,7 +712,7 @@ class FixtureAnalysisPage:
                         # Add individual fixtures with defense context
                         for i, fixture in enumerate(team_fixtures):
                             gw_label = f"GW{fixture['event']}" if fixture['event'] > 0 else f"Next {i+1}"
-                            defense_entry[gw_label] = f"{fixture['opponent']} ({fixture['difficulty']})"
+                            defense_entry[gw_label] = f"{fixture['opponent']} ({fixture['defense_difficulty']})"
                         
                         # Add clean sheet percentage and defense recommendation
                         clean_sheet_pct = max(20, 80 - (avg_defense_difficulty * 15))
