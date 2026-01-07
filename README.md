@@ -19,6 +19,7 @@ A comprehensive, data-driven Fantasy Premier League analytics application built 
 - **💰 Price Change Predictor**: Real-time predictions for player price rises/falls based on net transfers
 - **📅 Fixture Ticker**: Auto-scrolling banner showing next 5 gameweeks with difficulty ratings
 - **🌙 Dark Mode**: Beautiful dark/light theme toggle with smooth transitions
+- **📄 Smart Pagination**: Efficient pagination for 792+ players (25-200 items per page, mobile responsive)
 
 ### Technical Features
 - **📱 Mobile Responsive**: Optimized layouts for mobile, tablet, and desktop
@@ -103,6 +104,7 @@ fpl/
   - Price Change Predictor with confidence levels
   - Auto-scrolling Fixture Ticker
   - Dark/Light theme toggle
+  - **Smart Pagination** for 792+ players (NEW!)
 
 ## 🎯 Quick Win Features (New!)
 
@@ -160,6 +162,22 @@ Beautiful theme switching:
 from utils.theme_manager import inject_theme, render_theme_toggle
 inject_theme()  # In main app
 render_theme_toggle(position='sidebar')  # Toggle button
+```
+
+### 5. Smart Pagination (New!)
+**Location**: Player Analysis, Team Builder, Dashboard  
+Efficient handling of 792+ players:
+- **Page Sizes**: 25, 50, 100, 200 items per page
+- **Mobile Optimized**: 25 items on mobile, 50 on desktop
+- **Navigation**: First/Last/Prev/Next + page selector
+- **Performance**: Loads only visible data
+- **Session State**: Remembers your position
+
+```python
+# Usage in code
+from utils.pagination import paginate_dataframe
+paginated = paginate_dataframe(df, page_size=50, key='my_table')
+st.dataframe(paginated)
 ```
 
 ## 🧪 Testing

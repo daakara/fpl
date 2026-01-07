@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 from utils.mobile_responsive import is_mobile, is_desktop, responsive_columns
 from utils.best_team_generator import BestTeamGenerator
+from utils.pagination import paginate_dataframe
 
 class TeamBuilderPage:
     """Handles the rendering of the Team Builder page."""
@@ -152,9 +153,19 @@ class TeamBuilderPage:
                 filtered_df = filtered_df[filtered_df['position_name'] == position]
             filtered_df = filtered_df[filtered_df['now_cost'] <= max_price * 10]
 
-            # Display available players
-            st.dataframe(
+            # Display available players with pagination
+            st.markdown(f"**Available Players:** {len(filtered_df)} players match your criteria")
+            
+            paginated_df = paginate_dataframe(
                 filtered_df[['web_name', 'team_name', 'now_cost', 'total_points', 'points_per_game']],
+                page_size=25 if is_mobile() else 50,
+                key='team_builder_players',
+                position='both'
+            )
+            
+            st.dataframe(
+                paginated_df,
+                use_container_width=True,
                 hide_index=True
             )
         else:

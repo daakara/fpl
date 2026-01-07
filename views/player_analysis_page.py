@@ -15,6 +15,7 @@ from utils.mobile_responsive import (
     responsive_columns,
     responsive_dataframe
 )
+from utils.pagination import paginate_dataframe
 
 
 class PlayerAnalysisPage:
@@ -217,18 +218,16 @@ class PlayerAnalysisPage:
             na_position='last'  # Put N/A values at the end
         )
         
-        # Add pagination for large datasets
-        from utils.performance_optimizer import PerformanceOptimizer
+        # Display results with pagination
+        st.markdown(f"**Filtered Players:** {len(sorted_df)} players match your criteria")
         
-        if len(sorted_df) > 50:
-            st.info(f"📊 Showing paginated view of {len(sorted_df)} players (50 per page)")
-            paginated_df = PerformanceOptimizer.paginate_dataframe(
-                sorted_df, 
-                page_size=50,
-                page_key="player_list_page"
-            )
-        else:
-            paginated_df = sorted_df
+        # Paginate the results
+        paginated_df = paginate_dataframe(
+            sorted_df,
+            page_size=25 if is_mobile() else 50,
+            key='player_analysis_list',
+            position='both'
+        )
         
         # Format the dataframe for display
         st.dataframe(
