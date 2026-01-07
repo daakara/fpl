@@ -20,6 +20,7 @@ A comprehensive, data-driven Fantasy Premier League analytics application built 
 - **📅 Fixture Ticker**: Auto-scrolling banner showing next 5 gameweeks with difficulty ratings
 - **🌙 Dark Mode**: Beautiful dark/light theme toggle with smooth transitions
 - **📄 Smart Pagination**: Efficient pagination for 792+ players (25-200 items per page, mobile responsive)
+- **🎓 Learning Resources**: Interactive FPL glossary, strategy guides, and quick start tutorial (NEW!)
 
 ### Technical Features
 - **📱 Mobile Responsive**: Optimized layouts for mobile, tablet, and desktop
@@ -179,6 +180,27 @@ from utils.pagination import paginate_dataframe
 paginated = paginate_dataframe(df, page_size=50, key='my_table')
 st.dataframe(paginated)
 ```
+
+### 6. Learning Resources (New!)
+**Location**: Learning Resources page (book icon in navigation)  
+Comprehensive FPL education hub:
+- **Glossary**: 18+ FPL terms explained (xG, xA, ICT, BPS, FDR, DGW, BGW, etc.)
+- **Strategy Guides**: Season Start, Mid-Season, End Game, Chip Strategy
+- **Quick Start Tutorial**: 6-step interactive onboarding for new users
+- **External Resources**: Community links (Reddit, Twitter, FPL Statistics)
+
+```python
+# Usage in code
+from components.learning_resources import render_learning_resources
+render_learning_resources()
+```
+
+**Features:**
+- Search across all glossary terms
+- Category tabs (Core Metrics, Ownership, Strategy & Chips, Fixtures)
+- Detailed explanations with examples for each term
+- Proven strategies for every game phase
+- Progressive tutorial with step tracking
 
 ## 🧪 Testing
 

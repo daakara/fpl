@@ -56,6 +56,7 @@ try:
     from views.live_data_page import LiveDataPage
     from views.advanced_analysis_page import AdvancedAnalysisPage
     from views.advanced_analytics_page_enhanced import AdvancedAnalyticsPage as EnhancedAnalyticsPage
+    from views.learning_resources_page import LearningResourcesPage
     PAGES_AVAILABLE = True
 except ImportError as e:
     print(f"Some page modules not available: {e}")
@@ -395,6 +396,19 @@ class RefactoredFPLApp:
                 
         elif selected_page == "Market Intelligence":
             self._render_market_intelligence_page(data)
+        
+        elif selected_page == "Learning Resources":
+            if PAGES_AVAILABLE:
+                try:
+                    learning_page = LearningResourcesPage()
+                    learning_page.render()
+                except Exception as e:
+                    st.warning(f"Learning Resources page error: {e}")
+                    self._render_fallback_page("Learning Resources", "🎓 **Learning Resources**",
+                                             "FPL glossary, strategy guides, and tutorials")
+            else:
+                self._render_fallback_page("Learning Resources", "🎓 **Learning Resources**",
+                                         "FPL glossary, strategy guides, and tutorials")
     
     def _render_fallback_page(self, page_name, title, description):
         """Render a fallback page when specific page module isn't available"""

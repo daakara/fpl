@@ -22,7 +22,8 @@ class NavigationService:
             "Fixture Analysis",
             "Price Changes",
             "Live Data",
-            "Market Intelligence"
+            "Market Intelligence",
+            "Learning Resources"
         ]
         
         self.icons = [
@@ -35,7 +36,8 @@ class NavigationService:
             "calendar3",
             "cash-coin",
             "broadcast",
-            "bar-chart-fill"
+            "bar-chart-fill",
+            "book-fill"
         ]
     
     def render_navigation(self):
@@ -110,6 +112,10 @@ class NavigationService:
             "Market Intelligence": {
                 "description": "Transfer market trends and price movements",
                 "features": ["Transfer trends", "Price changes", "Ownership data"]
+            },
+            "Learning Resources": {
+                "description": "FPL glossary, strategy guides, and tutorials",
+                "features": ["FPL terminology glossary", "Strategy guides for all stages", "Quick start tutorial", "External resources"]
             }
         }
         
