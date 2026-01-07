@@ -31,6 +31,10 @@ from utils.mobile_responsive import (
     add_responsive_css
 )
 
+# Import theme manager and fixture ticker
+from utils.theme_manager import get_theme_manager, inject_theme, render_theme_toggle
+from components.fixture_ticker import FixtureTicker
+
 # Try enhanced services, fall back to basic functionality
 try:
     from services.enhanced_fpl_data_service import get_enhanced_fpl_service
@@ -105,6 +109,9 @@ class RefactoredFPLApp:
         
         # Add responsive CSS for mobile optimization
         add_responsive_css()
+        
+        # Inject theme CSS (NEW FEATURE: Dark Mode)
+        inject_theme()
         
         # Custom CSS for enhanced UI
         st.markdown("""
@@ -487,6 +494,12 @@ class RefactoredFPLApp:
         with st.sidebar:
             st.markdown("## 🎛️ **Control Panel**")
             
+            # NEW FEATURE: Dark Mode Toggle
+            st.markdown("### 🎨 **Theme**")
+            render_theme_toggle(position='sidebar')
+            
+            st.markdown("---")
+            
             # Quick stats with live recommendations
             st.markdown("### 📊 **Quick Stats**")
             
@@ -521,6 +534,22 @@ class RefactoredFPLApp:
             if st.button("📊 Performance Report", width='stretch'):
                 st.info("📈 Generating performance report...")
     
+    def render_fixture_ticker(self):
+        """Render scrolling fixture ticker (NEW FEATURE)"""
+        try:
+            # Get fixtures and teams data
+            data = self.get_data_safely()
+            fixtures_df = data.get('fixtures', pd.DataFrame())
+            teams_df = data.get('teams', pd.DataFrame())
+            
+            if not fixtures_df.empty and not teams_df.empty:
+                ticker = FixtureTicker()
+                ticker.render(fixtures_df, teams_df, num_gameweeks=5, speed='medium')
+        except Exception as e:
+            logger.debug(f"Fixture ticker not available: {e}")
+            # Silently skip if fixtures not available
+            pass
+    
     def run_refactored_app(self):
         """Run the refactored FPL application"""
         try:
@@ -530,6 +559,9 @@ class RefactoredFPLApp:
             
             # Header
             self.ui_service.render_enhanced_header()
+            
+            # NEW FEATURE: Fixture Ticker
+            self.render_fixture_ticker()
             
             # Navigation
             selected_page = self.navigation_service.render_navigation()

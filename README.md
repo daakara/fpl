@@ -7,11 +7,20 @@ A comprehensive, data-driven Fantasy Premier League analytics application built 
 
 ## ✨ Key Features
 
+### Core Analytics
 - **📊 Interactive Dashboard**: Real-time FPL data with 792+ live players and enriched metrics
 - **🤖 AI-Powered Insights**: Intelligent player recommendations and hidden gems discovery
 - **📈 Advanced Analytics**: Performance metrics, form analysis, and value calculations
 - **🎯 Team Builder**: Strategic team construction with budget optimization
 - **⚡ Live Alerts**: Price changes, injury updates, and form notifications
+
+### New Quick Win Features (January 2026)
+- **🏆 Best Team Generator**: One-click optimal 15-player squad generation with multiple strategies (balanced, form, value, points)
+- **💰 Price Change Predictor**: Real-time predictions for player price rises/falls based on net transfers
+- **📅 Fixture Ticker**: Auto-scrolling banner showing next 5 gameweeks with difficulty ratings
+- **🌙 Dark Mode**: Beautiful dark/light theme toggle with smooth transitions
+
+### Technical Features
 - **📱 Mobile Responsive**: Optimized layouts for mobile, tablet, and desktop
 - **🎨 Rich Visualizations**: Interactive charts, radar plots, and heatmaps
 - **💾 Smart Caching**: Fast data loading with intelligent cache management
@@ -89,6 +98,69 @@ fpl/
 - ✅ Mobile responsiveness across all pages
 - ✅ Enhanced caching strategy with semantic decorators
 - ✅ Data enrichment pipeline (105 → 116 columns per player)
+- ✅ **Quick Wins Implemented** (January 2026):
+  - Best Team Generator with 4 strategies
+  - Price Change Predictor with confidence levels
+  - Auto-scrolling Fixture Ticker
+  - Dark/Light theme toggle
+
+## 🎯 Quick Win Features (New!)
+
+### 1. Best Team Generator
+**Location**: Team Builder page  
+Generate optimal 15-player squads with one click:
+- **Strategies**: Balanced, Form, Value, Points
+- **Constraints**: £100m budget, position limits, max 3 per team
+- **Output**: Starting XI with best formation + bench
+
+```python
+# Usage in code
+from utils.best_team_generator import generate_best_team
+result = generate_best_team(players_df, strategy='form')
+```
+
+### 2. Price Change Predictor
+**Location**: Dashboard page  
+Predict player price changes based on net transfers:
+- **Risers**: Players likely to increase in price (>100K net transfers)
+- **Fallers**: Players likely to decrease (<-100K net transfers)
+- **Watchlist**: Players on the edge (30K-100K threshold)
+- **Confidence**: HIGH/MEDIUM levels
+
+```python
+# Usage in code
+from services.price_change_predictor import predict_price_changes
+predictions = predict_price_changes(players_df)
+```
+
+### 3. Fixture Ticker
+**Location**: Main app header  
+Auto-scrolling banner showing upcoming fixtures:
+- Next 5 gameweeks
+- Kickoff times
+- Difficulty ratings (color-coded)
+- Pause on hover
+
+```python
+# Usage in code
+from components.fixture_ticker import render_fixture_ticker
+render_fixture_ticker(fixtures_df, teams_df, num_gameweeks=5)
+```
+
+### 4. Dark Mode
+**Location**: Sidebar  
+Beautiful theme switching:
+- **Light Theme**: Clean, professional
+- **Dark Theme**: Easy on the eyes
+- **Persistence**: Theme saved in session
+- **Smooth Transitions**: CSS animations
+
+```python
+# Usage in code
+from utils.theme_manager import inject_theme, render_theme_toggle
+inject_theme()  # In main app
+render_theme_toggle(position='sidebar')  # Toggle button
+```
 
 ## 🧪 Testing
 

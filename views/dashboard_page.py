@@ -18,6 +18,7 @@ from utils.mobile_responsive import (
     responsive_metric,
     responsive_dataframe
 )
+from services.price_change_predictor import PriceChangePredictor
 
 class DashboardPage:
     """Handles the rendering of the main dashboard."""
@@ -116,6 +117,9 @@ class DashboardPage:
 
         # Live Updates Section
         self._render_live_updates_section(df)
+        
+        # Price Change Predictions (NEW FEATURE)
+        self._render_price_changes_section(df)
         
         # Enhanced key metrics with modern cards
         st.markdown("### 📊 Key Performance Indicators")
@@ -381,6 +385,67 @@ class DashboardPage:
             st.markdown("🔹 **2 days, 14 hours**")
             st.markdown("🔹 **GW 12 Fixtures**")
             st.markdown("🔹 **Plan your transfers**")
+
+    def _render_price_changes_section(self, df):
+        """Render price change predictions."""
+        st.markdown("### 💰 Price Change Predictions")
+        
+        try:
+            predictor = PriceChangePredictor()
+            predictions = predictor.predict_price_changes(df, include_probable=True)
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown("**🔥 Likely Risers**")
+                if predictions['risers']:
+                    for riser in predictions['risers'][:5]:
+                        st.markdown(
+                            f"{riser['emoji']} **{riser['name']}** - "
+                            f"{riser['net_transfers']//1000}K net "
+                            f"({riser['confidence']})"
+                        )
+                else:
+                    st.info("No significant risers detected")
+            
+            with col2:
+                st.markdown("**🔻 Likely Fallers**")
+                if predictions['fallers']:
+                    for faller in predictions['fallers'][:5]:
+                        st.markdown(
+                            f"{faller['emoji']} **{faller['name']}** - "
+                            f"{abs(faller['net_transfers'])//1000}K net "
+                            f"({faller['confidence']})"
+                        )
+                else:
+                    st.info("No significant fallers detected")
+            
+            with col3:
+                st.markdown("**⚠️ Watchlist**")
+                if predictions['watchlist']:
+                    for player in predictions['watchlist'][:5]:
+                        st.markdown(
+                            f"⚠️ **{player['name']}** - "
+                            f"{abs(player['net_transfers'])//1000}K "
+                            f"({player['direction']})"
+                        )
+                else:
+                    st.info("No players on the edge")
+            
+            # Summary statistics
+            with st.expander("📊 Price Change Statistics"):
+                stats = predictions['stats']
+                col_stat1, col_stat2, col_stat3 = st.columns(3)
+                with col_stat1:
+                    st.metric("Likely Risers", stats['likely_risers'])
+                with col_stat2:
+                    st.metric("Likely Fallers", stats['likely_fallers'])
+                with col_stat3:
+                    st.metric("Total Transfers In", f"{stats['total_transfers_in']//1000}K")
+        
+        except Exception as e:
+            logger.error(f"Error rendering price changes: {e}")
+            st.info("💰 Price change predictions will appear here")
 
     def _apply_position_filter(self, df, position_filter):
         """Apply position filter to dataframe."""
