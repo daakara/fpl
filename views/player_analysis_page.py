@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils.error_handling import logger
+from utils.enhanced_visualizations import EnhancedVisualizations
 
 
 class PlayerAnalysisPage:
@@ -253,10 +254,11 @@ class PlayerAnalysisPage:
             return
         
         # Performance metrics tabs
-        metric_tab1, metric_tab2, metric_tab3, metric_tab4 = st.tabs([
+        metric_tab1, metric_tab2, metric_tab3, metric_tab4, metric_tab5 = st.tabs([
             "⚽ Top Performers",
             "💰 Value Analysis",
-            "📊 Form & Consistency",
+            "📊 Form Heatmap",
+            "🗓️ Fixture Matrix",
             "📈 Interactive Charts"
         ])
         
@@ -267,9 +269,39 @@ class PlayerAnalysisPage:
             self._render_value_analysis(display_df)
         
         with metric_tab3:
-            self._render_form_analysis(display_df)
+            st.write("**🔥 Player Form Heatmap - Last 5 Gameweeks**")
+            try:
+                fig = EnhancedVisualizations.form_heatmap(
+                    df=display_df,
+                    last_n_gameweeks=5,
+                    min_minutes=100
+                )
+                st.plotly_chart(fig, use_container_width=True)
+                
+                st.info("💡 **How to Read**: Darker green = better form. Look for consistent green rows indicating reliable performers.")
+            except Exception as e:
+                logger.error(f"Error creating form heatmap: {e}")
+                st.error("Could not create form heatmap.")
         
         with metric_tab4:
+            st.write("**🗓️ Fixture Difficulty Rating Matrix**")
+            try:
+                teams_df = st.session_state.get('teams_df', pd.DataFrame())
+                if not teams_df.empty:
+                    fig = EnhancedVisualizations.fixture_difficulty_matrix(
+                        teams_df=teams_df,
+                        next_n_fixtures=5
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    st.info("💡 **Color Guide**: Green = Easy fixtures, Yellow = Average, Red = Difficult. Plan transfers around favorable fixture runs!")
+                else:
+                    st.warning("Team data not available for fixture matrix.")
+            except Exception as e:
+                logger.error(f"Error creating fixture matrix: {e}")
+                st.error("Could not create fixture difficulty matrix.")
+        
+        with metric_tab5:
             self._render_interactive_charts(display_df)
 
     def _render_interactive_charts(self, df):
@@ -741,7 +773,7 @@ class PlayerAnalysisPage:
             st.info("Form data not available")
     
     def _render_player_comparison_tool(self, df):
-        """Advanced player comparison tool"""
+        """Advanced player comparison tool with radar charts"""
         st.subheader("⚖️ Advanced Player Comparison")
         
         # Use filtered data if available
@@ -751,7 +783,18 @@ class PlayerAnalysisPage:
             st.warning("No players to compare. Adjust your filters.")
             return
         
-        st.write("**🔍 Select Players to Compare**")
+        # Create comparison type selector
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.write("**🔍 Select Players to Compare**")
+        
+        with col2:
+            comparison_type = st.selectbox(
+                "Visualization Type",
+                ["Radar Chart", "Table", "Trend Lines"],
+                key="comparison_viz_type"
+            )
         
         # Player selection
         available_players = display_df['web_name'].tolist() if 'web_name' in display_df.columns else []
@@ -761,7 +804,7 @@ class PlayerAnalysisPage:
             return
         
         selected_players = st.multiselect(
-            "Choose players to compare (max 4)",
+            "Choose players to compare (2-4 recommended)",
             available_players,
             max_selections=4,
             help="Select 2-4 players for detailed comparison",
@@ -772,6 +815,42 @@ class PlayerAnalysisPage:
             # Filter for selected players
             comparison_df = display_df[display_df['web_name'].isin(selected_players)]
             
+            # Show different visualizations based on selection
+            if comparison_type == "Radar Chart":
+                st.write("**📊 Multi-Dimensional Radar Comparison**")
+                
+                # Create radar chart
+                try:
+                    fig = EnhancedVisualizations.player_comparison_radar(
+                        df=comparison_df,
+                        player_names=selected_players
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    st.info("💡 **Tip**: Larger area = better performance across metrics. Look for players who excel in multiple dimensions.")
+                    
+                except Exception as e:
+                    logger.error(f"Error creating radar chart: {e}")
+                    st.error("Could not create radar chart. Some metrics may be missing.")
+            
+            elif comparison_type == "Trend Lines":
+                st.write("**📈 Points Trend Comparison**")
+                
+                try:
+                    fig = EnhancedVisualizations.points_trend_line_chart(
+                        df=comparison_df,
+                        player_names=selected_players,
+                        gameweeks=10
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                except Exception as e:
+                    logger.error(f"Error creating trend chart: {e}")
+                    st.error("Could not create trend chart.")
+            
+            # Always show comparison table
+            st.write("**📋 Detailed Comparison Table**")
+            
             # Comparison metrics
             comparison_cols = ['web_name', 'position_name', 'team_short_name', 'cost_millions']
             optional_cols = ['total_points', 'form', 'points_per_million', 'selected_by_percent', 'minutes']
@@ -780,7 +859,6 @@ class PlayerAnalysisPage:
                 if col in comparison_df.columns:
                     comparison_cols.append(col)
             
-            st.write("**📊 Player Comparison Table**")
             st.dataframe(
                 comparison_df[comparison_cols],
                 use_container_width=True,

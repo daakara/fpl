@@ -292,11 +292,16 @@ class DataVisualization:
     def create_performance_chart(df: pd.DataFrame, x_col: str, y_col: str, 
                                title: str = "Performance Chart") -> None:
         """Create interactive performance charts"""
+        # Build hover_data dynamically based on available columns
+        hover_cols = ['web_name']
+        if 'team_short_name' in df.columns:
+            hover_cols.append('team_short_name')
+        
         fig = px.scatter(
             df.head(20), 
             x=x_col, 
             y=y_col,
-            hover_data=['web_name', 'team_short_name'],
+            hover_data=hover_cols,
             title=title,
             template="plotly_white"
         )

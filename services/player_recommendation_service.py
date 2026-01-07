@@ -15,7 +15,7 @@ class PlayerRecommendationService:
     
     @cache_5min
     @measure_perf
-    def generate_live_player_recommendations(self, data):
+    def generate_live_player_recommendations(_self, data):
         """Generate intelligent player recommendations based on live FPL data"""
         try:
             if not isinstance(data, dict) or 'elements' not in data:
