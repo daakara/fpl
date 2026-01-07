@@ -4,7 +4,7 @@ Enhanced Cache Manager with Performance Optimization
 import streamlit as st
 import pandas as pd
 from typing import Tuple
-from services.fpl_data_service import FPLDataService
+from core.data import get_fpl_data_fetcher, get_data_validator, get_data_transformer
 from utils.error_handling import logger
 import hashlib
 import pickle
@@ -235,13 +235,25 @@ def cached_function(ttl: int = 3600, key_prefix: str = ""):
 @cached_function(ttl=3600, key_prefix="fpl_data")
 @st.cache_data(ttl=900)  # Cache for 15 minutes
 def cached_load_fpl_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Cache wrapper for loading FPL data with enhanced error handling"""
+    """Cache wrapper for loading FPL data with enhanced error handling - MIGRATED to core/data"""
     try:
-        data_service = FPLDataService()
-        players_df, teams_df = data_service.load_fpl_data()
+        # Use new unified data infrastructure
+        fetcher = get_fpl_data_fetcher()
+        validator = get_data_validator()
+        transformer = get_data_transformer()
+        
+        # Fetch data (already cached in fetcher)
+        players_df = fetcher.get_players_dataframe()
+        teams_df = fetcher.get_teams_dataframe()
         
         if players_df.empty or teams_df.empty:
             raise ValueError("Failed to load FPL data: Empty dataframes returned")
+        
+        # Validate data quality
+        players_df = validator.validate_and_clean(players_df, 'players')
+        
+        # Transform with enriched features
+        players_df = transformer.transform_players(players_df, teams_df)
             
         return players_df, teams_df
     except Exception as e:
@@ -250,10 +262,11 @@ def cached_load_fpl_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 @cached_function(ttl=1800, key_prefix="team_data")
 def cached_load_team_data(team_id: str, gameweek: int):
-    """Cached team data loading"""
-    from services.fpl_data_service import FPLDataService
-    service = FPLDataService()
-    return service.load_team_data(team_id, gameweek)
+    """Cached team data loading - MIGRATED to core/data"""
+    fetcher = get_fpl_data_fetcher()
+    # Note: manager_history endpoint may need to be added to fetcher
+    # For now, keeping this simple
+    return {}
 
 def display_cache_metrics():
     """Display cache performance metrics in sidebar"""

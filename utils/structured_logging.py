@@ -20,7 +20,7 @@ from contextlib import contextmanager
 
 # Import from our local types package
 try:
-    from types.enhanced_types import LogLevel, ErrorSeverity, ErrorCategory
+    from custom_types.enhanced_types import LogLevel, ErrorSeverity, ErrorCategory
 except ImportError:
     # Fallback definitions
     from enum import Enum

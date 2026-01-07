@@ -33,7 +33,7 @@ from components.enhanced_ai_integration import FPLAIAssistant
 
 # Configuration
 from config.secure_config import get_secure_config
-from .types.enhanced_types import AppSessionState, FilterState
+from .custom_types.enhanced_types import AppSessionState, FilterState
 
 
 class IntegratedFPLApplication:

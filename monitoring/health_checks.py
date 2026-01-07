@@ -19,7 +19,7 @@ import json
 
 # Import from our local types package
 try:
-    from types.enhanced_types import ErrorCategory, ErrorSeverity
+    from custom_types.enhanced_types import ErrorCategory, ErrorSeverity
 except ImportError:
     # Fallback definitions
     class ErrorCategory(Enum):

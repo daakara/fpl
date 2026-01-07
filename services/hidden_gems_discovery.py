@@ -12,6 +12,7 @@ import warnings
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from scipy import stats
+from utils.data_converters import safe_int_convert, safe_float_convert
 
 warnings.filterwarnings('ignore')
 
@@ -104,7 +105,32 @@ class HiddenGemsDiscovery:
     
     def _prepare_gem_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Prepare and enhance data for gem discovery"""
+        if df.empty:
+            return df
+            
         gem_df = df.copy()
+        
+        # Check for required columns
+        required_cols = ['now_cost', 'total_points', 'minutes', 'selected_by_percent', 
+                        'form', 'element_type']
+        missing_cols = [col for col in required_cols if col not in gem_df.columns]
+        
+        if missing_cols:
+            print(f"Warning: Missing required columns: {missing_cols}")
+            # Add missing columns with default values
+            for col in missing_cols:
+                if col == 'now_cost':
+                    gem_df[col] = 50  # Default price
+                elif col == 'total_points':
+                    gem_df[col] = 0
+                elif col == 'minutes':
+                    gem_df[col] = 0
+                elif col == 'selected_by_percent':
+                    gem_df[col] = 5.0
+                elif col == 'form':
+                    gem_df[col] = 0.0
+                elif col == 'element_type':
+                    gem_df[col] = 3  # Default to MID
         
         # Basic feature engineering
         gem_df['price_millions'] = gem_df['now_cost'] / 10
@@ -222,25 +248,25 @@ class HiddenGemsDiscovery:
                 confidence = min(0.9, 0.5 + (player['minutes'] / 1000) * 0.3 + (player['games_played'] / 15) * 0.2)
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[position],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(gem_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(gem_score, 0.0),
                     gem_type='VALUE',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'points_per_million': float(player['points_per_million']),
-                        'total_points': int(player['total_points']),
-                        'form': float(player['form']),
-                        'minutes': int(player['minutes'])
+                        'points_per_million': safe_float_convert(player['points_per_million'], 0.0),
+                        'total_points': safe_int_convert(player['total_points'], 0),
+                        'form': safe_float_convert(player['form'], 0.0),
+                        'minutes': safe_int_convert(player['minutes'], 0)
                     },
                     projection={
-                        'next_5_gw_points': float(player['form'] * 5 * 0.8),  # Conservative projection
-                        'price_rise_probability': min(0.8, gem_score / 20)
+                        'next_5_gw_points': safe_float_convert(player['form'] * 5 * 0.8, 0.0),  # Conservative projection
+                        'price_rise_probability': min(0.8, gem_score / 20) if gem_score else 0.0
                     },
                     discovery_date=datetime.now()
                 ))
@@ -280,25 +306,25 @@ class HiddenGemsDiscovery:
             confidence = min(0.85, 0.4 + (player['form'] / 10) * 0.4 + (player['minutes'] / 1000) * 0.25)
             
             gems.append(HiddenGem(
-                player_id=int(player['id']),
+                player_id=safe_int_convert(player['id'], 0),
                 player_name=player['web_name'],
                 position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                 team=str(player.get('team', 'Unknown')),
-                current_price=float(player['price_millions']),
-                ownership=float(player['selected_by_percent']),
-                gem_score=float(gem_score),
+                current_price=safe_float_convert(player['price_millions'], 0.0),
+                ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                gem_score=safe_float_convert(gem_score, 0.0),
                 gem_type='FORM',
-                confidence=float(confidence),
+                confidence=safe_float_convert(confidence, 0.0),
                 reasons=reasons,
                 stats={
-                    'form': float(player['form']),
-                    'form_vs_avg': float(player['form_vs_avg']),
-                    'total_points': int(player['total_points']),
-                    'minutes': int(player['minutes'])
+                    'form': safe_float_convert(player['form'], 0.0),
+                    'form_vs_avg': safe_float_convert(player['form_vs_avg'], 0.0),
+                    'total_points': safe_int_convert(player['total_points'], 0),
+                    'minutes': safe_int_convert(player['minutes'], 0)
                 },
                 projection={
-                    'next_3_gw_points': float(player['form'] * 3),
-                    'regression_risk': max(0.2, 1.0 - (player['form_vs_avg'] / 5))
+                    'next_3_gw_points': safe_float_convert(player['form'] * 3, 0.0),
+                    'regression_risk': max(0.2, 1.0 - (player['form_vs_avg'] / 5)) if player.get('form_vs_avg') else 0.5
                 },
                 discovery_date=datetime.now()
             ))
@@ -365,24 +391,24 @@ class HiddenGemsDiscovery:
                 confidence = min(0.8, 0.5 + ((5 - team_difficulty) / 5) * 0.3)
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(gem_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(gem_score, 0.0),
                     gem_type='FIXTURE',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'fixture_difficulty': float(team_difficulty),
-                        'form': float(player['form']),
-                        'total_points': int(player['total_points'])
+                        'fixture_difficulty': safe_float_convert(team_difficulty, 0.0),
+                        'form': safe_float_convert(player['form'], 0.0),
+                        'total_points': safe_int_convert(player['total_points'], 0)
                     },
                     projection={
-                        'next_5_gw_points': float(player['form'] * 5 * (5 - team_difficulty) / 3),
-                        'fixture_advantage': float(5 - team_difficulty)
+                        'next_5_gw_points': safe_float_convert(player['form'] * 5 * (5 - team_difficulty) / 3, 0.0),
+                        'fixture_advantage': safe_float_convert(5 - team_difficulty, 0.0)
                     },
                     discovery_date=datetime.now()
                 ))
@@ -425,25 +451,25 @@ class HiddenGemsDiscovery:
                 confidence = min(0.75, 0.3 + (differential_score / 15) * 0.4 + (player['minutes'] / 1000) * 0.25)
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(differential_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(differential_score, 0.0),
                     gem_type='DIFFERENTIAL',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'differential_score': float(differential_score),
-                        'ownership': float(player['selected_by_percent']),
-                        'form': float(player['form']),
-                        'total_points': int(player['total_points'])
+                        'differential_score': safe_float_convert(differential_score, 0.0),
+                        'ownership': safe_float_convert(player['selected_by_percent'], 0.0),
+                        'form': safe_float_convert(player['form'], 0.0),
+                        'total_points': safe_int_convert(player['total_points'], 0)
                     },
                     projection={
-                        'rank_climbing_potential': float(differential_score / 10),
-                        'haul_probability': min(0.6, player['form'] / 8)
+                        'rank_climbing_potential': safe_float_convert(differential_score / 10, 0.0),
+                        'haul_probability': min(0.6, player.get('form', 0) / 8)
                     },
                     discovery_date=datetime.now()
                 ))
@@ -507,19 +533,19 @@ class HiddenGemsDiscovery:
                 confidence = min(0.7, 0.4 + (breakout_score / 8) * 0.3)
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(breakout_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(breakout_score, 0.0),
                     gem_type='BREAKOUT',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'breakout_score': float(breakout_score),
-                        'form_improvement': float(player['form_vs_avg']),
+                        'breakout_score': safe_float_convert(breakout_score, 0.0),
+                        'form_improvement': safe_float_convert(player['form_vs_avg'], 0.0),
                         'indicators_count': len(breakout_indicators)
                     },
                     projection={
@@ -562,24 +588,24 @@ class HiddenGemsDiscovery:
                 confidence = min(0.9, 0.6 + (player['minutes_reliability'] * 0.3))
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(reliability_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(reliability_score, 0.0),
                     gem_type='ROTATION_PROOF',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'minutes_reliability': float(player['minutes_reliability']),
-                        'total_minutes': int(player['minutes']),
-                        'form': float(player['form'])
+                        'minutes_reliability': safe_float_convert(player['minutes_reliability'], 0.0),
+                        'total_minutes': safe_int_convert(player['minutes'], 0),
+                        'form': safe_float_convert(player['form'], 0.0)
                     },
                     projection={
-                        'minutes_security': float(player['minutes_reliability']),
-                        'consistent_returns': min(0.9, player['form'] / 6)
+                        'minutes_security': safe_float_convert(player['minutes_reliability'], 0.0),
+                        'consistent_returns': min(0.9, player.get('form', 0) / 6)
                     },
                     discovery_date=datetime.now()
                 ))
@@ -628,24 +654,24 @@ class HiddenGemsDiscovery:
                 confidence = min(0.75, 0.4 + (set_piece_score / 5) * 0.35)
                 
                 gems.append(HiddenGem(
-                    player_id=int(player['id']),
+                    player_id=safe_int_convert(player['id'], 0),
                     player_name=player['web_name'],
                     position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                     team=str(player.get('team', 'Unknown')),
-                    current_price=float(player['price_millions']),
-                    ownership=float(player['selected_by_percent']),
-                    gem_score=float(set_piece_score),
+                    current_price=safe_float_convert(player['price_millions'], 0.0),
+                    ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                    gem_score=safe_float_convert(set_piece_score, 0.0),
                     gem_type='SET_PIECE',
-                    confidence=float(confidence),
+                    confidence=safe_float_convert(confidence, 0.0),
                     reasons=reasons,
                     stats={
-                        'set_piece_score': float(set_piece_score),
-                        'assists': int(player.get('assists', 0)),
-                        'bonus': int(player.get('bonus', 0))
+                        'set_piece_score': safe_float_convert(set_piece_score, 0.0),
+                        'assists': safe_int_convert(player.get('assists', 0), 0),
+                        'bonus': safe_int_convert(player.get('bonus', 0), 0)
                     },
                     projection={
                         'assist_potential': min(0.8, set_piece_score / 4),
-                        'bonus_probability': min(0.7, player.get('bonus', 0) / 15)
+                        'bonus_probability': min(0.7, safe_int_convert(player.get('bonus', 0), 0) / 15)
                     },
                     discovery_date=datetime.now()
                 ))
@@ -701,20 +727,20 @@ class HiddenGemsDiscovery:
             confidence = min(0.8, 0.5 + (swing_data['swing'] / 3) * 0.3)
             
             gems.append(HiddenGem(
-                player_id=int(player['id']),
+                player_id=safe_int_convert(player['id'], 0),
                 player_name=player['web_name'],
                 position={1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}[player['element_type']],
                 team=str(player.get('team', 'Unknown')),
-                current_price=float(player['price_millions']),
-                ownership=float(player['selected_by_percent']),
-                gem_score=float(swing_score),
+                current_price=safe_float_convert(player['price_millions'], 0.0),
+                ownership=safe_float_convert(player['selected_by_percent'], 0.0),
+                gem_score=safe_float_convert(swing_score, 0.0),
                 gem_type='FIXTURE_SWING',
-                confidence=float(confidence),
+                confidence=safe_float_convert(confidence, 0.0),
                 reasons=reasons,
                 stats={
-                    'fixture_swing': float(swing_data['swing']),
-                    'upcoming_difficulty': float(swing_data['upcoming']),
-                    'form': float(player['form'])
+                    'fixture_swing': safe_float_convert(swing_data['swing'], 0.0),
+                    'upcoming_difficulty': safe_float_convert(swing_data['upcoming'], 0.0),
+                    'form': safe_float_convert(player['form'], 0.0)
                 },
                 projection={
                     'swing_benefit': float(swing_data['swing'] / 2),
