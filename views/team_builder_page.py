@@ -51,12 +51,17 @@ class TeamBuilderPage:
             "Choose Formation",
             ["4-4-2", "4-3-3", "3-5-2", "3-4-3", "5-3-2"]
         )
- - Responsive
+
+        # Player search and filters - Responsive
+        st.markdown("### 🔍 Player Search")
+        if 'players_df' in st.session_state and not st.session_state.players_df.empty:
+            # Add filters - Responsive
             if is_mobile():
                 max_price = st.slider("Maximum Price", 4.0, 14.0, 10.0, 0.5)
                 position = st.selectbox(
                     "Position",
                     ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"],
+                    key="team_builder_position_filter"
                 )
             else:
                 col1, col2 = st.columns(2)
@@ -65,13 +70,9 @@ class TeamBuilderPage:
                 with col2:
                     position = st.selectbox(
                         "Position",
-                    max_price = st.slider("Maximum Price", 4.0, 14.0, 10.0, 0.5)
-            with col2:
-                position = st.selectbox(
-                    "Position",
-                    ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"],
-                    key="team_builder_position_filter"
-                )
+                        ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"],
+                        key="team_builder_position_filter"
+                    )
 
             # Filter players
             filtered_df = st.session_state.players_df
