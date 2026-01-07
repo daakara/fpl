@@ -1,0 +1,11 @@
+# FPL Analytics - Flet Mobile App Requirements
+
+# Core framework
+flet>=0.22.0
+
+# Reuse existing dependencies from main app
+pandas>=2.0.0
+requests>=2.31.0
+
+# Optional: For improved performance
+asyncio-mqtt>=0.16.0  # For real-time updates
