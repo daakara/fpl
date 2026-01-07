@@ -141,14 +141,14 @@ class MobileResponsive:
         if device == 'mobile':
             # Fewer columns on mobile, scrollable
             height = kwargs.get('height', 300)
-            st.dataframe(df, height=height, use_container_width=True)
+            st.dataframe(df, height=height, width='stretch')
         elif device == 'tablet':
             # Medium height on tablet
             height = kwargs.get('height', 400)
-            st.dataframe(df, height=height, use_container_width=True)
+            st.dataframe(df, height=height, width='stretch')
         else:
             # Full view on desktop
-            st.dataframe(df, use_container_width=True, **kwargs)
+            st.dataframe(df, width='stretch', **kwargs)
     
     @staticmethod
     def add_responsive_css():
