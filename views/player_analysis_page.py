@@ -9,6 +9,12 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils.error_handling import logger
 from utils.enhanced_visualizations import EnhancedVisualizations
+from utils.mobile_responsive import (
+    is_mobile, 
+    is_desktop,
+    responsive_columns,
+    responsive_dataframe
+)
 
 
 class PlayerAnalysisPage:

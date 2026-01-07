@@ -19,6 +19,18 @@ from services.data_quality_service import DataQualityService
 from services.price_change_predictor_service import PriceChangePredictorService
 from services.external_data_integrator_service import ExternalDataIntegratorService
 
+# Import mobile responsiveness
+from utils.mobile_responsive import (
+    MobileResponsive, 
+    is_mobile, 
+    is_tablet, 
+    is_desktop,
+    responsive_columns,
+    responsive_metric,
+    responsive_dataframe,
+    add_responsive_css
+)
+
 # Try enhanced services, fall back to basic functionality
 try:
     from services.enhanced_fpl_data_service import get_enhanced_fpl_service
@@ -90,6 +102,9 @@ class RefactoredFPLApp:
                 'About': "# FPL Analytics Resilient Suite\n**Advanced Fantasy Premier League Analytics**"
             }
         )
+        
+        # Add responsive CSS for mobile optimization
+        add_responsive_css()
         
         # Custom CSS for enhanced UI
         st.markdown("""

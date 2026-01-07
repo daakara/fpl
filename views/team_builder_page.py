@@ -2,6 +2,7 @@
 Team Builder Page - Allows users to construct and optimize their FPL team.
 """
 import streamlit as st
+from utils.mobile_responsive import is_mobile, is_desktop, responsive_columns
 
 class TeamBuilderPage:
     """Handles the rendering of the Team Builder page."""
@@ -24,11 +25,15 @@ class TeamBuilderPage:
         spent = 95.5
         remaining = total_budget - spent
 
-        budget_col1, budget_col2 = st.columns(2)
-        with budget_col1:
-            st.metric("Total Budget", f"£{total_budget}M")
-        with budget_col2:
-            st.metric("Remaining", f"£{remaining}M")
+        # Responsive budget display
+        if is_mobile():
+            st.metric("Budget", f"£{remaining}M / £{total_budget}M")
+        else:
+            budget_col1, budget_col2 = st.columns(2)
+            with budget_col1:
+                st.metric("Total Budget", f"£{total_budget}M")
+            with budget_col2:
+                st.metric("Remaining", f"£{remaining}M")
 
         # Team Selection
         st.markdown("### 👥 Team Selection")
@@ -46,14 +51,21 @@ class TeamBuilderPage:
             "Choose Formation",
             ["4-4-2", "4-3-3", "3-5-2", "3-4-3", "5-3-2"]
         )
-
-        # Player search and filters
-        st.markdown("### 🔍 Player Search")
-        if 'players_df' in st.session_state and not st.session_state.players_df.empty:
-            # Add filters
-            col1, col2 = st.columns(2)
-            with col1:
+ - Responsive
+            if is_mobile():
                 max_price = st.slider("Maximum Price", 4.0, 14.0, 10.0, 0.5)
+                position = st.selectbox(
+                    "Position",
+                    ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"],
+                )
+            else:
+                col1, col2 = st.columns(2)
+                with col1:
+                    max_price = st.slider("Maximum Price", 4.0, 14.0, 10.0, 0.5)
+                with col2:
+                    position = st.selectbox(
+                        "Position",
+                    max_price = st.slider("Maximum Price", 4.0, 14.0, 10.0, 0.5)
             with col2:
                 position = st.selectbox(
                     "Position",
