@@ -10,7 +10,7 @@ import logging
 
 # Import from our local types package (not Python's built-in types module)
 try:
-    from types.enhanced_types import BootstrapData, PlayerData, TeamData
+    from custom_types.enhanced_types import BootstrapData, PlayerData, TeamData
 except ImportError:
     # Fallback type definitions if the enhanced types aren't available
     BootstrapData = Dict[str, Any]
