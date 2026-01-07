@@ -148,7 +148,7 @@ class ModernUIComponents:
             return [''] * len(s)
         
         styled_df = df.style.apply(highlight_max, axis=0)
-st.dataframe(styled_df, width='stretch')
+        st.dataframe(styled_df, width='stretch')
     
     @staticmethod
     def create_gradient_background(color1: str = "#667eea", color2: str = "#764ba2") -> str:
