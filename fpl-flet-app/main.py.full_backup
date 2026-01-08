@@ -1,0 +1,971 @@
+"""
+FPL Analytics - Flet Mobile/Desktop App
+Clean standalone implementation
+"""
+
+import flet as ft
+import requests
+import pandas as pd
+from typing import Dict, List, Optional
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+
+class FPLDataService:
+    """Enhanced data service for FPL API"""
+    
+    BASE_URL = "https://fantasy.premierleague.com/api"
+    
+    def __init__(self):
+        self._players_df = None
+        self._teams_df = None
+        self._fixtures_df = None
+        self._my_team_data = None
+    
+    def get_players(self, force_refresh=False):
+        if self._players_df is None or force_refresh:
+            try:
+                response = requests.get(f"{self.BASE_URL}/bootstrap-static/", timeout=10)
+                response.raise_for_status()
+                data = response.json()
+                
+                if 'elements' in data:
+                    df = pd.DataFrame(data['elements'])
+                    df['price'] = df['now_cost'] / 10
+                    df['value_score'] = (df['total_points'] / (df['now_cost'] / 10)).fillna(0)
+                    self._players_df = df
+                    
+                    # Also cache teams data
+                    if 'teams' in data:
+                        self._teams_df = pd.DataFrame(data['teams'])
+                else:
+                    self._players_df = pd.DataFrame()
+            except Exception as e:
+                logging.error(f"Error fetching players: {e}")
+                self._players_df = pd.DataFrame()
+        
+        return self._players_df
+    
+    def get_teams(self):
+        if self._teams_df is None:
+            self.get_players()  # This will populate teams as well
+        return self._teams_df if self._teams_df is not None else pd.DataFrame()
+    
+    def get_fixtures(self, force_refresh=False):
+        if self._fixtures_df is None or force_refresh:
+            try:
+                response = requests.get(f"{self.BASE_URL}/fixtures/", timeout=10)
+                response.raise_for_status()
+                data = response.json()
+                self._fixtures_df = pd.DataFrame(data)
+            except Exception as e:
+                logging.error(f"Error fetching fixtures: {e}")
+                self._fixtures_df = pd.DataFrame()
+        
+        return self._fixtures_df
+    
+    def get_my_team(self, team_id: int, force_refresh=False):
+        """Get user's FPL team data"""
+        if self._my_team_data is None or force_refresh:
+            try:
+                response = requests.get(f"{self.BASE_URL}/entry/{team_id}/", timeout=10)
+                response.raise_for_status()
+                team_data = response.json()
+                
+                # Get current picks
+                current_event = team_data.get('current_event', 1)
+                picks_response = requests.get(
+                    f"{self.BASE_URL}/entry/{team_id}/event/{current_event}/picks/",
+                    timeout=10
+                )
+                picks_response.raise_for_status()
+                picks_data = picks_response.json()
+                
+                self._my_team_data = {
+                    'team_info': team_data,
+                    'picks': picks_data,
+                    'current_event': current_event
+                }
+            except Exception as e:
+                logging.error(f"Error fetching team {team_id}: {e}")
+                self._my_team_data = None
+        
+        return self._my_team_data
+    
+    def get_top_players(self, by='points', limit=5):
+        df = self.get_players()
+        if df.empty:
+            return pd.DataFrame()
+        
+        column_map = {'points': 'total_points', 'form': 'form', 'value': 'value_score'}
+        column = column_map.get(by, 'total_points')
+        
+        if column in df.columns:
+            return df.nlargest(limit, column)
+        return df.head(limit)
+    
+    def clear_cache(self):
+        self._players_df = None
+        self._teams_df = None
+        self._fixtures_df = None
+        self._my_team_data = None
+
+
+class FPLApp:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        self.data_service = FPLDataService()
+        self.current_view = "dashboard"
+        self.team_id = None  # Will be set by user
+        
+        # Configure page
+        self.page.title = "FPL Analytics"
+        self.page.theme_mode = ft.ThemeMode.DARK
+        self.page.theme = ft.Theme(color_scheme_seed="green", use_material3=True)
+        self.page.padding = 0
+        
+        # Build UI
+        self.build_ui()
+    
+    def build_ui(self):
+        """Build the main UI with accessibility features"""
+        # App bar with actions
+        self.page.appbar = ft.AppBar(
+            title=ft.Text("FPL Analytics", weight=ft.FontWeight.BOLD, size=20),
+            center_title=False,
+            bgcolor="surfacevariant",
+            actions=[
+                ft.IconButton(
+                    icon="refresh",
+                    tooltip="Refresh data",
+                    on_click=self.refresh_data,
+                ),
+            ],
+        )
+        
+        # Content container (will be updated based on nav)
+        self.content_container = ft.Container(expand=True)
+        
+        # Bottom navigation with semantic labels
+        self.nav_bar = ft.NavigationBar(
+            destinations=[
+                ft.NavigationBarDestination(
+                    icon="dashboard_outlined",
+                    selected_icon="dashboard",
+                    label="Dashboard",
+                ),
+                ft.NavigationBarDestination(
+                    icon="sports_soccer_outlined",
+                    selected_icon="sports_soccer",
+                    label="My Team",
+                ),
+                ft.NavigationBarDestination(
+                    icon="calendar_month_outlined",
+                    selected_icon="calendar_month",
+                    label="Fixtures",
+                ),
+                ft.NavigationBarDestination(
+                    icon="psychology_outlined",
+                    selected_icon="psychology",
+                    label="AI Tips",
+                ),
+            ],
+            selected_index=0,
+            on_change=self.handle_navigation,
+            height=80,
+        )
+        
+        # Add to page
+        self.page.add(
+            ft.Column(
+                [
+                    self.content_container,
+                    self.nav_bar,
+                ],
+                spacing=0,
+                expand=True,
+            )
+        )
+        
+        # Load initial view
+        self.load_view("dashboard")
+    
+    def handle_navigation(self, e):
+        """Handle bottom navigation changes"""
+        views = ["dashboard", "my_team", "fixtures", "ai_tips"]
+        selected_index = e.control.selected_index
+        self.load_view(views[selected_index])
+    
+    def load_view(self, view_name):
+        """Load the specified view"""
+        self.current_view = view_name
+        logging.info(f"Loading view: {view_name}")
+        
+        if view_name == "dashboard":
+            content = self.build_dashboard()
+        elif view_name == "my_team":
+            content = self.build_my_team()
+        elif view_name == "fixtures":
+            content = self.build_fixtures()
+        elif view_name == "ai_tips":
+            content = self.build_ai_tips()
+        else:
+            content = ft.Container()
+        
+        logging.info(f"Content built, type: {type(content)}")
+        self.content_container.content = content
+        self.content_container.update()
+        logging.info("View loaded successfully")
+    
+    def build_dashboard(self):
+        """Build dashboard view"""
+        logging.info("Building dashboard...")
+        players_df = self.data_service.get_players()
+        logging.info(f"Players loaded: {len(players_df)} rows")
+        
+        # Add a simple, hardcoded text control for debugging
+        debug_text = ft.Text("DEBUG: DASHBOARD VIEW", size=30, color="#00FF00", weight=ft.FontWeight.BOLD)
+
+        if players_df.empty:
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Icon("error_outline", size=64, color="red"),
+                        ft.Text("Failed to load FPL data", size=20, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                        ft.Text("Check your internet connection", color="#BDBDBD"),
+                        ft.ElevatedButton("Retry", on_click=self.refresh_data),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                expand=True,
+                padding=32,
+            )
+        
+        # KPIs
+        total_players = len(players_df)
+        avg_price = players_df['now_cost'].mean() / 10
+        top_points = players_df['total_points'].max()
+        
+        kpis = ft.Row(
+            [
+                self.build_kpi_card("Players", str(total_players), "people"),
+                self.build_kpi_card("Avg Price", f"£{avg_price:.1f}m", "attach_money"),
+                self.build_kpi_card("Top Points", str(int(top_points)), "star"),
+            ],
+            spacing=8,
+            wrap=False,
+        )
+        
+        # Top players
+        top_players_list = self.build_top_players_list()
+        
+        return ft.Container(
+            content=ft.ListView(
+                [
+                    ft.Container(
+                        ft.Text("Dashboard", size=28, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                        padding=ft.Padding(16, 16, 16, 8),
+                    ),
+                    ft.Container(kpis, padding=16),
+                    ft.Divider(height=1, thickness=1),
+                    top_players_list,
+                ],
+                padding=0,
+                spacing=8,
+            ),
+            expand=True,
+        )
+    
+    def build_kpi_card(self, title, value, icon):
+        """Build accessible KPI card with proper hierarchy"""
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Icon(icon, size=36, color="green", semantics_label=f"{title} icon"),
+                    ft.Container(height=8),
+                    ft.Text(
+                        value,
+                        size=26,
+                        weight=ft.FontWeight.BOLD,
+                        text_align=ft.TextAlign.CENTER,
+                        color="#FFFFFF",
+                    ),
+                    ft.Text(
+                        title,
+                        size=13,
+                        color="#BDBDBD",
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=2,
+                tight=True,
+            ),
+            padding=20,
+            border_radius=16,
+            bgcolor="surfacevariant",
+            expand=True,
+            height=140,
+            ink=True,
+        )
+    
+    def build_top_players_list(self):
+        """Build accessible top players list with proper touch targets"""
+        top_players = self.data_service.get_top_players(by='points', limit=5)
+        
+        if top_players.empty:
+            return ft.Container(
+                content=ft.Text("No player data available", color="#BDBDBD", italic=True),
+                padding=16,
+            )
+        
+        tiles = []
+        for idx, player in top_players.iterrows():
+            rank_color = "green" if idx < 3 else "grey"
+            tiles.append(
+                ft.Container(
+                    content=ft.ListTile(
+                        leading=ft.Container(
+                            ft.Text(
+                                str(idx + 1),
+                                size=18,
+                                weight=ft.FontWeight.BOLD,
+                                color=rank_color,
+                            ),
+                            width=36,
+                            height=36,
+                            border_radius=18,
+                            bgcolor=f"{rank_color}12" if idx < 3 else None,
+                            alignment=ft.alignment.Alignment(0, 0),
+                        ),
+                        title=ft.Text(
+                            player.get('web_name', 'Unknown'),
+                            weight=ft.FontWeight.W_500,
+                            color="#FFFFFF",
+                        ),
+                        subtitle=ft.Text(
+                            f"£{player.get('now_cost', 0) / 10:.1f}m • {player.get('total_points', 0)} pts",
+                            size=13,
+                            color="#BDBDBD",
+                        ),
+                        trailing=ft.Icon("chevron_right", color="#BDBDBD"),
+                    ),
+                    border_radius=12,
+                    ink=True,
+                    on_click=lambda e, p=player: None,  # Placeholder for player detail
+                )
+            )
+        
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Container(
+                        ft.Row(
+                            [
+                                ft.Icon("emoji_events", size=20, color="amber"),
+                                ft.Container(width=8),
+                                ft.Text(
+                                    "Top Players by Points",
+                                    size=18,
+                                    weight=ft.FontWeight.BOLD,
+                                    color="#FFFFFF",
+                                ),
+                            ],
+                        ),
+                        padding=ft.Padding(16, 16, 16, 8),
+                    ),
+                    ft.Column(tiles, spacing=4),
+                ],
+                spacing=0,
+            ),
+            padding=ft.Padding(0, 0, 0, 16),
+        )
+    
+    def build_my_team(self):
+        """Build My Team view with accessible input"""
+        if self.team_id is None:
+            # Team ID input screen
+            team_id_input = ft.TextField(
+                label="FPL Team ID",
+                hint_text="Enter your 7-digit team ID",
+                keyboard_type=ft.KeyboardType.NUMBER,
+                autofocus=True,
+                max_length=7,
+                border_radius=12,
+                text_size=16,
+                helper_text="Find it on the FPL website under 'Points' page",
+            )
+            
+            def save_team_id(e):
+                if not team_id_input.value or not team_id_input.value.strip():
+                    self.page.show_snack_bar(
+                        ft.SnackBar(
+                            content=ft.Text("Please enter your team ID"),
+                            bgcolor="error",
+                        )
+                    )
+                    return
+                
+                try:
+                    self.team_id = int(team_id_input.value.strip())
+                    self.load_view("my_team")
+                except ValueError:
+                    self.page.show_snack_bar(
+                        ft.SnackBar(
+                            content=ft.Text("Please enter a valid number"),
+                            bgcolor="error",
+                        )
+                    )
+            
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Icon("sports_soccer", size=80, color="green"),
+                        ft.Container(height=16),
+                        ft.Text(
+                            "My FPL Team",
+                            size=28,
+                            weight=ft.FontWeight.BOLD,
+                            text_align=ft.TextAlign.CENTER,
+                            color="#FFFFFF",
+                        ),
+                        ft.Text(
+                            "Enter your team ID to view your squad and stats",
+                            color="#BDBDBD",
+                            text_align=ft.TextAlign.CENTER,
+                            size=15,
+                        ),
+                        ft.Container(height=32),
+                        team_id_input,
+                        ft.Container(height=16),
+                        ft.FilledButton(
+                            "Load My Team",
+                            icon="login",
+                            on_click=save_team_id,
+                            width=280,
+                            height=48,
+                        ),
+                        ft.Container(height=16),
+                        ft.TextButton(
+                            "How to find your team ID?",
+                            icon="help_outline",
+                            on_click=lambda e: self.page.show_snack_bar(
+                                ft.SnackBar(
+                                    content=ft.Text(
+                                        "Go to fantasy.premierleague.com, click 'Points', your ID is in the URL"
+                                    ),
+                                    duration=5000,
+                                )
+                            ),
+                        ),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                padding=32,
+                expand=True,
+            )
+        
+        # Load team data
+        team_data = self.data_service.get_my_team(self.team_id)
+        
+        if team_data is None:
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Icon("error_outline", size=64, color="red"),
+                        ft.Text("Failed to load team", size=20, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                        ft.Text("Check your team ID and connection", color="#BDBDBD"),
+                        ft.ElevatedButton("Try Again", on_click=lambda e: self.load_view("my_team")),
+                        ft.TextButton("Change Team ID", on_click=lambda e: setattr(self, 'team_id', None) or self.load_view("my_team")),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                padding=32,
+                expand=True,
+            )
+        
+        # Display team
+        team_info = team_data['team_info']
+        picks_data = team_data['picks']
+        
+        # Team stats
+        stats_row = ft.Row(
+            [
+                self.build_stat_card("Rank", f"{team_info.get('summary_overall_rank', 0):,}"),
+                self.build_stat_card("Points", str(team_info.get('summary_overall_points', 0))),
+                self.build_stat_card("Value", f"£{team_info.get('last_deadline_value', 0) / 10:.1f}m"),
+            ],
+            spacing=8,
+        )
+        
+        # Squad list with position indicators
+        players_df = self.data_service.get_players()
+        picks = picks_data.get('picks', [])
+        
+        # Position mapping for better UX
+        position_icons = {
+            1: ("sports_soccer", "GK"),
+            2: ("shield", "DEF"),
+            3: ("speed", "MID"),
+            4: ("whatshot", "FWD"),
+        }
+        
+        squad_tiles = []
+        for pick in picks[:11]:  # Starting XI
+            player_id = pick.get('element')
+            player_data = players_df[players_df['id'] == player_id]
+            
+            if not player_data.empty:
+                player = player_data.iloc[0]
+                pos = pick.get('position', 1)
+                icon, pos_label = position_icons.get(pos, ("person", "???"))
+                
+                squad_tiles.append(
+                    ft.Container(
+                        content=ft.ListTile(
+                            leading=ft.Container(
+                                content=ft.Column(
+                                    [
+                                        ft.Icon(icon, size=20, color="green"),
+                                        ft.Text(
+                                            pos_label,
+                                            size=10,
+                                            weight=ft.FontWeight.BOLD,
+                                            color="#BDBDBD",
+                                        ),
+                                    ],
+                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                    spacing=2,
+                                    tight=True,
+                                ),
+                                width=48,
+                            ),
+                            title=ft.Text(
+                                player.get('web_name', 'Unknown'),
+                                weight=ft.FontWeight.W_500,
+                                color="#FFFFFF",
+                            ),
+                            subtitle=ft.Text(
+                                f"£{player.get('now_cost', 0) / 10:.1f}m • {player.get('total_points', 0)} pts",
+                                size=13,
+                                color="#BDBDBD",
+                            ),
+                            trailing=ft.Row(
+                                [
+                                    ft.Icon(
+                                        "stars",
+                                        color="amber",
+                                        size=20,
+                                        tooltip="Captain",
+                                    ) if pick.get('is_captain') else ft.Container(width=0),
+                                    ft.Icon(
+                                        "chevron_right",
+                                        color="#BDBDBD",
+                                        size=20,
+                                    ),
+                                ],
+                                spacing=4,
+                                tight=True,
+                            ),
+                        ),
+                        border_radius=12,
+                        ink=True,
+                    )
+                )
+        
+        return ft.Container(
+            content=ft.ListView(
+                [
+                    ft.Container(
+                        ft.Text(f"{team_info.get('name', 'My Team')}", size=28, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                        padding=ft.Padding(16, 16, 16, 8),
+                    ),
+                    ft.Container(stats_row, padding=16),
+                    ft.Divider(height=1, thickness=1),
+                    ft.Container(
+                        ft.Text("Starting XI", size=18, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                        padding=ft.Padding(16, 8, 16, 4),
+                    ),
+                    ft.Column(squad_tiles, spacing=4),
+                ],
+                padding=0,
+                spacing=8,
+            ),
+            expand=True,
+        )
+    
+    def build_fixtures(self):
+        """Build Fixtures Analysis view"""
+        fixtures_df = self.data_service.get_fixtures()
+        teams_df = self.data_service.get_teams()
+        
+        if fixtures_df.empty or teams_df.empty:
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Icon("calendar_month", size=64, color="#9E9E9E"),
+                        ft.Text("Loading fixtures...", size=20),
+                        ft.ProgressRing(),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                expand=True,
+            )
+        
+        # Get upcoming fixtures (not finished)
+        upcoming = fixtures_df[fixtures_df['finished'] == False].head(10)
+        
+        # Difficulty color mapping for better visual feedback
+        def get_fdr_color(fdr):
+            if fdr <= 2:
+                return "green"
+            elif fdr == 3:
+                return "grey"
+            else:
+                return "red"
+        
+        fixture_tiles = []
+        for _, fixture in upcoming.iterrows():
+            home_team = teams_df[teams_df['id'] == fixture['team_h']].iloc[0] if not teams_df[teams_df['id'] == fixture['team_h']].empty else None
+            away_team = teams_df[teams_df['id'] == fixture['team_a']].iloc[0] if not teams_df[teams_df['id'] == fixture['team_a']].empty else None
+            
+            if home_team is not None and away_team is not None:
+                home_fdr = fixture.get('team_h_difficulty', 3)
+                away_fdr = fixture.get('team_a_difficulty', 3)
+                
+                fixture_tiles.append(
+                    ft.Container(
+                        content=ft.ListTile(
+                            leading=ft.Container(
+                                ft.Text(
+                                    f"GW{fixture.get('event', '?')}",
+                                    size=13,
+                                    weight=ft.FontWeight.BOLD,
+                                    color="green",
+                                ),
+                                width=48,
+                                padding=8,
+                                border_radius=8,
+                                bgcolor="green12",
+                                alignment=ft.alignment.Alignment(0, 0),
+                            ),
+                            title=ft.Text(
+                                f"{home_team['short_name']} vs {away_team['short_name']}",
+                                weight=ft.FontWeight.W_500,
+                                color="#FFFFFF",
+                            ),
+                            subtitle=ft.Text(
+                                f"{home_team['name']} (H) • {away_team['name']} (A)",
+                                size=12,
+                                color="#BDBDBD",
+                            ),
+                            trailing=ft.Row(
+                                [
+                                    ft.Container(
+                                        ft.Text(
+                                            str(home_fdr),
+                                            size=14,
+                                            weight=ft.FontWeight.BOLD,
+                                            color="#FFFFFF",
+                                        ),
+                                        bgcolor=get_fdr_color(home_fdr),
+                                        width=28,
+                                        height=28,
+                                        border_radius=14,
+                                        alignment=ft.alignment.Alignment(0, 0),
+                                        tooltip=f"Home difficulty: {home_fdr}",
+                                    ),
+                                    ft.Text(":", size=16, color="#9E9E9E"),
+                                    ft.Container(
+                                        ft.Text(
+                                            str(away_fdr),
+                                            size=14,
+                                            weight=ft.FontWeight.BOLD,
+                                            color="#FFFFFF",
+                                        ),
+                                        bgcolor=get_fdr_color(away_fdr),
+                                        width=28,
+                                        height=28,
+                                        border_radius=14,
+                                        alignment=ft.alignment.Alignment(0, 0),
+                                        tooltip=f"Away difficulty: {away_fdr}",
+                                    ),
+                                ],
+                                spacing=6,
+                                tight=True,
+                            ),
+                        ),
+                        border_radius=12,
+                        ink=True,
+                        margin=ft.margin.only(bottom=4),
+                    )
+                )
+        
+        return ft.Container(
+            content=ft.ListView(
+                [
+                    ft.Container(
+                        ft.Column(
+                            [
+                                ft.Text("Upcoming Fixtures", size=28, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                                ft.Text("Plan your transfers around fixture difficulty", size=14, color="#BDBDBD"),
+                            ],
+                            spacing=4,
+                        ),
+                        padding=ft.Padding(16, 16, 16, 8),
+                    ),
+                    ft.Container(
+                        ft.Row(
+                            [
+                                ft.Icon("info_outline", size=16, color="#BDBDBD"),
+                                ft.Container(width=8),
+                                ft.Text("FDR: ", size=12, color="#BDBDBD", weight=ft.FontWeight.BOLD),
+                                ft.Container(
+                                    ft.Text("1-2", size=11, color="#FFFFFF"),
+                                    bgcolor="green",
+                                    padding=4,
+                                    border_radius=4,
+                                ),
+                                ft.Text("Easy", size=12, color="#BDBDBD"),
+                                ft.Container(width=8),
+                                ft.Container(
+                                    ft.Text("3", size=11, color="#FFFFFF"),
+                                    bgcolor="#9E9E9E",
+                                    padding=4,
+                                    border_radius=4,
+                                ),
+                                ft.Text("Medium", size=12, color="#BDBDBD"),
+                                ft.Container(width=8),
+                                ft.Container(
+                                    ft.Text("4-5", size=11, color="#FFFFFF"),
+                                    bgcolor="red",
+                                    padding=4,
+                                    border_radius=4,
+                                ),
+                                ft.Text("Hard", size=12, color="#BDBDBD"),
+                            ],
+                        ),
+                        padding=ft.Padding(16, 0, 16, 12),
+                    ),
+                    ft.Column(fixture_tiles, spacing=0),
+                ],
+                padding=0,
+                spacing=8,
+            ),
+            expand=True,
+        )
+    
+    def build_ai_tips(self):
+        """Build AI Recommendations view"""
+        players_df = self.data_service.get_players()
+        
+        if players_df.empty:
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Icon("psychology", size=64, color="#9E9E9E"),
+                        ft.Text("Loading AI insights...", size=20),
+                        ft.ProgressRing(),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                expand=True,
+            )
+        
+        # Simple AI recommendations based on form and value
+        # High form players
+        in_form = players_df[players_df['form'].astype(float) > 5].nlargest(5, 'form')
+        
+        # Best value players (high points per million)
+        value_picks = players_df.nlargest(5, 'value_score')
+        
+        # Differentials (low ownership, high points)
+        differentials = players_df[
+            (players_df['selected_by_percent'].astype(float) < 5) &
+            (players_df['total_points'] > 50)
+        ].nlargest(5, 'total_points')
+        
+        def build_recommendation_section(title, df, icon, description):
+            """Build recommendation section with proper hierarchy"""
+            if df.empty:
+                tiles = [
+                    ft.Container(
+                        ft.Text("No recommendations available", color="#BDBDBD", italic=True),
+                        padding=16,
+                    )
+                ]
+            else:
+                tiles = []
+                for idx, player in df.iterrows():
+                    tiles.append(
+                        ft.Container(
+                            content=ft.ListTile(
+                                leading=ft.Container(
+                                    ft.Icon(icon, color="green", size=24),
+                                    width=40,
+                                    height=40,
+                                    border_radius=20,
+                                    bgcolor="green12",
+                                    alignment=ft.alignment.Alignment(0, 0),
+                                ),
+                                title=ft.Text(
+                                    player.get('web_name', 'Unknown'),
+                                    weight=ft.FontWeight.W_500,
+                                    color="#FFFFFF",
+                                ),
+                                subtitle=ft.Text(
+                                    f"£{player.get('now_cost', 0) / 10:.1f}m • Form: {player.get('form', 0)} • Own: {player.get('selected_by_percent', 0)}%",
+                                    size=12,
+                                    color="#BDBDBD",
+                                ),
+                                trailing=ft.Column(
+                                    [
+                                        ft.Text(
+                                            f"{player.get('total_points', 0)}",
+                                            size=18,
+                                            weight=ft.FontWeight.BOLD,
+                                            color="green",
+                                        ),
+                                        ft.Text("pts", size=10, color="#BDBDBD"),
+                                    ],
+                                    horizontal_alignment=ft.CrossAxisAlignment.END,
+                                    spacing=0,
+                                    tight=True,
+                                ),
+                            ),
+                            border_radius=12,
+                            ink=True,
+                            margin=ft.margin.only(bottom=4),
+                        )
+                    )
+            
+            return ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Container(
+                            ft.Column(
+                                [
+                                    ft.Text(title, size=18, weight=ft.FontWeight.BOLD, color="#FFFFFF"),
+                                    ft.Text(description, size=13, color="#BDBDBD"),
+                                ],
+                                spacing=4,
+                            ),
+                            padding=ft.Padding(16, 16, 16, 8),
+                        ),
+                        ft.Column(tiles, spacing=0),
+                    ],
+                    spacing=0,
+                ),
+                margin=ft.margin.only(bottom=8),
+            )
+        
+        return ft.Container(
+            content=ft.ListView(
+                [
+                    ft.Container(
+                        ft.Column(
+                            [
+                                ft.Text(
+                                    "AI Recommendations",
+                                    size=28,
+                                    weight=ft.FontWeight.BOLD,
+                                    color="#FFFFFF",
+                                ),
+                                ft.Text(
+                                    "Smart picks based on form, value, and ownership",
+                                    size=14,
+                                    color="#BDBDBD",
+                                ),
+                            ],
+                            spacing=4,
+                        ),
+                        padding=ft.Padding(16, 16, 16, 8),
+                    ),
+                    build_recommendation_section(
+                        "🔥 In Form Players",
+                        in_form,
+                        "trending_up",
+                        "Players with exceptional recent performance",
+                    ),
+                    ft.Divider(height=1, thickness=1, color="grey800"),
+                    build_recommendation_section(
+                        "💎 Best Value Picks",
+                        value_picks,
+                        "payments",
+                        "Maximum points per million spent",
+                    ),
+                    ft.Divider(height=1, thickness=1, color="grey800"),
+                    build_recommendation_section(
+                        "🎯 Differential Options",
+                        differentials,
+                        "psychology",
+                        "Low ownership gems for rank climbing",
+                    ),
+                    ft.Container(height=16),
+                ],
+                padding=0,
+                spacing=8,
+            ),
+            expand=True,
+        )
+    
+    def build_stat_card(self, label, value):
+        """Helper to build accessible stat cards"""
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text(
+                        value,
+                        size=22,
+                        weight=ft.FontWeight.BOLD,
+                        text_align=ft.TextAlign.CENTER,
+                        color="#FFFFFF",
+                    ),
+                    ft.Text(
+                        label,
+                        size=12,
+                        color="#BDBDBD",
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=4,
+                tight=True,
+            ),
+            padding=16,
+            border_radius=12,
+            bgcolor="surfacevariant",
+            expand=True,
+        )
+    
+    def refresh_data(self, e):
+        self.page.splash = ft.ProgressBar()
+        self.page.update()
+        
+        self.data_service.clear_cache()
+        self.page.clean()
+        self.build_ui()
+        
+        self.page.splash = None
+        self.page.update()
+        
+        self.page.show_snack_bar(ft.SnackBar(content=ft.Text("Data refreshed!")))
+
+
+def main(page: ft.Page):
+    try:
+        FPLApp(page)
+    except Exception as e:
+        logging.exception("Error starting app")
+        page.add(ft.Text(f"Error: {e}", color="red"))
+
+
+if __name__ == "__main__":
+    ft.run(main)

@@ -1,0 +1,37 @@
+"""
+FPL Analytics - Minimal Flet App Test
+"""
+
+import flet as ft
+import logging
+
+
+class FPLApp:
+    def __init__(self):
+        self.page = None
+
+    def main(self, page: ft.Page):
+        self.page = page
+        page.title = "Minimal FPL App Test"
+        page.theme_mode = ft.ThemeMode.DARK
+        page.bgcolor = "#1f2937"
+        page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+        # The simplest possible text control
+        test_text = ft.Text(
+            "Hello from FPLApp!",
+            size=40,
+            color="#FFFFFF",
+            weight=ft.FontWeight.BOLD,
+        )
+
+        page.add(test_text)
+        page.update()
+        logging.info("Minimal FPLApp started. 'Hello from FPLApp!' should be visible.")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    # Use the simplest ft.app call
+    ft.app(target=FPLApp().main)

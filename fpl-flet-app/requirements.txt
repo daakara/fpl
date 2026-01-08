@@ -1,0 +1,12 @@
+# FPL Analytics - Flet App Requirements
+# Standalone Flet mobile/desktop application
+
+# Core framework
+flet>=0.22.0
+
+# Data handling
+pandas>=2.0.0
+requests>=2.31.0
+
+# Optional: For enhanced features
+# numpy>=1.24.0
