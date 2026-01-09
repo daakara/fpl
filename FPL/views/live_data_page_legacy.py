@@ -65,7 +65,16 @@ class LiveDataPageLegacy:
             df = st.session_state.get('players_df')
             teams_df = st.session_state.get('teams_df')
             
-            if df is None or df.empty:
+            # Ensure df is a DataFrame, not a list
+            if isinstance(df, list):
+                df = pd.DataFrame(df)
+                st.session_state.players_df = df
+            
+            if isinstance(teams_df, list):
+                teams_df = pd.DataFrame(teams_df)
+                st.session_state.teams_df = teams_df
+            
+            if df is None or (isinstance(df, pd.DataFrame) and df.empty):
                 st.warning("Player data is not available. Please try refreshing.")
                 return
             
@@ -226,7 +235,14 @@ class LiveDataPageLegacy:
         """Refresh FPL data."""
         try:
             players_df, teams_df = cached_load_fpl_data()
-            if not players_df.empty:
+            
+            # Ensure we have DataFrames, not lists
+            if isinstance(players_df, list):
+                players_df = pd.DataFrame(players_df)
+            if isinstance(teams_df, list):
+                teams_df = pd.DataFrame(teams_df)
+            
+            if isinstance(players_df, pd.DataFrame) and not players_df.empty:
                 st.session_state.players_df = players_df
                 st.session_state.teams_df = teams_df
                 st.session_state.last_data_update = datetime.now()
@@ -257,6 +273,12 @@ class LiveDataPageLegacy:
                         progress_bar.progress(40)
                         players_df, teams_df = cached_load_fpl_data()
                         
+                        # Ensure we have DataFrames, not lists
+                        if isinstance(players_df, list):
+                            players_df = pd.DataFrame(players_df)
+                        if isinstance(teams_df, list):
+                            teams_df = pd.DataFrame(teams_df)
+                        
                         status_text.text("📊 Setting up monitoring...")
                         progress_bar.progress(60)
                         time.sleep(0.5)
@@ -265,7 +287,7 @@ class LiveDataPageLegacy:
                         progress_bar.progress(80)
                         time.sleep(0.5)
                         
-                        if not players_df.empty:
+                        if isinstance(players_df, pd.DataFrame) and not players_df.empty:
                             # Add position column mapping from element_type
                             if 'element_type' in players_df.columns and 'position' not in players_df.columns:
                                 position_map = {1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'}
