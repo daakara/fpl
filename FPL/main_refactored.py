@@ -44,6 +44,11 @@ try:
 except Exception as e:
     ENHANCED_MODE = False
     print(f"Enhanced services unavailable: {e}")
+    # Create a simple logger fallback
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.INFO)
 
 # Try to import page modules
 try:
@@ -89,7 +94,7 @@ class RefactoredFPLApp:
                 self.cache_manager = get_cache_manager()
             except Exception as e:
                 self.enhanced_mode = False
-                logger.warning(f"Enhanced services initialization failed: {e}")
+                print(f"Enhanced services initialization failed: {e}")
         
         # Create fallback data
         self.fallback_data = self.data_service.create_fallback_data()
@@ -222,17 +227,21 @@ class RefactoredFPLApp:
         st.session_state.data_source = 'fallback'
         return False
     
-    @st.cache_data(ttl=300, show_spinner="Loading FPL data...")  # Cache for 5 minutes
-    def get_data_safely(_self):
+    def get_data_safely(self):
         """Safely get data with comprehensive fallback mechanism and data quality validation"""
+        # Use session state to cache data and avoid re-fetching
         import pandas as pd
         from datetime import datetime
         
+        # Check if data is already cached in session state
+        if st.session_state.get('data_cached', False) and st.session_state.get('cached_data'):
+            return st.session_state.cached_data
+        
         try:
-            if _self.enhanced_mode and hasattr(_self, 'fpl_service'):
+            if self.enhanced_mode and hasattr(self, 'fpl_service'):
                 # Try to get live data first
-                live_data = _self.fpl_service.get_bootstrap_data()
-                if live_data and _self.data_service.validate_data_structure(live_data):
+                live_data = self.fpl_service.get_bootstrap_data()
+                if live_data and self.data_service.validate_data_structure(live_data):
                     st.session_state.api_status = 'online'
                     st.session_state.data_source = 'live_api'
                     
@@ -240,11 +249,11 @@ class RefactoredFPLApp:
                     if 'elements' in live_data:
                         df = pd.DataFrame(live_data['elements'])
                         # Use DataQualityService for comprehensive validation and cleaning
-                        df = _self.data_quality_service.validate_and_clean_players(df)
+                        df = self.data_quality_service.validate_and_clean_players(df)
                         # Add price change predictions
-                        df = _self.price_predictor.predict_price_changes(df)
+                        df = self.price_predictor.predict_price_changes(df)
                         # Add injury/fitness data
-                        df = _self.external_data_service.get_injury_news(df)
+                        df = self.external_data_service.get_injury_news(df)
                         
                         st.session_state.players_df = df
                         st.session_state.data_loaded = True
@@ -253,9 +262,12 @@ class RefactoredFPLApp:
                     
                     if 'teams' in live_data:
                         teams_df = pd.DataFrame(live_data['teams'])
-                        teams_df = _self.data_quality_service.validate_and_clean_teams(teams_df)
+                        teams_df = self.data_quality_service.validate_and_clean_teams(teams_df)
                         st.session_state.teams_df = teams_df
                     
+                    # Cache the data in session state
+                    st.session_state.cached_data = live_data
+                    st.session_state.data_cached = True
                     return live_data
             
             # Fallback to cached/default data
@@ -263,29 +275,32 @@ class RefactoredFPLApp:
             st.session_state.data_source = 'fallback'
             
             # Populate session state with fallback data
-            if 'elements' in _self.fallback_data:
-                df = pd.DataFrame(_self.fallback_data['elements'])
+            if 'elements' in self.fallback_data:
+                df = pd.DataFrame(self.fallback_data['elements'])
                 # Use DataQualityService for comprehensive validation and cleaning
-                df = _self.data_quality_service.validate_and_clean_players(df)
+                df = self.data_quality_service.validate_and_clean_players(df)
                 # Add price change predictions
-                df = _self.price_predictor.predict_price_changes(df)
+                df = self.price_predictor.predict_price_changes(df)
                 # Add injury/fitness data
-                df = _self.external_data_service.get_injury_news(df)
+                df = self.external_data_service.get_injury_news(df)
                 
                 st.session_state.players_df = df
                 st.session_state.data_loaded = True
                 st.session_state.last_data_update = datetime.now()
                 logger.info(f"⚠️ Using fallback data (validated): {len(st.session_state.players_df)} players")
             
-            if 'teams' in _self.fallback_data:
-                teams_df = pd.DataFrame(_self.fallback_data['teams'])
-                teams_df = _self.data_quality_service.validate_and_clean_teams(teams_df)
+            if 'teams' in self.fallback_data:
+                teams_df = pd.DataFrame(self.fallback_data['teams'])
+                teams_df = self.data_quality_service.validate_and_clean_teams(teams_df)
                 st.session_state.teams_df = teams_df
             
-            return _self.fallback_data
+            # Cache the fallback data in session state
+            st.session_state.cached_data = self.fallback_data
+            st.session_state.data_cached = True
+            return self.fallback_data
             
         except Exception as e:
-            if _self.enhanced_mode:
+            if self.enhanced_mode:
                 logger.error(f"Data retrieval failed: {e}")
             
             st.session_state.api_status = 'offline'
@@ -297,7 +312,7 @@ class RefactoredFPLApp:
                 st.session_state.teams_df = pd.DataFrame()
                 st.session_state.data_loaded = False
             
-            return _self.fallback_data
+            return self.fallback_data
     
     def render_page_content(self, selected_page):
         """Render content based on selected page with clean separation"""

@@ -43,7 +43,7 @@ class ModularMyTeamPage:
         """Make the class callable"""
         self.render()
     
-    @handle_errors
+    @handle_errors("Error rendering My Team page")
     def render(self):
         """Main render method using modular components"""
         logger.info("Starting Modular My Team page render")

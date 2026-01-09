@@ -1,56 +1,67 @@
 """
 Data service for Flet app
-Reuses logic from main Streamlit app
+Standalone version that directly accesses FPL API
 """
 
-import sys
-import os
-from typing import Dict, Optional
+import requests
 import pandas as pd
-
-# Add parent directory to path to import from main app
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
-
-from services.enhanced_fpl_data_service import get_enhanced_fpl_service
-from services.data_quality_service import DataQualityService
-from services.price_change_predictor_service import PriceChangePredictorService
-from utils.best_team_generator import generate_best_team
+import logging
+from typing import Dict, Optional, List
 
 
 class FPLDataService:
     """Centralized data service for Flet app"""
     
+    BASE_URL = "https://fantasy.premierleague.com/api"
+    
     def __init__(self):
         """Initialize data service"""
-        self.fpl_service = get_enhanced_fpl_service()
-        self.data_quality = DataQualityService()
-        self.price_predictor = PriceChangePredictorService()
-        
-        # Cache
         self._players_df: Optional[pd.DataFrame] = None
         self._teams_df: Optional[pd.DataFrame] = None
         self._fixtures_df: Optional[pd.DataFrame] = None
     
+    def _fetch_bootstrap_data(self) -> Dict:
+        """Get bootstrap-static data from FPL API"""
+        try:
+            response = requests.get(
+                f"{self.BASE_URL}/bootstrap-static/",
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logging.exception(f"Error fetching bootstrap data: {e}")
+            return {}
+    
+    def _fetch_fixtures(self) -> List[Dict]:
+        """Get fixtures data from FPL API"""
+        try:
+            response = requests.get(
+                f"{self.BASE_URL}/fixtures/",
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logging.exception(f"Error fetching fixtures: {e}")
+            return []
+    
     def get_players(self, force_refresh: bool = False) -> pd.DataFrame:
-        """Get players dataframe with all enrichments"""
+        """Get players dataframe"""
         if self._players_df is None or force_refresh:
-            # Fetch from API
-            data = self.fpl_service.get_bootstrap_data()
+            data = self._fetch_bootstrap_data()
             
             if data and 'elements' in data:
-                # Convert to DataFrame
                 df = pd.DataFrame(data['elements'])
                 
-                # Validate and clean
-                df = self.data_quality.validate_and_clean_players(df)
+                # Add calculated columns
+                if 'now_cost' in df.columns:
+                    df['price'] = df['now_cost'] / 10
+                if 'total_points' in df.columns and 'now_cost' in df.columns:
+                    df['value_score'] = (df['total_points'] / (df['now_cost'] / 10)).fillna(0)
                 
-                # Add price predictions
-                df = self.price_predictor.predict_price_changes(df)
-                
-                # Cache
                 self._players_df = df
             else:
-                # Return empty DataFrame if API fails
                 return pd.DataFrame()
         
         return self._players_df
@@ -58,12 +69,10 @@ class FPLDataService:
     def get_teams(self, force_refresh: bool = False) -> pd.DataFrame:
         """Get teams dataframe"""
         if self._teams_df is None or force_refresh:
-            data = self.fpl_service.get_bootstrap_data()
+            data = self._fetch_bootstrap_data()
             
             if data and 'teams' in data:
-                df = pd.DataFrame(data['teams'])
-                df = self.data_quality.validate_and_clean_teams(df)
-                self._teams_df = df
+                self._teams_df = pd.DataFrame(data['teams'])
             else:
                 return pd.DataFrame()
         
@@ -72,7 +81,7 @@ class FPLDataService:
     def get_fixtures(self, force_refresh: bool = False) -> pd.DataFrame:
         """Get fixtures dataframe"""
         if self._fixtures_df is None or force_refresh:
-            fixtures = self.fpl_service.get_fixtures()
+            fixtures = self._fetch_fixtures()
             
             if fixtures:
                 self._fixtures_df = pd.DataFrame(fixtures)
@@ -82,7 +91,7 @@ class FPLDataService:
         return self._fixtures_df
     
     def generate_best_team(self, strategy: str = 'balanced') -> Dict:
-        """Generate best team using existing logic"""
+        """Generate best team (simplified version)"""
         players_df = self.get_players()
         
         if players_df.empty:
@@ -92,41 +101,109 @@ class FPLDataService:
             }
         
         try:
-            result = generate_best_team(players_df, strategy=strategy)
+            # Simple team selection based on strategy
+            budget = 1000  # £100m
+            
+            # Sort by different criteria based on strategy
+            if strategy == 'form':
+                sort_col = 'form'
+            elif strategy == 'value':
+                sort_col = 'value_score'
+            elif strategy == 'points':
+                sort_col = 'total_points'
+            else:  # balanced
+                sort_col = 'total_points'
+            
+            # Required formation: 2 GK, 5 DEF, 5 MID, 3 FWD
+            formation_requirements = {
+                1: 2,   # GK
+                2: 5,   # DEF
+                3: 5,   # MID
+                4: 3    # FWD
+            }
+            
+            selected_players = []
+            total_cost = 0
+            
+            # Select players for each position
+            for position_id, count in formation_requirements.items():
+                position_players = players_df[players_df['element_type'] == position_id].copy()
+                
+                # Sort by selected metric
+                if sort_col in position_players.columns:
+                    position_players = position_players.sort_values(sort_col, ascending=False)
+                
+                # Select top players within budget
+                for _, player in position_players.iterrows():
+                    if len([p for p in selected_players if p['element_type'] == position_id]) >= count:
+                        break
+                    
+                    cost = player.get('now_cost', 0)
+                    if total_cost + cost <= budget:
+                        selected_players.append(player.to_dict())
+                        total_cost += cost
+            
+            # Create squad DataFrame
+            squad_df = pd.DataFrame(selected_players) if selected_players else pd.DataFrame()
+            
+            # Split into starting XI and bench (simple: best 11 + 4 bench)
+            if not squad_df.empty:
+                squad_df = squad_df.sort_values('total_points', ascending=False)
+                starting_xi = squad_df.head(11)
+                bench = squad_df.tail(4)
+            else:
+                starting_xi = pd.DataFrame()
+                bench = pd.DataFrame()
+            
             return {
                 'success': True,
-                'squad': result.get('squad', pd.DataFrame()),
-                'starting_xi': result.get('starting_xi', pd.DataFrame()),
-                'bench': result.get('bench', pd.DataFrame()),
-                'stats': result.get('stats', {}),
-                'formation': result.get('formation', '4-4-2')
+                'squad': squad_df,
+                'starting_xi': starting_xi,
+                'bench': bench,
+                'stats': {
+                    'total_cost': total_cost / 10,
+                    'expected_points': squad_df['total_points'].sum() if not squad_df.empty else 0,
+                    'formation': '4-4-2'
+                },
+                'formation': '4-4-2'
             }
         except Exception as e:
+            logging.exception(f"Error generating team: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
     
     def get_price_predictions(self) -> Dict[str, pd.DataFrame]:
-        """Get price change predictions"""
+        """Get price change predictions (simplified)"""
         players_df = self.get_players()
         
         if players_df.empty:
             return {
                 'risers': pd.DataFrame(),
-                'fallers': pd.DataFrame(),
-                'watchlist': pd.DataFrame()
+                'fallers': pd.DataFrame()
             }
         
-        # Already added during get_players()
-        risers = players_df[players_df.get('price_change_prediction', '') == 'rise'].head(10)
-        fallers = players_df[players_df.get('price_change_prediction', '') == 'fall'].head(10)
-        watchlist = players_df[players_df.get('price_change_prediction', '') == 'watch'].head(10)
+        # Simple heuristic: rising form = likely price rise
+        players_df = players_df.copy()
+        if 'form' in players_df.columns and 'selected_by_percent' in players_df.columns:
+            players_df['form_num'] = pd.to_numeric(players_df['form'], errors='coerce').fillna(0)
+            players_df['selected_num'] = pd.to_numeric(players_df['selected_by_percent'], errors='coerce').fillna(0)
+            
+            # High form + high ownership = likely risers
+            risers = players_df[(players_df['form_num'] > 5) & (players_df['selected_num'] > 10)]
+            risers = risers.sort_values('form_num', ascending=False).head(10)
+            
+            # Low form + high ownership = likely fallers
+            fallers = players_df[(players_df['form_num'] < 3) & (players_df['selected_num'] > 5)]
+            fallers = fallers.sort_values('form_num', ascending=True).head(10)
+        else:
+            risers = pd.DataFrame()
+            fallers = pd.DataFrame()
         
         return {
             'risers': risers,
-            'fallers': fallers,
-            'watchlist': watchlist
+            'fallers': fallers
         }
     
     def get_top_players(self, by: str = 'points', limit: int = 10) -> pd.DataFrame:
@@ -146,14 +223,16 @@ class FPLDataService:
         column = metric_map.get(by, 'total_points')
         
         if column in players_df.columns:
+            players_df = players_df.copy()
+            players_df[column] = pd.to_numeric(players_df[column], errors='coerce').fillna(0)
             return players_df.nlargest(limit, column)
         else:
-            return pd.DataFrame()
+            return players_df.head(limit)
     
-    def search_players(self, query: str, position: Optional[str] = None,
+    def search_players(self, query: str = "", position: Optional[str] = None,
                       team: Optional[str] = None, max_price: Optional[float] = None) -> pd.DataFrame:
         """Search and filter players"""
-        players_df = self.get_players()
+        players_df = self.get_players().copy()
         
         if players_df.empty:
             return pd.DataFrame()
@@ -172,11 +251,16 @@ class FPLDataService:
         
         # Team filter
         if team and team != 'All':
-            players_df = players_df[players_df['team'] == int(team)]
+            try:
+                team_id = int(team)
+                players_df = players_df[players_df['team'] == team_id]
+            except (ValueError, KeyError):
+                pass
         
         # Price filter
         if max_price:
-            players_df = players_df[players_df['now_cost'] / 10 <= max_price]
+            if 'now_cost' in players_df.columns:
+                players_df = players_df[players_df['now_cost'] / 10 <= max_price]
         
         return players_df
     

@@ -12,7 +12,7 @@ class LearningResourcesPage:
     """Learning resources page component"""
     
     @staticmethod
-    @handle_errors
+    @handle_errors("Error loading learning resources")
     def render():
         """Render the learning resources page"""
         render_learning_resources()

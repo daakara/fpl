@@ -15,18 +15,46 @@ class PerformanceOptimizer:
     """Utilities for optimizing app performance"""
     
     @staticmethod
-    def cache_expensive_calculation(ttl: int = 300):
+    def cache_expensive_calculation(ttl: int = 300, hash_funcs: dict = None):
         """
-        Decorator for caching expensive calculations
+        Decorator for caching expensive calculations using session state
+        Avoids issues with hashing service instances
         
         Args:
             ttl: Time to live in seconds (default: 5 minutes)
+            hash_funcs: Ignored, kept for compatibility
         """
         def decorator(func: Callable) -> Callable:
             @wraps(func)
-            @st.cache_data(ttl=ttl, show_spinner=f"Computing {func.__name__}...")
             def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
+                # Create cache key from function name and arguments (excluding unhashable objects)
+                try:
+                    # Try to create a hash from serializable args
+                    serializable_args = []
+                    for arg in args:
+                        # Skip service instances and other complex objects
+                        if hasattr(arg, '__dict__') and hasattr(arg, '__class__'):
+                            continue
+                        serializable_args.append(str(arg))
+                    
+                    args_hash = hashlib.md5(str(serializable_args).encode()).hexdigest()
+                    cache_key = f"cache_{func.__module__}_{func.__name__}_{args_hash}"
+                except:
+                    # Fallback to simple cache key
+                    cache_key = f"cache_{func.__module__}_{func.__name__}"
+                
+                # Check cache
+                if cache_key in st.session_state:
+                    cache_time = st.session_state.get(f'{cache_key}_timestamp', 0)
+                    if time.time() - cache_time < ttl:
+                        return st.session_state[cache_key]
+                
+                # Compute and cache
+                result = func(*args, **kwargs)
+                st.session_state[cache_key] = result
+                st.session_state[f'{cache_key}_timestamp'] = time.time()
+                return result
+                    
             return wrapper
         return decorator
     
@@ -34,12 +62,19 @@ class PerformanceOptimizer:
     def cache_resource(func: Callable) -> Callable:
         """
         Decorator for caching resources (models, connections, etc.)
-        Resources are cached for the entire session
+        Resources are cached for the entire session using session state
+        Avoids issues with hashing service instances
         """
         @wraps(func)
-        @st.cache_resource(show_spinner=f"Loading {func.__name__}...")
         def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
+            # Create simple cache key
+            cache_key = f"resource_{func.__module__}_{func.__name__}"
+            
+            if cache_key not in st.session_state:
+                st.session_state[cache_key] = func(*args, **kwargs)
+            
+            return st.session_state[cache_key]
+                
         return wrapper
     
     @staticmethod

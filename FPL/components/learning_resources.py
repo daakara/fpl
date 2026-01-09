@@ -162,7 +162,7 @@ class FPLGlossary:
     }
     
     @staticmethod
-    @handle_errors
+    @handle_errors("Error rendering glossary")
     def render_glossary():
         """Render interactive FPL glossary"""
         st.markdown("### 📖 FPL Glossary")
@@ -363,7 +363,7 @@ class StrategyGuides:
     }
     
     @staticmethod
-    @handle_errors
+    @handle_errors("Error rendering strategy guides")
     def render_guides():
         """Render strategy guides"""
         st.markdown("### 📚 Strategy Guides")
@@ -410,7 +410,7 @@ class QuickStartTutorial:
     """Interactive quick start tutorial for new users"""
     
     @staticmethod
-    @handle_errors
+    @handle_errors("Error rendering tutorial")
     def render_tutorial():
         """Render quick start tutorial"""
         st.markdown("### 🎬 Quick Start Tutorial")
@@ -546,7 +546,7 @@ class LearningResourcesHub:
     """Main hub for all learning resources"""
     
     @staticmethod
-    @handle_errors
+    @handle_errors("Error rendering learning resources hub")
     def render():
         """Render complete learning resources hub"""
         st.title("🎓 Learning Resources")
@@ -594,7 +594,7 @@ class LearningResourcesHub:
 
 
 # Convenience function for easy import
-@handle_errors
+@handle_errors("Error loading learning resources")
 def render_learning_resources():
     """Render the learning resources hub"""
     LearningResourcesHub.render()

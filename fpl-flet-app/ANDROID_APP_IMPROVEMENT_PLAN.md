@@ -1,5 +1,20 @@
 # FPL Analytics Android App - UX/UI Improvement & Deployment Plan
 
+## 🎯 Overarching Goal
+The primary objective of this project is to create a mobile-first Flet application that serves as a counterpart to the existing Streamlit web app located at `/Users/iDavid/Documents/FPL codes/fpl/main_refactored.py`. The goal is to achieve feature-parity with the Streamlit app, delivering a polished, performant, and native-feeling mobile experience for Android.
+
+---
+
+## 🎯 Overarching Goal
+The primary objective of this project is to create a mobile-first Flet application that serves as a counterpart to the existing Streamlit web app located at `/Users/iDavid/Documents/FPL codes/fpl/main_refactored.py`. The goal is to achieve feature-parity with the Streamlit app, delivering a polished, performant, and native-feeling mobile experience for Android.
+
+---
+
+## 🎯 Overarching Goal
+The primary objective of this project is to create a mobile-first Flet application that serves as a counterpart to the existing Streamlit web app located at `/Users/iDavid/Documents/FPL codes/fpl/main_refactored.py`. The goal is to achieve feature-parity with the Streamlit app, delivering a polished, performant, and native-feeling mobile experience for Android.
+
+---
+
 ## 📊 Current State Analysis
 
 ### App Architecture
@@ -41,21 +56,47 @@
 - ❌ No search functionality
 
 #### **4. Features vs Streamlit App**
-Missing from Streamlit version:
-- ❌ Advanced analytics/charts (plotly)
-- ❌ Player price change tracking
-- ❌ Transfer planner
-- ❌ ML-powered recommendations
-- ❌ Historical data analysis
-- ❌ Export/share functionality
-- ❌ Dark/Light theme toggle
-- ❌ Settings/preferences
+For a detailed breakdown of feature parity and discrepancies compared to the Streamlit app (`main_resilient.py`), please refer to the new section: "### Porting Discrepancies (Streamlit vs Flet)". This includes missing UI elements, data handling logic, and paradigm translation.
 
 #### **5. Performance**
 - ⚠️ No pagination (loads all players at once)
 - ⚠️ No incremental loading
 - ⚠️ Network calls block UI
 - ⚠️ No offline mode/cached views
+
+---
+
+### Porting Discrepancies (Streamlit vs Flet)
+This section details the comparison between the Streamlit app (`main_resilient.py`) and the Flet app (`fpl-flet-app`), highlighting differences and areas for improvement.
+
+#### Missing Features or UI Components in Flet (Compared to typical Streamlit capabilities):
+-   **Advanced Interactive Filtering/Inputs**: While Flet supports basic inputs, Streamlit often provides more granular, easily integrated interactive filtering on data displays (e.g., sliders, multi-selects for player tables, adjustable "top N" for recommendations). The current Flet app might require explicit implementation for such dynamic filtering.
+-   **Complex Data Visualizations/Charting**: Streamlit frequently leverages libraries like Plotly or Matplotlib for rich, interactive data plots. The current Flet app primarily presents data in tabular or text-based layouts. Integration of a Flet-compatible charting library or custom plotting logic would be needed to match a graphically intensive Streamlit UX.
+-   **User-Configurable Settings UI**: If the Streamlit app offered a UI for users to configure application settings (e.g., cache duration, display preferences), this is not present in the Flet app, which currently relies on programmatic `AppConfig` values.
+
+#### Flet State Management and Resilient Data Handling:
+The Flet app effectively replicates the 'resilient' data fetching and caching logic.
+-   **`FPLDataService`**: Centralizes data fetching and incorporates in-memory caching.
+-   **Configurable Caching**: Uses `AppConfig.CACHE_DURATION` (currently 5 minutes) to determine cache validity.
+-   **Retry Logic**: Implements `AppConfig.RETRY_ATTEMPTS` (currently 3) with a `time.sleep` delay, making it robust against transient network issues.
+-   **Error Handling**: Comprehensive `try-except` blocks and `response.raise_for_status()` are used, with `create_error_view` providing user feedback and retry options.
+-   **Explicit Refresh**: A `refresh_data` method explicitly clears the cache and reloads the current view, mimicking a force refresh.
+-   **Loading Indicators**: `ft.ProgressBar` and skeleton loading components provide crucial visual feedback during data operations.
+
+#### Streamlit-Specific Paradigms (e.g., auto-rerun) Translation:
+Streamlit's implicit "auto-rerun" on state changes is handled effectively within Flet's event-driven model:
+-   **Event-Driven Approach**: Flet responds explicitly to user actions (e.g., `on_click`, `on_change`) through dedicated event handlers.
+-   **UI Update Mechanism**: `page.update()` is used to reflect UI changes.
+-   **View Reconstruction**: `load_view` rebuilds and replaces content in `self.content_container` when tabs are switched, ensuring up-to-date data.
+-   **`force_refresh` Parameter**: Service methods utilize a `force_refresh` parameter to bypass the cache when an explicit refresh is required.
+This adaptation ensures similar reactive behavior within Flet's native design.
+
+#### Optimizations for Flet UI Layout:
+To further align with Streamlit's UX, the following layout optimizations are suggested:
+-   **Dynamic and Responsive Layouts**: Implement layout adjustments based on `page.width` (e.g., using `ft.ResponsiveRow` or manual checks) to optimize element arrangement for different screen sizes, especially on larger displays.
+-   **`ft.DataTable` Integration**: Consider using `ft.DataTable` for data-dense sections (e.g., player lists, squad details, AI tips tables) to provide sortable columns, clearer presentation, and potential pagination.
+-   **Interactive Elements within Views**: Introduce Flet input controls (e.g., `ft.Dropdown`, `ft.Slider`) directly within data displays to enable on-the-fly data manipulation and exploration.
+-   **Visualizations Integration**: Implement Flet-native charting (e.g., `ft.Chart`) or explore advanced solutions to integrate interactive plots.
 
 ---
 
@@ -127,7 +168,7 @@ CARD_ELEVATION = 2dp       # Material Design elevation
 
 ---
 
-### Phase 2: Feature Parity (Week 3-4)
+### Phase 2: Advanced Data & Analytics (Week 3-4)
 
 #### **2.1 Data Visualization**
 ```python
@@ -139,7 +180,7 @@ CARD_ELEVATION = 2dp       # Material Design elevation
 - FDR heat map
 ```
 
-**Libraries**: 
+**Libraries**:
 - `fl_chart` (Flutter charts) 
 - `plotly.py` → export to Flet via images
 
@@ -183,7 +224,7 @@ CARD_ELEVATION = 2dp       # Material Design elevation
 
 ---
 
-### Phase 3: Premium Features (Week 5-6)
+### Phase 3: Premium & Optimization (Week 5-6)
 
 #### **3.1 Offline Mode**
 ```python
@@ -232,40 +273,38 @@ CARD_ELEVATION = 2dp       # Material Design elevation
 
 ---
 
+### Phase 4: Feature Parity (Week 7-8)
+
+This phase focuses on bridging the identified gaps and enhancing the Flet app to match the comprehensive experience of the Streamlit source.
+
+#### Missing Feature Implementation:
+-   [ ] Implement advanced interactive filtering and sorting mechanisms for data displays (e.g., player lists, fixture lists, AI recommendations), allowing users to dynamically filter by position, team, price, form, etc.
+-   [ ] Integrate comprehensive data visualizations and charting capabilities (e.g., player form graphs, points trends, team performance comparisons) if these were present and significant in the Streamlit app.
+-   [ ] Develop a dedicated UI for user-configurable settings, allowing users to adjust application parameters (e.g., default team ID, refresh intervals) directly from the app.
+
+#### UI/UX Enhancements for Feature Parity:
+-   [ ] Implement dynamic and responsive layouts that adapt intelligently to various screen sizes, ensuring optimal content display on both mobile and tablet devices.
+-   [ ] Integrate `ft.DataTable` for presenting data-dense sections (e.g., detailed player lists, squad views, AI tips tables) to offer improved readability, sorting, and navigation.
+-   [ ] Introduce interactive elements (e.g., dropdowns, sliders, search bars) directly within views to enable on-the-fly data manipulation and exploration.
+-   [ ] Explore and integrate Flet-native charting solutions or other visualization tools to provide rich, interactive data representation.
+
+**Impact**: ⭐⭐⭐⭐⭐ Achieve full feature and experience alignment with the Streamlit app.
+
+---
+
 ## 🏗️ Technical Architecture Improvements
 
-### Recommended Refactoring
+### Recommended Refactoring (In Progress)
 
-```
-fpl-android-app/
-├── main.py                    # Entry point
-├── config/
-│   └── app_config.py          # Constants, themes
-├── services/
-│   ├── fpl_api_service.py     # API calls
-│   ├── cache_service.py       # Persistence
-│   └── notification_service.py
-├── models/
-│   ├── player.py
-│   ├── team.py
-│   └── fixture.py
-├── views/
-│   ├── dashboard_view.py
-│   ├── my_team_view.py
-│   ├── fixtures_view.py
-│   └── ai_tips_view.py
-├── components/
-│   ├── player_card.py
-│   ├── stat_card.py
-│   └── chart_widget.py
-├── utils/
-│   ├── theme.py
-│   ├── formatters.py
-│   └── validators.py
-└── assets/
-    ├── images/
-    └── fonts/
-```
+- ✅ `config/app_config.py` - **Done**
+- ✅ `utils/theme.py` - **Done**
+- ✅ `components/skeleton.py` - **Done**
+- ✅ `components/stat_card.py` - **Done**
+- ✅ `components/section_header.py` - **Done**
+- ✅ `components/player_card.py` - **Done**
+- ✅ `services/fpl_api_service.py` - **Done**
+- ✅ `views/` - **Done (all views extracted)**
+- 🚧 `main.py` - **Up Next (needs final testing)**
 
 **Benefits**:
 - Better maintainability
@@ -343,19 +382,19 @@ adb install build/apk/fpl-analytics.apk
 
 **Options**:
 
-1. **Google Play Store** (Recommended)
+1.  **Google Play Store** (Recommended)
    - Professional distribution
    - Auto-updates
    - Analytics
    - Costs $25 one-time
 
-2. **Direct APK**
+2.  **Direct APK**
    - Free
    - No review process
    - Manual updates
    - Trust warnings
 
-3. **F-Droid** (Open source)
+3.  **F-Droid** (Open source)
    - Alternative app store
    - Privacy-focused
    - Free
@@ -363,6 +402,10 @@ adb install build/apk/fpl-analytics.apk
 ---
 
 ## 🗓️ Project Timeline
+
+### **Phase 0: Code Refactoring (Current)**
+- [🚧] Refactor the single `main.py` file into a multi-file structure.
+- **Deliverable**: A more maintainable and scalable codebase.
 
 ### **Week 1-2: Mobile UX Foundation**
 - [ ] Redesign navigation (top tabs + FAB)
@@ -375,29 +418,42 @@ adb install build/apk/fpl-analytics.apk
 
 ---
 
-### **Week 3-4: Feature Parity**
+### **Week 3-4: Advanced Data & Analytics**
 - [ ] Add charts (form, points trends)
 - [ ] Implement filtering system
 - [ ] Add player search
 - [ ] Build transfer planner MVP
 - [ ] Player comparison view
 
-**Deliverable**: Feature-complete app matching Streamlit
+**Deliverable**: Enhanced data exploration and planning tools
 
 ---
 
-### **Week 5-6: Premium & Polish**
+### **Week 5-6: Premium & Optimization**
 - [ ] Offline mode with SQLite
 - [ ] Push notifications setup
 - [ ] Share/export functionality
 - [ ] Settings screen
 - [ ] Performance optimization
 
-**Deliverable**: Production-ready Android app
+**Deliverable**: Robust and user-centric premium features
 
 ---
 
-### **Week 7: Android Release**
+### **Week 7-8: Feature Parity (Streamlit vs Flet)**
+- [ ] Implement advanced interactive filtering and sorting mechanisms.
+- [ ] Integrate comprehensive data visualizations and charting capabilities.
+- [ ] Develop a dedicated UI for user-configurable settings.
+- [ ] Implement dynamic and responsive layouts.
+- [ ] Integrate `ft.DataTable` for data-dense sections.
+- [ ] Introduce interactive elements directly within views.
+- [ ] Explore and integrate Flet-native charting solutions.
+
+**Deliverable**: Full feature and experience alignment with the Streamlit app.
+
+---
+
+### **Week 9: Android Release**
 - [ ] Generate signed APK
 - [ ] Create Play Store listing
 - [ ] Beta testing (10+ users)
@@ -468,11 +524,12 @@ adb install build/apk/fpl-analytics.apk
 
 ### Development Time
 - **Phase 1** (Mobile UX): 40-60 hours
-- **Phase 2** (Features): 60-80 hours  
-- **Phase 3** (Premium): 40-60 hours
+- **Phase 2** (Advanced Data & Analytics): 60-80 hours
+- **Phase 3** (Premium & Optimization): 40-60 hours
+- **Phase 4** (Feature Parity): 40-60 hours
 - **Testing/QA**: 20-30 hours
 
-**Total**: 160-230 hours (~4-6 weeks full-time)
+**Total**: 200-290 hours (~5-7 weeks full-time)
 
 ### Costs
 - Google Play Developer: **$25** (one-time)
@@ -586,32 +643,19 @@ main (production)
 
 ## ❓ Open Questions
 
-1. **Backend Requirements**: Do we need a custom backend or is FPL API sufficient?
-2. **Monetization**: Free app or freemium (premium features)?
-3. **Platform**: Android-only or iOS as well?
-4. **Authentication**: FPL login or team ID only?
-5. **Analytics**: Which events to track?
+1.  **Backend Requirements**: Do we need a custom backend or is FPL API sufficient?
+2.  **Monetization**: Free app or freemium (premium features)?
+3.  **Platform**: Android-only or iOS as well?
+4.  **Authentication**: FPL login or team ID only?
+5.  **Analytics**: Which events to track?
 
 ---
 
 ## 🎯 Recommended Next Steps
 
-### Immediate (This Week)
-1. **Fix deprecation warnings** (2 hours)
-2. **Add Premier League branding** (4 hours)
-3. **Implement pull-to-refresh** (6 hours)
-4. **Create responsive typography system** (4 hours)
-
-### Short Term (Next 2 Weeks)
-1. **Redesign navigation** (16 hours)
-2. **Add player search** (12 hours)
-3. **Implement basic charts** (20 hours)
-4. **Build transfer planner** (24 hours)
-
-### Long Term (Month 2)
-1. **Offline mode** (40 hours)
-2. **Push notifications** (20 hours)
-3. **Play Store release** (16 hours)
+### Continue Refactoring (Current)
+1.  **Test the refactored application** to ensure everything works as before.
+2.  **Continue with Phase 1: Mobile-First UX Polish** as described in the plan.
 
 ---
 

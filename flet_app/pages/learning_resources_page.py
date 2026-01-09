@@ -62,12 +62,12 @@ class LearningResourcesPage:
             tabs=[
                 ft.Tab(
                     text="Glossary",
-                    icon=ft.icons.BOOK,
+                    icon="book",
                     content=self._build_glossary_tab(glossary_terms)
                 ),
                 ft.Tab(
                     text="Strategies",
-                    icon=ft.icons.LIGHTBULB,
+                    icon="lightbulb",
                     content=self._build_strategies_tab(strategy_guides)
                 ),
             ],

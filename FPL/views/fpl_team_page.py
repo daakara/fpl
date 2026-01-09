@@ -33,7 +33,7 @@ class FPLTeamPage:
         """Make the page callable"""
         self.render()
     
-    @handle_errors
+    @handle_errors("Error rendering FPL Team page")
     def render(self):
         """Main render method for FPL Team page"""
         try:

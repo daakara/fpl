@@ -6,7 +6,7 @@ flet>=0.22.0
 
 # Data handling
 pandas>=2.0.0
-requests>=2.31.0
+httpx>=0.27.0
 
 # Optional: For enhanced features
 # numpy>=1.24.0

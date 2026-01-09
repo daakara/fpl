@@ -4,7 +4,10 @@ Build and optimize FPL squads
 """
 
 import flet as ft
-from utils.data_service import FPLDataService
+try:
+    from ..utils.data_service import FPLDataService
+except ImportError:
+    from utils.data_service import FPLDataService
 
 
 class TeamBuilderPage:
@@ -64,7 +67,7 @@ class TeamBuilderPage:
                     ),
                     ft.ElevatedButton(
                         "Generate Best Team",
-                        icon=ft.icons.AUTO_AWESOME,
+                        icon="auto_awesome",
                         on_click=self._generate_team,
                         expand=True,
                     ),
@@ -81,16 +84,16 @@ class TeamBuilderPage:
             return ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.GROUPS_OUTLINED, size=64, color=ft.colors.GREY_400),
+                        ft.Icon("groups_outlined", size=64, color="grey400"),
                         ft.Text(
                             "No team generated yet",
                             size=18,
-                            color=ft.colors.GREY_400
+                            color="grey400"
                         ),
                         ft.Text(
                             "Select a strategy and click 'Generate Best Team'",
                             size=14,
-                            color=ft.colors.GREY_600
+                            color="grey600"
                         ),
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -103,7 +106,7 @@ class TeamBuilderPage:
             return ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.ERROR_OUTLINE, size=64, color=ft.colors.ERROR),
+                        ft.Icon("error_outline", size=64, color="red"),
                         ft.Text(
                             "Failed to generate team",
                             size=18,
@@ -111,7 +114,7 @@ class TeamBuilderPage:
                         ),
                         ft.Text(
                             self.generated_team.get('error', 'Unknown error'),
-                            color=ft.colors.GREY_400
+                            color="grey400"
                         ),
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -159,14 +162,14 @@ class TeamBuilderPage:
             content=ft.Column(
                 controls=[
                     ft.Text(value, size=20, weight=ft.FontWeight.BOLD),
-                    ft.Text(label, size=11, color=ft.colors.GREY_400),
+                    ft.Text(label, size=11, color="grey400"),
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=2,
             ),
             padding=12,
             border_radius=8,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor="surfacevariant",
             expand=True,
         )
     
@@ -188,7 +191,7 @@ class TeamBuilderPage:
                             position,
                             size=12,
                             weight=ft.FontWeight.BOLD,
-                            color=ft.colors.WHITE
+                            color="white"
                         ),
                         padding=8,
                         border_radius=4,
@@ -202,7 +205,7 @@ class TeamBuilderPage:
                         f"{player.get('form', 0):.1f}",
                         size=14,
                         weight=ft.FontWeight.BOLD,
-                        color=ft.colors.GREEN_ACCENT_400
+                        color="green"
                     ),
                 )
             )
@@ -227,12 +230,12 @@ class TeamBuilderPage:
     def _get_position_color(self, position: str) -> str:
         """Get color for position"""
         colors = {
-            'GK': ft.colors.AMBER_700,
-            'DEF': ft.colors.GREEN_700,
-            'MID': ft.colors.BLUE_700,
-            'FWD': ft.colors.RED_700,
+            'GK': "amber700",
+            'DEF': "green700",
+            'MID': "blue700",
+            'FWD': "red700",
         }
-        return colors.get(position, ft.colors.GREY_700)
+        return colors.get(position, "grey700")
     
     def _on_strategy_change(self, e):
         """Handle strategy selection change"""

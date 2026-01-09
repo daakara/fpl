@@ -4,12 +4,27 @@ Main entry point for iOS/Android native application
 """
 
 import flet as ft
-from pages.dashboard_page import DashboardPage
-from pages.player_analysis_page import PlayerAnalysisPage
-from pages.team_builder_page import TeamBuilderPage
-from pages.learning_resources_page import LearningResourcesPage
-from utils.theme import get_app_theme
-from utils.data_service import FPLDataService
+import logging
+import sys
+import traceback
+
+# Handle imports for both direct execution and module execution
+try:
+    # Try relative imports first (when run as module)
+    from .pages.dashboard_page import DashboardPage
+    from .pages.player_analysis_page import PlayerAnalysisPage
+    from .pages.team_builder_page import TeamBuilderPage
+    from .pages.learning_resources_page import LearningResourcesPage
+    from .utils.theme import get_app_theme
+    from .utils.data_service import FPLDataService
+except ImportError:
+    # Fall back to absolute imports (when run directly)
+    from pages.dashboard_page import DashboardPage
+    from pages.player_analysis_page import PlayerAnalysisPage
+    from pages.team_builder_page import TeamBuilderPage
+    from pages.learning_resources_page import LearningResourcesPage
+    from utils.theme import get_app_theme
+    from utils.data_service import FPLDataService
 
 
 class FPLAnalyticsApp:
@@ -19,6 +34,9 @@ class FPLAnalyticsApp:
         self.page = page
         self.data_service = FPLDataService()
         
+        # Theme state
+        self.dark_mode = True
+        
         # Configure page
         self.page.title = "FPL Analytics"
         self.page.theme_mode = ft.ThemeMode.DARK
@@ -26,7 +44,7 @@ class FPLAnalyticsApp:
         self.page.padding = 0
         
         # Initialize pages
-        self.dashboard = DashboardPage(self.data_service)
+        self.dashboard = DashboardPage(self, self.data_service)
         self.player_analysis = PlayerAnalysisPage(self.data_service)
         self.team_builder = TeamBuilderPage(self.data_service)
         self.learning = LearningResourcesPage()
@@ -39,29 +57,11 @@ class FPLAnalyticsApp:
     
     def setup_ui(self):
         """Setup the main UI with navigation"""
-        # App bar
         self.page.appbar = ft.AppBar(
             title=ft.Text("FPL Analytics", weight=ft.FontWeight.BOLD),
             center_title=False,
-            bgcolor=ft.colors.SURFACE_VARIANT,
-            actions=[
-                ft.IconButton(
-                    icon=ft.icons.REFRESH,
-                    tooltip="Refresh Data",
-                    on_click=self.refresh_data
-                ),
-                ft.PopupMenuButton(
-                    items=[
-                        ft.PopupMenuItem(
-                            text="Dark Mode",
-                            checked=True,
-                            on_click=self.toggle_theme
-                        ),
-                        ft.PopupMenuItem(),  # Divider
-                        ft.PopupMenuItem(text="About"),
-                    ]
-                )
-            ],
+            bgcolor="surfacevariant",
+            actions=[],
         )
         
         # Content area
@@ -73,24 +73,24 @@ class FPLAnalyticsApp:
         # Bottom navigation
         self.nav_bar = ft.NavigationBar(
             destinations=[
-                ft.NavigationDestination(
-                    icon=ft.icons.DASHBOARD_OUTLINED,
-                    selected_icon=ft.icons.DASHBOARD,
+                ft.NavigationBarDestination(
+                    icon="dashboard_outlined",
+                    selected_icon="dashboard",
                     label="Dashboard"
                 ),
-                ft.NavigationDestination(
-                    icon=ft.icons.PERSON_SEARCH_OUTLINED,
-                    selected_icon=ft.icons.PERSON_SEARCH,
+                ft.NavigationBarDestination(
+                    icon="person_search_outlined",
+                    selected_icon="person_search",
                     label="Players"
                 ),
-                ft.NavigationDestination(
-                    icon=ft.icons.GROUPS_OUTLINED,
-                    selected_icon=ft.icons.GROUPS,
+                ft.NavigationBarDestination(
+                    icon="groups_outlined",
+                    selected_icon="groups",
                     label="Team Builder"
                 ),
-                ft.NavigationDestination(
-                    icon=ft.icons.SCHOOL_OUTLINED,
-                    selected_icon=ft.icons.SCHOOL,
+                ft.NavigationBarDestination(
+                    icon="school_outlined",
+                    selected_icon="school",
                     label="Learn"
                 ),
             ],
@@ -160,23 +160,29 @@ class FPLAnalyticsApp:
         if self.page.theme_mode == ft.ThemeMode.DARK:
             self.page.theme_mode = ft.ThemeMode.LIGHT
             self.page.theme = get_app_theme(dark=False)
-            e.control.checked = False
         else:
             self.page.theme_mode = ft.ThemeMode.DARK
             self.page.theme = get_app_theme(dark=True)
-            e.control.checked = True
         
         self.page.update()
 
 
 def main(page: ft.Page):
     """Main entry point for Flet app"""
-    FPLAnalyticsApp(page)
+    try:
+        app = FPLAnalyticsApp(page)
+    except Exception as e:
+        logging.exception("Unhandled exception in FPLAnalyticsApp")
+        # Also print to stderr to be sure it appears in the console
+        print(f"FATAL: {e}\n{traceback.format_exc()}", file=sys.stderr)
+        page.clean()
+        page.add(ft.Text(f"An error occurred: {e}\n\n{traceback.format_exc()}", font_family="monospace"))
+        page.update()
+
+    return app
 
 
 if __name__ == "__main__":
-    # Run as desktop app for testing
-    ft.app(target=main)
-    
-    # For mobile deployment, use:
-    # ft.app(target=main, view=ft.AppView.FLET_APP)
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('flet_core').setLevel(logging.INFO)
+    ft.app(main)

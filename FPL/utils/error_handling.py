@@ -72,56 +72,6 @@ class FPLLogger:
 # Create a singleton logger instance
 logger = FPLLogger()
 
-# Convenience function for error handling
-def handle_errors(func: Callable) -> Callable:
-    """Decorator for handling errors in functions"""
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            logger.error(f"Error in {func.__name__}: {str(e)}")
-            st.error(f"An error occurred: {str(e)}")
-            return None
-    return wrapper
-
-    def warning(self, msg, *args, **kwargs):
-        """Log a warning message."""
-        self.logger.warning(msg, *args, **kwargs)
-
-    def error(self, msg, *args, **kwargs):
-        """Log an error message."""
-        self.logger.error(msg, *args, **kwargs)
-
-    def critical(self, msg, *args, **kwargs):
-        """Log a critical message."""
-        self.logger.critical(msg, *args, **kwargs)
-
-    def log_api_call(self, endpoint: str, status_code: int, response_time: float):
-        """Log API call details"""
-        self.info(
-            f"API Call - Endpoint: {endpoint}, Status: {status_code}, "
-            f"Response Time: {response_time:.2f}s"
-        )
-    
-    def log_user_action(self, action: str, details: dict = None):
-        """Log user actions for analytics"""
-        details_str = f" - Details: {details}" if details else ""
-        self.logger.info(f"User Action: {action}{details_str}")
-    
-    def error(self, msg: str, *args, **kwargs):
-        """Log an error message."""
-        # The `exc_info=True` is often passed in kwargs to log exception info
-        self.logger.error(msg, *args, **kwargs)
-    
-    def log_performance(self, operation: str, duration: float, details: dict = None):
-        """Log performance metrics"""
-        details_str = f" - {details}" if details else ""
-        self.logger.info(f"Performance - {operation}: {duration:.2f}s{details_str}")
-
-# Global logger instance
-logger = FPLLogger()
-
 class FPLError(Exception):
     """Base exception for FPL Analytics App"""
     def __init__(self, message: str, error_code: str = None, details: dict = None):

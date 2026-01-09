@@ -5,13 +5,17 @@ Shows key metrics, top players, and price predictions
 
 import flet as ft
 from typing import Optional
-from utils.data_service import FPLDataService
+try:
+    from ..utils.data_service import FPLDataService
+except ImportError:
+    from utils.data_service import FPLDataService
 
 
 class DashboardPage:
     """Dashboard page component"""
     
-    def __init__(self, data_service: FPLDataService):
+    def __init__(self, app, data_service: FPLDataService):
+        self.app = app
         self.data_service = data_service
     
     def build(self) -> ft.Control:
@@ -62,9 +66,9 @@ class DashboardPage:
         
         kpi_cards = ft.Row(
             controls=[
-                self._create_kpi_card("Players", str(total_players), ft.icons.PEOPLE),
-                self._create_kpi_card("Avg Price", f"£{avg_price:.1f}m", ft.icons.ATTACH_MONEY),
-                self._create_kpi_card("Top Points", str(int(top_scorer_points)), ft.icons.STAR),
+                self._create_kpi_card("Players", str(total_players), "people"),
+                self._create_kpi_card("Avg Price", f"£{avg_price:.1f}m", "attach_money"),
+                self._create_kpi_card("Top Points", str(int(top_scorer_points)), "star"),
             ],
             scroll=ft.ScrollMode.AUTO,
             spacing=8,
@@ -80,16 +84,16 @@ class DashboardPage:
         return ft.Container(
             content=ft.Column(
                 controls=[
-                    ft.Icon(icon, size=32, color=ft.colors.GREEN_ACCENT_400),
+                    ft.Icon(icon, size=32, color="green"),
                     ft.Text(value, size=24, weight=ft.FontWeight.BOLD),
-                    ft.Text(title, size=12, color=ft.colors.GREY_400),
+                    ft.Text(title, size=12, color="grey400"),
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=4,
             ),
             padding=16,
             border_radius=12,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor="surfacevariant",
             expand=True,
         )
     
@@ -106,19 +110,19 @@ class DashboardPage:
                 ft.ListTile(
                     leading=ft.Container(
                         content=ft.Text(
-                            str(idx + 1),
+                            str(player.get('id', idx + 1)),
                             size=20,
                             weight=ft.FontWeight.BOLD,
-                            color=ft.colors.GREEN_ACCENT_400
+                            color="green"
                         ),
                         width=40,
-                        alignment=ft.alignment.center,
+                        alignment=ft.alignment.Alignment(0, 0),
                     ),
                     title=ft.Text(player.get('web_name', 'Unknown')),
                     subtitle=ft.Text(
                         f"£{player.get('now_cost', 0) / 10:.1f}m • {player.get('total_points', 0)} pts"
                     ),
-                    trailing=ft.Icon(ft.icons.CHEVRON_RIGHT),
+                    trailing=ft.Icon("chevron_right"),
                 )
             )
         
@@ -147,24 +151,7 @@ class DashboardPage:
         if risers is None or risers.empty:
             return ft.Container()
         
-        # Tabs for risers/fallers
-        tabs = ft.Tabs(
-            selected_index=0,
-            tabs=[
-                ft.Tab(
-                    text="Risers",
-                    icon=ft.icons.TRENDING_UP,
-                    content=self._build_price_list(risers, rising=True)
-                ),
-                ft.Tab(
-                    text="Fallers",
-                    icon=ft.icons.TRENDING_DOWN,
-                    content=self._build_price_list(fallers, rising=False)
-                ),
-            ],
-            expand=True,
-        )
-        
+        # Build price lists without tabs for now (Flet 0.80 Tab API changed)
         return ft.Container(
             content=ft.Column(
                 controls=[
@@ -176,10 +163,16 @@ class DashboardPage:
                         ),
                         padding=ft.padding.only(left=16, right=16, top=8, bottom=4)
                     ),
-                    tabs,
+                    ft.Text("Price Risers", size=14, weight=ft.FontWeight.BOLD),
+                    self._build_price_list(risers, rising=True),
+                    ft.Divider(height=20),
+                    ft.Text("Price Fallers", size=14, weight=ft.FontWeight.BOLD),
+                    self._build_price_list(fallers, rising=False),
                 ],
-                spacing=0,
+                scroll=ft.ScrollMode.AUTO,
+                spacing=8,
             ),
+            padding=12,
             height=350,
         )
     
@@ -196,12 +189,12 @@ class DashboardPage:
             items.append(
                 ft.ListTile(
                     leading=ft.Icon(
-                        ft.icons.ARROW_UPWARD if rising else ft.icons.ARROW_DOWNWARD,
-                        color=ft.colors.GREEN if rising else ft.colors.RED
+                        "arrow_upward" if rising else "arrow_downward",
+                        color="green" if rising else "red"
                     ),
                     title=ft.Text(player.get('web_name', 'Unknown')),
                     subtitle=ft.Text(
-                        f"£{player.get('now_cost', 0) / 10:.1f}m • {player.get('net_transfers', 0):,} transfers"
+                        f"£{player.get('now_cost', 0) / 10:.1f}m • {player.get('transfers_in_event', 0):,} transfers"
                     ),
                 )
             )
@@ -216,7 +209,7 @@ class DashboardPage:
         return ft.Container(
             content=ft.Column(
                 controls=[
-                    ft.Icon(ft.icons.ERROR_OUTLINE, size=64, color=ft.colors.ERROR),
+                    ft.Icon("error_outline", size=64, color="red"),
                     ft.Text(
                         "Failed to load FPL data",
                         size=20,
@@ -224,12 +217,11 @@ class DashboardPage:
                     ),
                     ft.Text(
                         "Please check your internet connection and try again",
-                        color=ft.colors.GREY_400
+                        color="grey400"
                     ),
                     ft.ElevatedButton(
                         "Retry",
-                        icon=ft.icons.REFRESH,
-                        on_click=lambda _: self.build()
+                        on_click=self.app.refresh_data
                     ),
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,

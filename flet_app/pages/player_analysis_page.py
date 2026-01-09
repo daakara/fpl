@@ -4,7 +4,10 @@ Search, filter, and analyze players
 """
 
 import flet as ft
-from utils.data_service import FPLDataService
+try:
+    from ..utils.data_service import FPLDataService
+except ImportError:
+    from utils.data_service import FPLDataService
 
 
 class PlayerAnalysisPage:
@@ -56,7 +59,7 @@ class PlayerAnalysisPage:
         # Search field
         search_field = ft.TextField(
             label="Search players",
-            prefix_icon=ft.icons.SEARCH,
+            prefix_icon="search",
             on_change=self._on_search_change,
             expand=True,
         )
@@ -95,7 +98,7 @@ class PlayerAnalysisPage:
                     ft.Container(
                         content=ft.Column(
                             controls=[
-                                ft.Text("Max Price", size=12, color=ft.colors.GREY_400),
+                                ft.Text("Max Price", size=12, color="grey400"),
                                 price_slider,
                             ],
                             spacing=0,
@@ -122,8 +125,8 @@ class PlayerAnalysisPage:
             return ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.SEARCH_OFF, size=64, color=ft.colors.GREY_400),
-                        ft.Text("No players found", size=18, color=ft.colors.GREY_400),
+                        ft.Icon("search_off", size=64, color="grey400"),
+                        ft.Text("No players found", size=18, color="grey400"),
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -146,17 +149,7 @@ class PlayerAnalysisPage:
         # Pagination controls
         pagination = ft.Row(
             controls=[
-                ft.IconButton(
-                    icon=ft.icons.CHEVRON_LEFT,
-                    disabled=self.current_page == 0,
-                    on_click=lambda _: self._previous_page()
-                ),
                 ft.Text(f"{self.current_page + 1} / {total_pages}"),
-                ft.IconButton(
-                    icon=ft.icons.CHEVRON_RIGHT,
-                    disabled=self.current_page >= total_pages - 1,
-                    on_click=lambda _: self._next_page()
-                ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
         )
@@ -168,7 +161,7 @@ class PlayerAnalysisPage:
                         content=ft.Text(
                             f"{total_players} players found",
                             size=14,
-                            color=ft.colors.GREY_400
+                            color="grey400"
                         ),
                         padding=ft.padding.only(left=16, right=16, bottom=8)
                     ),
@@ -206,7 +199,7 @@ class PlayerAnalysisPage:
                                 ft.Text(
                                     f"{position} • £{player.get('now_cost', 0) / 10:.1f}m",
                                     size=12,
-                                    color=ft.colors.GREY_400
+                                    color="grey400"
                                 ),
                             ],
                             spacing=2,
@@ -232,7 +225,7 @@ class PlayerAnalysisPage:
         """Create a stat row"""
         return ft.Row(
             controls=[
-                ft.Text(label, size=11, color=ft.colors.GREY_400),
+                ft.Text(label, size=11, color="grey400"),
                 ft.Text(value, size=14, weight=ft.FontWeight.BOLD),
             ],
             spacing=8,
