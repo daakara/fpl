@@ -62,6 +62,7 @@ try:
     from views.advanced_analysis_page import AdvancedAnalysisPage
     from views.advanced_analytics_page_enhanced import AdvancedAnalyticsPage as EnhancedAnalyticsPage
     from views.learning_resources_page import LearningResourcesPage
+    from views.injury_transfer_page import InjuryTransferPage
     PAGES_AVAILABLE = True
 except ImportError as e:
     print(f"Some page modules not available: {e}")
@@ -411,6 +412,19 @@ class RefactoredFPLApp:
                 
         elif selected_page == "Market Intelligence":
             self._render_market_intelligence_page(data)
+        
+        elif selected_page == "Injury & Transfers":
+            if PAGES_AVAILABLE:
+                try:
+                    injury_transfer_page = InjuryTransferPage()
+                    injury_transfer_page.render()
+                except Exception as e:
+                    st.warning(f"Injury & Transfers page error: {e}")
+                    self._render_fallback_page("Injury & Transfers", "⚕️ **Injury & Transfer Centre**",
+                                             "Latest injury news and transfer updates from Premier League")
+            else:
+                self._render_fallback_page("Injury & Transfers", "⚕️ **Injury & Transfer Centre**",
+                                         "Latest injury news and transfer updates from Premier League")
         
         elif selected_page == "Learning Resources":
             if PAGES_AVAILABLE:

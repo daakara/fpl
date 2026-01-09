@@ -23,6 +23,7 @@ class NavigationService:
             "Price Changes",
             "Live Data",
             "Market Intelligence",
+            "Injury & Transfers",
             "Learning Resources"
         ]
         
@@ -37,6 +38,7 @@ class NavigationService:
             "cash-coin",
             "broadcast",
             "bar-chart-fill",
+            "hospital",
             "book-fill"
         ]
     

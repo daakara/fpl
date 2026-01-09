@@ -8,6 +8,8 @@ import requests
 from typing import Dict, List, Optional
 import logging
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +26,19 @@ class ExternalDataIntegratorService:
     def __init__(self):
         """Initialize the external data integrator"""
         self.injury_data_cache = None
+        self.transfer_data_cache = None
         self.cache_timestamp = None
         self.cache_duration = timedelta(hours=1)  # Cache for 1 hour
+        self.injury_url = "https://www.premierleague.com/en/latest-player-injuries"
+        self.transfer_url = "https://www.premierleague.com/en/transfers"
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
     
     def get_injury_news(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Get injury and fitness news for players
+        Enhanced with real Premier League injury data
         
         Args:
             df: Player dataframe
@@ -38,6 +47,36 @@ class ExternalDataIntegratorService:
             DataFrame with enhanced injury information
         """
         df = df.copy()
+        
+        # Fetch real injury data from Premier League
+        try:
+            pl_injuries = self.fetch_premier_league_injuries()
+            
+            # Create a mapping of player names to injury info
+            injury_map = {}
+            for injury in pl_injuries:
+                injury_map[injury['player_name'].lower()] = injury
+            
+            # Add Premier League injury data to dataframe
+            df['pl_injury_status'] = None
+            df['pl_expected_return'] = None
+            
+            if 'web_name' in df.columns:
+                for idx, row in df.iterrows():
+                    player_name = str(row['web_name']).lower()
+                    # Try exact match first
+                    if player_name in injury_map:
+                        df.at[idx, 'pl_injury_status'] = injury_map[player_name]['injury_status']
+                        df.at[idx, 'pl_expected_return'] = injury_map[player_name]['expected_return']
+                    else:
+                        # Try partial match (last name)
+                        for inj_name in injury_map.keys():
+                            if player_name in inj_name or inj_name in player_name:
+                                df.at[idx, 'pl_injury_status'] = injury_map[inj_name]['injury_status']
+                                df.at[idx, 'pl_expected_return'] = injury_map[inj_name]['expected_return']
+                                break
+        except Exception as e:
+            logger.warning(f"Could not fetch Premier League injury data: {e}")
         
         # Use FPL API data as primary source
         # Enhance with derived metrics
@@ -66,6 +105,11 @@ class ExternalDataIntegratorService:
             df.loc[df['status'] == 'i', 'injury_risk_score'] += 7  # Injured
             df.loc[df['status'] == 's', 'injury_risk_score'] += 10  # Suspended
             df.loc[df['status'] == 'u', 'injury_risk_score'] += 8  # Unavailable
+        
+        # Factor 5: Premier League official injury status
+        if 'pl_injury_status' in df.columns:
+            has_pl_injury = df['pl_injury_status'].notna()
+            df.loc[has_pl_injury, 'injury_risk_score'] += 5
         
         # Categorize injury risk
         df['injury_risk_category'] = 'Low'
@@ -114,7 +158,186 @@ class ExternalDataIntegratorService:
         
         return alerts
     
-    def get_press_conference_insights(self) -> List[Dict]:
+    def fetch_premier_league_injuries(self) -> List[Dict]:
+        """
+        Fetch real injury data from Premier League website
+        
+        Returns:
+            List of injury dictionaries with player name, team, and status
+        """
+        # Check cache first
+        if self.injury_data_cache and self.cache_timestamp:
+            if datetime.now() - self.cache_timestamp < self.cache_duration:
+                logger.info("Returning cached injury data")
+                return self.injury_data_cache
+        
+        try:
+            logger.info(f"Fetching injury data from {self.injury_url}")
+            response = requests.get(self.injury_url, headers=self.headers, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            injuries = []
+            
+            # Parse the injury table
+            # The structure may vary, so we'll use multiple approaches
+            
+            # Approach 1: Look for injury table/list
+            injury_items = soup.find_all(['tr', 'div'], class_=re.compile('injury|player-status', re.I))
+            
+            for item in injury_items:
+                try:
+                    player_name = None
+                    team_name = None
+                    injury_status = None
+                    expected_return = None
+                    
+                    # Extract player name
+                    name_elem = item.find(['span', 'div', 'a'], class_=re.compile('player.*name', re.I))
+                    if name_elem:
+                        player_name = name_elem.get_text(strip=True)
+                    
+                    # Extract team name
+                    team_elem = item.find(['span', 'div'], class_=re.compile('team', re.I))
+                    if team_elem:
+                        team_name = team_elem.get_text(strip=True)
+                    
+                    # Extract injury status
+                    status_elem = item.find(['span', 'div'], class_=re.compile('status|injury', re.I))
+                    if status_elem:
+                        injury_status = status_elem.get_text(strip=True)
+                    
+                    # Extract expected return date
+                    return_elem = item.find(['span', 'div'], class_=re.compile('return|date', re.I))
+                    if return_elem:
+                        expected_return = return_elem.get_text(strip=True)
+                    
+                    if player_name:
+                        injuries.append({
+                            'player_name': player_name,
+                            'team': team_name or 'Unknown',
+                            'injury_status': injury_status or 'Injured',
+                            'expected_return': expected_return or 'TBD',
+                            'source': 'Premier League Official',
+                            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M')
+                        })
+                except Exception as e:
+                    logger.debug(f"Error parsing injury item: {e}")
+                    continue
+            
+            # Cache the results
+            if injuries:
+                self.injury_data_cache = injuries
+                self.cache_timestamp = datetime.now()
+                logger.info(f"Successfully fetched {len(injuries)} injury records")
+            else:
+                logger.warning("No injury data found - check website structure")
+                # Return empty list but don't cache
+                
+            return injuries
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch injury data: {e}")
+            # Return cached data if available, otherwise empty list
+            return self.injury_data_cache if self.injury_data_cache else []
+        except Exception as e:
+            logger.error(f"Error parsing injury data: {e}")
+            return self.injury_data_cache if self.injury_data_cache else []
+    
+    def fetch_premier_league_transfers(self) -> List[Dict]:
+        """
+        Fetch real transfer data from Premier League website
+        
+        Returns:
+            List of transfer dictionaries with player, clubs, and transfer details
+        """
+        # Check cache first
+        if self.transfer_data_cache and self.cache_timestamp:
+            if datetime.now() - self.cache_timestamp < self.cache_duration:
+                logger.info("Returning cached transfer data")
+                return self.transfer_data_cache
+        
+        try:
+            logger.info(f"Fetching transfer data from {self.transfer_url}")
+            response = requests.get(self.transfer_url, headers=self.headers, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            transfers = []
+            
+            # Parse the transfer table
+            transfer_items = soup.find_all(['tr', 'div'], class_=re.compile('transfer', re.I))
+            
+            for item in transfer_items:
+                try:
+                    player_name = None
+                    from_club = None
+                    to_club = None
+                    transfer_type = None
+                    transfer_fee = None
+                    transfer_date = None
+                    
+                    # Extract player name
+                    name_elem = item.find(['span', 'div', 'a'], class_=re.compile('player.*name', re.I))
+                    if name_elem:
+                        player_name = name_elem.get_text(strip=True)
+                    
+                    # Extract clubs
+                    club_elems = item.find_all(['span', 'div'], class_=re.compile('club|team', re.I))
+                    if len(club_elems) >= 2:
+                        from_club = club_elems[0].get_text(strip=True)
+                        to_club = club_elems[1].get_text(strip=True)
+                    elif len(club_elems) == 1:
+                        to_club = club_elems[0].get_text(strip=True)
+                    
+                    # Extract transfer type (loan, permanent, etc.)
+                    type_elem = item.find(['span', 'div'], class_=re.compile('type', re.I))
+                    if type_elem:
+                        transfer_type = type_elem.get_text(strip=True)
+                    
+                    # Extract transfer fee
+                    fee_elem = item.find(['span', 'div'], class_=re.compile('fee|price', re.I))
+                    if fee_elem:
+                        transfer_fee = fee_elem.get_text(strip=True)
+                    
+                    # Extract transfer date
+                    date_elem = item.find(['span', 'div', 'time'], class_=re.compile('date', re.I))
+                    if date_elem:
+                        transfer_date = date_elem.get_text(strip=True)
+                    
+                    if player_name:
+                        transfers.append({
+                            'player_name': player_name,
+                            'from_club': from_club or 'Unknown',
+                            'to_club': to_club or 'Unknown',
+                            'transfer_type': transfer_type or 'Permanent',
+                            'transfer_fee': transfer_fee or 'Undisclosed',
+                            'transfer_date': transfer_date or 'Recent',
+                            'source': 'Premier League Official',
+                            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M')
+                        })
+                except Exception as e:
+                    logger.debug(f"Error parsing transfer item: {e}")
+                    continue
+            
+            # Cache the results
+            if transfers:
+                self.transfer_data_cache = transfers
+                self.cache_timestamp = datetime.now()
+                logger.info(f"Successfully fetched {len(transfers)} transfer records")
+            else:
+                logger.warning("No transfer data found - check website structure")
+                
+            return transfers
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch transfer data: {e}")
+            return self.transfer_data_cache if self.transfer_data_cache else []
+        except Exception as e:
+            logger.error(f"Error parsing transfer data: {e}")
+            return self.transfer_data_cache if self.transfer_data_cache else []
+    
+    def get_injury_news(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Get simulated press conference insights
         (In production, this would scrape from official sources)
